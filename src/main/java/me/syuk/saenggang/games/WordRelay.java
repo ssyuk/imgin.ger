@@ -13,10 +13,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 import static me.syuk.saenggang.Main.properties;
 
@@ -30,11 +28,10 @@ public class WordRelay {
         return playerWordRelayMap.containsKey(player.getIdAsString());
     }
 
-    public static WordRelay start(User player) {
+    public static void start(User player) {
         WordRelay wordRelay = new WordRelay();
         wordRelay.player = player.getIdAsString();
         playerWordRelayMap.put(player.getIdAsString(), wordRelay);
-        return wordRelay;
     }
 
     public static boolean isValidWord(String word) {
@@ -50,25 +47,27 @@ public class WordRelay {
         }
     }
 
-    public JsonObject getNextWord(String word) {
+    public Word getNextWord(String word) {
         try {
             String apiUrl = "https://opendict.korean.go.kr/api/search?key=" + properties.getProperty("DICT_API_KEY") + "&req_type=json" +
                     "&pos=1&method=start&type1=word&type3=general&num=100&advanced=y&letter_s=2&sort=popular&q=" + word.charAt(word.length() - 1);
             URL url = new URL(apiUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             JsonArray item = JsonParser.parseReader(new InputStreamReader(connection.getInputStream())).getAsJsonObject().getAsJsonObject("channel").getAsJsonArray("item");
+            List<Word> validWords = new ArrayList<>();
             for (JsonElement element : item) {
                 JsonObject object = element.getAsJsonObject();
                 String nextWord = object.get("word").getAsString();
                 if (nextWord.length() < 2) continue;
                 if (nextWord.contains("-")) continue;
                 if (usedWords.contains(nextWord)) continue;
-                return object;
+                validWords.add(new Word(nextWord, object.getAsJsonArray("sense").get(0).getAsJsonObject().get("definition").getAsString()));
             }
+            if (validWords.isEmpty()) return null;
+            return validWords.get(new Random().nextInt(validWords.size()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return null;
     }
 
     public void inputWord(String word) {
@@ -86,5 +85,8 @@ public class WordRelay {
                 .setFooter("생강이 by syuk")
 
         );
+    }
+
+    public record Word(String word, String meaning) {
     }
 }
