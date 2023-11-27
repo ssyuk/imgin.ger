@@ -45,16 +45,14 @@ public class GamblingCommand implements Command {
             int index = numbers.indexOf(number);
             switch (index) {
                 case 0 -> {
-                    replyMessage.reply("\uD83C\uDF89 축하해요! `\uD83E\uDE99" + coins * 2 + "`을 얻었어요! (2배)");
+                    replyMessage.reply("\uD83C\uDF89 축하해요! `\uD83E\uDE99" + coins + "`을 얻었어요! (2배)");
                     DBManager.giveCoin(account, coins);
                 }
                 case 1, 2 -> {
-                    replyMessage.reply("\uD83C\uDF89 축하해요! `\uD83E\uDE99" + (int) (coins * 1.5) + "`을 얻었어요! (1.5배)");
+                    replyMessage.reply("\uD83C\uDF89 축하해요! `\uD83E\uDE99" + (int) (coins * 0.5) + "`을 얻었어요! (1.5배)");
                     DBManager.giveCoin(account, (int) (coins * .5));
                 }
-                case 3, 4, 5 -> {
-                    replyMessage.reply("코인을 그대로 돌려받았어요! (1배)");
-                }
+                case 3, 4, 5 -> replyMessage.reply("코인을 그대로 돌려받았어요! (1배)");
                 case 6, 7 -> {
                     replyMessage.reply("\uD83D\uDC94 `\uD83E\uDE99" + (int) (coins * .3) + "`을 잃었어요ㅠ (0.7배)");
                     DBManager.giveCoin(account, (int) -(coins * .3));
