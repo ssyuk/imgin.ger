@@ -1,6 +1,7 @@
 package me.syuk.saenggang;
 
 import me.syuk.saenggang.commands.*;
+import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.activity.ActivityType;
@@ -23,7 +24,9 @@ public class Main {
         Command.commands.add(new ForgetCommand());
         Command.commands.add(new WordRelayCommand());
         Command.commands.add(new AttendanceCommand());
-        Command.commands.add(new PointCommand());
+        Command.commands.add(new CoinCommand());
+        Command.commands.add(new RankingCommand());
+        Command.commands.add(new QuizCommand());
 
         DBManager.connect();
 
@@ -31,7 +34,8 @@ public class Main {
                 .setToken(properties.getProperty("BOT_TOKEN"))
                 .setWaitForServersOnStartup(false)
                 .addIntents(Intent.MESSAGE_CONTENT)
-                .login().join();
+                .login()
+                .whenComplete((discordApi, throwable) -> System.out.println("Logged in as " + discordApi.getYourself().getName())).join();
 
         api.updateActivity(ActivityType.LISTENING, "뉴진스의 하입보이");
 

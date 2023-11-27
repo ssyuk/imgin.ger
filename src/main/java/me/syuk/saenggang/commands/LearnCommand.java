@@ -1,8 +1,8 @@
 package me.syuk.saenggang.commands;
 
-import me.syuk.saenggang.Account;
-import me.syuk.saenggang.DBManager;
-import me.syuk.saenggang.SaenggangKnown;
+import me.syuk.saenggang.db.Account;
+import me.syuk.saenggang.db.DBManager;
+import me.syuk.saenggang.db.SaenggangKnown;
 import org.javacord.api.entity.message.Message;
 
 import java.util.concurrent.ExecutionException;

@@ -1,6 +1,6 @@
 package me.syuk.saenggang.commands;
 
-import me.syuk.saenggang.Account;
+import me.syuk.saenggang.db.Account;
 import org.javacord.api.entity.message.Message;
 
 import java.util.ArrayList;

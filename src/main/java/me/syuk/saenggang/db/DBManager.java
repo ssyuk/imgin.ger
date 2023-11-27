@@ -1,18 +1,16 @@
-package me.syuk.saenggang;
+package me.syuk.saenggang.db;
 
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.ServerApi;
 import com.mongodb.ServerApiVersion;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.*;
 import org.bson.Document;
 import org.javacord.api.entity.user.User;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 
 import static me.syuk.saenggang.Main.properties;
 
@@ -69,27 +67,35 @@ public class DBManager {
         messageCollection.deleteOne(document);
     }
 
-    public static Account getAccount(User user) {
-        Document document = accountCollection.find(new Document("userId", user.getIdAsString())).first();
+    public static Document getUserDocument(String userId) {
+        Document document = accountCollection.find(new Document("userId", userId)).first();
         if (document == null) {
-            accountCollection.insertOne(new Document("userId", user.getIdAsString()).append("point", 0));
-            return new Account(user.getIdAsString(), 0);
+            accountCollection.insertOne(new Document("userId", userId).append("coin", 0));
+            document = accountCollection.find(new Document("userId", userId)).first();
+        }
+        return document;
+    }
+
+    public static Account getAccount(User user) {
+        Document document = getUserDocument(user.getIdAsString());
+        if (document == null) {
+            accountCollection.insertOne(new Document("userId", user.getIdAsString()).append("coin", 0));
+            return new Account(user.getIdAsString());
         }
 
         return new Account(
-                document.getString("userId"),
-                document.getInteger("point")
+                document.getString("userId")
         );
     }
 
-    public static void givePoint(Account account, int point) {
+    public static void giveCoin(Account account, int coin) {
         Document document = accountCollection.find(new Document("userId", account.userId())).first();
         if (document == null) {
-            accountCollection.insertOne(new Document("userId", account.userId()).append("point", 0));
+            accountCollection.insertOne(new Document("userId", account.userId()).append("coin", 0));
             document = accountCollection.find(new Document("userId", account.userId())).first();
         }
 
-        accountCollection.updateOne(new Document("userId", account.userId()), new Document("$set", new Document("point", document.getInteger("point") + point)));
+        accountCollection.updateOne(new Document("userId", account.userId()), new Document("$set", new Document("coin", document.getInteger("coin") + coin)));
     }
 
     public static boolean isAttended(Account account) {
@@ -97,29 +103,45 @@ public class DBManager {
 
         Document document = attendanceCollection.find(new Document("userId", account.userId())).first();
         if (document == null) {
-            attendanceCollection.insertOne(
-                    new Document("userId", account.userId())
-                            .append("attendMap", new ArrayList<>())
-            );
+            attendanceCollection.insertOne(new Document("userId", account.userId()));
             return false;
         }
 
-        return document.getList("attendMap", String.class).contains(now.toString());
+        return document.containsKey(now.toString()) && document.getBoolean(now.toString());
     }
 
-    public static void attend(Account account) {
+    public static int attend(Account account) {
         LocalDate now = LocalDate.now();
 
         Document document = attendanceCollection.find(new Document("userId", account.userId())).first();
         if (document == null) {
-            attendanceCollection.insertOne(
-                    new Document("userId", account.userId())
-                            .append("attendMap", new Document())
-            );
+            attendanceCollection.insertOne(new Document("userId", account.userId()));
             document = attendanceCollection.find(new Document("userId", account.userId())).first();
         }
 
-        document.getList("attendMap", String.class).add(now.toString());
+        document.append(now.toString(), true);
         attendanceCollection.updateOne(new Document("userId", account.userId()), new Document("$set", document));
+
+        int ranking = 0;
+        for (Document doc : attendanceCollection.find()) {
+            if (doc.containsKey(now.toString()) && doc.getBoolean(now.toString())) ranking++;
+        }
+
+        return ranking;
+    }
+
+    public static int getCoin(String userId) {
+        return getUserDocument(userId).getInteger("coin");
+    }
+
+    public static List<CoinRank> getCoinRanking() {
+        List<CoinRank> ranking = new ArrayList<>();
+
+        FindIterable<Document> documents = accountCollection.find().sort(new Document("coin", -1));
+        for (Document document : documents) {
+            int coin = document.getInteger("coin");
+            ranking.add(new CoinRank(document.getString("userId"), coin));
+        }
+        return ranking;
     }
 }
