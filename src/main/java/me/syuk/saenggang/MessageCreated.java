@@ -7,7 +7,11 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.listener.message.MessageCreateListener;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MessageCreated implements MessageCreateListener {
     @Override
@@ -60,16 +64,28 @@ public class MessageCreated implements MessageCreateListener {
         if (!content.startsWith("생강아 ")) return;
         content = content.substring(4);
 
-        String[] args = content.split(" ");
-        Command command = Command.findCommand(args[0]);
+        List<String> args = new ArrayList<>();
+        Pattern regex = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'");
+        Matcher regexMatcher = regex.matcher(content);
+        while (regexMatcher.find()) {
+            if (regexMatcher.group(1) != null) {
+                args.add(regexMatcher.group(1));
+            } else if (regexMatcher.group(2) != null) {
+                args.add(regexMatcher.group(2));
+            } else {
+                args.add(regexMatcher.group());
+            }
+        }
+        Command command = Command.findCommand(args.get(0));
         if (command != null) {
-            command.execute(user, args, message);
+            command.execute(user, args.toArray(String[]::new), message);
             return;
         }
 
         SaenggangKnown known = DBManager.getKnown(content);
         if (known == null) {
-            message.reply("그런 명령어는 없어요!");
+            message.reply("ㄴ네..? 뭐라구요?\n" +
+                    "`생강아 배워 [명령어] [메시지]`로 알려주세요!");
             return;
         }
 

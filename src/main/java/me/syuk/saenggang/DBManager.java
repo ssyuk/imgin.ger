@@ -32,7 +32,7 @@ public class DBManager {
     }
 
     public static SaenggangKnown getKnown(String command) {
-        Document document = messageCollection.find(new Document("command", command)).first();
+        Document document = messageCollection.find(new Document("question", command)).first();
         if (document == null) return null;
 
         return new SaenggangKnown(
