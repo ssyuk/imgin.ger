@@ -1,18 +1,16 @@
 package me.syuk.saenggang.commands;
 
 import me.syuk.saenggang.Account;
-import me.syuk.saenggang.games.WordRelay;
 import org.javacord.api.entity.message.Message;
 
-public class WordRelayCommand implements Command {
+public class PointCommand implements Command{
     @Override
     public String name() {
-        return "끝말잇기";
+        return "포인트";
     }
 
     @Override
     public void execute(Account account, String[] args, Message message) {
-        WordRelay.start(account);
-        message.reply("좋아요. 먼저 시작하세요!");
+        message.reply("지금 당신의 포인트는 `\uD83E\uDE99" + account.point() + "`입니다!");
     }
 }

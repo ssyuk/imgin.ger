@@ -17,10 +17,13 @@ public class MessageCreated implements MessageCreateListener {
     @Override
     public void onMessageCreate(MessageCreateEvent event) {
         User user = event.getMessageAuthor().asUser().orElseThrow();
+
+        Account account = DBManager.getAccount(user);
+
         String content = event.getMessageContent();
         Message message = event.getMessage();
 
-        if (WordRelay.isPlaying(user)) {
+        if (WordRelay.isPlaying(account)) {
             String finalContent = content;
             CompletableFuture.runAsync(() -> {
                 Message thinking = message.reply("생각중이에요...").join();
@@ -78,7 +81,7 @@ public class MessageCreated implements MessageCreateListener {
         }
         Command command = Command.findCommand(args.get(0));
         if (command != null) {
-            command.execute(user, args.toArray(String[]::new), message);
+            command.execute(account, args.toArray(String[]::new), message);
             return;
         }
 

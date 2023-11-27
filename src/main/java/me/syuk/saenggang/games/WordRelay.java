@@ -4,9 +4,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import me.syuk.saenggang.Account;
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.user.User;
 
 import java.awt.*;
 import java.io.IOException;
@@ -24,14 +24,14 @@ public class WordRelay {
     public String lastWord = "";
     public List<String> usedWords = new ArrayList<>();
 
-    public static boolean isPlaying(User player) {
-        return playerWordRelayMap.containsKey(player.getIdAsString());
+    public static boolean isPlaying(Account player) {
+        return playerWordRelayMap.containsKey(player.userId());
     }
 
-    public static void start(User player) {
+    public static void start(Account player) {
         WordRelay wordRelay = new WordRelay();
-        wordRelay.player = player.getIdAsString();
-        playerWordRelayMap.put(player.getIdAsString(), wordRelay);
+        wordRelay.player = player.userId();
+        playerWordRelayMap.put(player.userId(), wordRelay);
     }
 
     public static boolean isValidWord(String word) {
