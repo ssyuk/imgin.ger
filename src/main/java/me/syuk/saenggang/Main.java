@@ -1,5 +1,9 @@
 package me.syuk.saenggang;
 
+import me.syuk.saenggang.commands.Command;
+import me.syuk.saenggang.commands.ForgetCommand;
+import me.syuk.saenggang.commands.LearnCommand;
+import me.syuk.saenggang.commands.WordRelayCommand;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.activity.ActivityType;
@@ -17,6 +21,10 @@ public class Main {
     public static void main(String[] args) throws IOException {
         properties = new Properties();
         properties.load(Files.newBufferedReader(Paths.get(".properties")));
+
+        Command.commands.add(new LearnCommand());
+        Command.commands.add(new ForgetCommand());
+        Command.commands.add(new WordRelayCommand());
 
         DBManager.connect();
 
