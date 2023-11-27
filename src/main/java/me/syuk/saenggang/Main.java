@@ -26,7 +26,7 @@ public class Main {
         Command.commands.add(new AttendanceCommand());
         Command.commands.add(new CoinCommand());
         Command.commands.add(new RankingCommand());
-        Command.commands.add(new QuizCommand());
+        Command.commands.add(new ChosungQuizCommand());
 
         DBManager.connect();
 

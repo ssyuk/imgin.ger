@@ -29,13 +29,11 @@ public class DBManager {
                 .serverApi(serverApi)
                 .build();
 
-        try (MongoClient mongoClient = MongoClients.create(settings)) {
-            MongoDatabase saenggangDB = mongoClient.getDatabase("saenggang");
-            messageCollection = saenggangDB.getCollection("message");
-            accountCollection = saenggangDB.getCollection("account");
-            attendanceCollection = saenggangDB.getCollection("attendance");
-        }
-
+        MongoClient mongoClient = MongoClients.create(settings);
+        MongoDatabase saenggangDB = mongoClient.getDatabase("saenggang");
+        messageCollection = saenggangDB.getCollection("message");
+        accountCollection = saenggangDB.getCollection("account");
+        attendanceCollection = saenggangDB.getCollection("attendance");
     }
 
     public static SaenggangKnown getKnown(String command) {
@@ -78,15 +76,7 @@ public class DBManager {
     }
 
     public static Account getAccount(User user) {
-        Document document = getUserDocument(user.getIdAsString());
-        if (document == null) {
-            accountCollection.insertOne(new Document("userId", user.getIdAsString()).append("coin", 0));
-            return new Account(user.getIdAsString());
-        }
-
-        return new Account(
-                document.getString("userId")
-        );
+        return new Account(getUserDocument(user.getIdAsString()).getString("userId"));
     }
 
     public static void giveCoin(Account account, int coin) {

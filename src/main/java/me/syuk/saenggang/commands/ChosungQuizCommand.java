@@ -2,17 +2,20 @@ package me.syuk.saenggang.commands;
 
 import me.syuk.saenggang.MessageCreated;
 import me.syuk.saenggang.db.Account;
+import org.javacord.api.entity.channel.ServerThreadChannel;
+import org.javacord.api.entity.channel.ServerThreadChannelBuilder;
 import org.javacord.api.entity.message.Message;
 
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class QuizCommand implements Command {
+public class ChosungQuizCommand implements Command {
     @Override
     public String name() {
-        return "퀴즈내줘";
+        return "초성퀴즈";
     }
 
     String getInitialSound(String text) {
@@ -39,34 +42,44 @@ public class QuizCommand implements Command {
 
     @Override
     public void execute(Account account, String[] args, Message message) {
+        ServerThreadChannel channel =  new ServerThreadChannelBuilder(message, "생강이와 초성퀴즈")
+                .create().join();
+
         AtomicReference<ChosungQuiz.QuizWord> word = new AtomicReference<>(ChosungQuiz.getRandomWord());
-        message.reply("초성퀴즈 내드릴게요! 무슨 단어일까요?\n" +
+        channel.sendMessage("초성퀴즈 내드릴게요! 무슨 단어일까요?\n" +
                 "# " + getInitialSound(word.get().word()) + "\n" +
                 "힌트: __**" + word.get().theme() + "**__\n");
 
         AtomicInteger count = new AtomicInteger();
         MessageCreated.replyListener.put(account, replyMessage -> {
-            if (replyMessage.getContent().equals("그만")) {
-                replyMessage.reply("초성퀴즈를 종료합니다.");
-                MessageCreated.replyListener.remove(account);
-                return;
-            }
+            if (replyMessage.getChannel().getId() != channel.getId()) return;
 
-            if (replyMessage.getContent().equals(word.get().word())) {
-                replyMessage.reply("정답입니다! 축하드려요!");
-                if (count.incrementAndGet() % 5 == 0) {
-                    account.giveCoin(replyMessage.getChannel(), 1, "연속 정답 횟수가 " + count.get() + "회가 되서");
+            CompletableFuture.runAsync(() -> {
+                if (replyMessage.getContent().equals("그만")) {
+                    channel.sendMessage("초성퀴즈를 종료합니다.");
+                    MessageCreated.replyListener.remove(account);
+                    channel.removeThreadMember(Long.parseLong(account.userId()));
+                    channel.leaveThread();
+                    channel.delete();
+                    return;
                 }
-                word.set(ChosungQuiz.getRandomWord());
-                replyMessage.reply("다음 문제를 내드릴게요! (연속 정답: " + count.get() + "회)\n" +
-                        "# " + getInitialSound(word.get().word()) + "\n" +
-                        "힌트: __**" + word.get().theme() + "**__\n" +
-                        "그만하고 싶으시면 `그만`이라고 말해주세요!");
-            } else {
-                count.set(0);
-                replyMessage.reply("틀렸어요! 연속 정답 횟수가 초기화되었습니다. 다시 시도해보세요!\n" +
-                        "그만하고 싶으시면 `그만`이라고 말해주세요!");
-            }
+
+                if (replyMessage.getContent().equals(word.get().word())) {
+                    channel.sendMessage("정답입니다! 축하드려요!");
+                    if (count.incrementAndGet() % 10 == 0) {
+                        account.giveCoin(replyMessage.getChannel(), 1, "연속 정답 횟수가 " + count.get() + "회가 되서");
+                    }
+                    word.set(ChosungQuiz.getRandomWord());
+                    channel.sendMessage("다음 문제를 내드릴게요! (연속 정답: " + count.get() + "회)\n" +
+                            "# " + getInitialSound(word.get().word()) + "\n" +
+                            "힌트: __**" + word.get().theme() + "**__\n" +
+                            "그만하고 싶으시면 `그만`이라고 말해주세요!");
+                } else {
+                    count.set(0);
+                    channel.sendMessage("틀렸어요! 연속 정답 횟수가 초기화되었습니다. 다시 시도해보세요!\n" +
+                            "그만하고 싶으시면 `그만`이라고 말해주세요!");
+                }
+            });
         });
     }
 

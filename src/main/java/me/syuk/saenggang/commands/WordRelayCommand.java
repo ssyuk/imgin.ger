@@ -6,6 +6,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import me.syuk.saenggang.MessageCreated;
 import me.syuk.saenggang.db.Account;
+import org.javacord.api.entity.channel.ServerThreadChannel;
+import org.javacord.api.entity.channel.ServerThreadChannelBuilder;
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -29,56 +31,72 @@ public class WordRelayCommand implements Command {
 
     @Override
     public void execute(Account account, String[] args, Message message) {
+        ServerThreadChannel channel =  new ServerThreadChannelBuilder(message, "생강이와 끝말잇기")
+                .create().join();
+
         WordRelayCommand.WordRelay.start(account);
-        message.reply("좋아요. 먼저 시작하세요!");
+        channel.sendMessage("좋아요. 먼저 시작하세요!");
 
-        MessageCreated.replyListener.put(account, replyMessage -> CompletableFuture.runAsync(() -> {
-            String content = replyMessage.getContent();
-            Message thinking = replyMessage.reply("생각중이에요...").join();
-            WordRelay game = WordRelay.playerWordRelayMap.get(account.userId());
-            String lastWord = game.lastWord;
-            if (!lastWord.isEmpty()) {
-                char lastChar = lastWord.charAt(lastWord.length() - 1);
-                if (!content.startsWith(String.valueOf(lastChar))) {
-                    thinking.edit("틀렸어요! 제가 이겼네요!");
-                    game.end(replyMessage.getChannel(), false);
+        MessageCreated.replyListener.put(account, replyMessage -> {
+            if (replyMessage.getChannel().getId() != channel.getId()) return;
+
+            CompletableFuture.runAsync(() -> {
+                String content = replyMessage.getContent();
+                Message thinking = channel.sendMessage("생각중이에요...").join();
+                WordRelay game = WordRelay.playerWordRelayMap.get(account.userId());
+                String lastWord = game.lastWord;
+                if (!lastWord.isEmpty()) {
+                    char lastChar = lastWord.charAt(lastWord.length() - 1);
+                    if (!content.startsWith(String.valueOf(lastChar))) {
+                        thinking.edit("틀렸어요! 제가 이겼네요!");
+                        game.end(channel, false);
+                        MessageCreated.replyListener.remove(account);
+                        channel.removeThreadMember(Long.parseLong(account.userId()));
+                        channel.leaveThread();
+                        channel.delete();
+                        return;
+                    }
+                } else {
+                    if (game.getNextWord(content) == null) {
+                        thinking.edit("시작할땐 한방단어를 사용할 수 없어요. 다른 단어를 입력해주세요!");
+                        return;
+                    }
+                }
+
+                if (content.length() == 1) {
+                    thinking.edit("한 글자는 너무 짧아요! 다른 단어를 입력해주세요!");
+                    return;
+                } else if (content.contains(" ")) {
+                    thinking.edit("띄어쓰기는 안돼요! 다른 단어를 입력해주세요!");
+                    return;
+                } else if (game.usedWords.contains(content)) {
+                    thinking.edit("이미 나온 단어에요! 다른 단어를 입력해주세요!");
+                    return;
+                } else if (!WordRelay.isValidWord(content)) {
+                    thinking.edit("사전에 없는 단어에요! 제가 이겼네요!");
+                    game.end(channel, false);
                     MessageCreated.replyListener.remove(account);
+                    channel.removeThreadMember(Long.parseLong(account.userId()));
+                    channel.leaveThread();
+                    channel.delete();
                     return;
                 }
-            } else {
-                if (game.getNextWord(content) == null) {
-                    thinking.edit("시작할땐 한방단어를 사용할 수 없어요. 다른 단어를 입력해주세요!");
+                game.inputWord(content);
+                WordRelay.Word nextWord = game.getNextWord(content);
+                if (nextWord == null) {
+                    thinking.edit("더이상 생각나는게 없어요.. <@" + account.userId() + ">님이 이겼네요!");
+                    game.end(channel, true);
+                    MessageCreated.replyListener.remove(account);
+                    channel.removeThreadMember(Long.parseLong(account.userId()));
+                    channel.leaveThread();
+                    channel.delete();
                     return;
                 }
-            }
-
-            if (content.length() == 1) {
-                thinking.edit("한 글자는 너무 짧아요! 다른 단어를 입력해주세요!");
-                return;
-            } else if (content.contains(" ")) {
-                thinking.edit("띄어쓰기는 안돼요! 다른 단어를 입력해주세요!");
-                return;
-            } else if (game.usedWords.contains(content)) {
-                thinking.edit("이미 나온 단어에요! 다른 단어를 입력해주세요!");
-                return;
-            } else if (!WordRelay.isValidWord(content)) {
-                thinking.edit("사전에 없는 단어에요! 제가 이겼네요!");
-                game.end(replyMessage.getChannel(), false);
-                MessageCreated.replyListener.remove(account);
-                return;
-            }
-            game.inputWord(content);
-            WordRelay.Word nextWord = game.getNextWord(content);
-            if (nextWord == null) {
-                thinking.edit("더이상 생각나는게 없어요.. <@" + account.userId() + ">님이 이겼네요!");
-                game.end(replyMessage.getChannel(), true);
-                MessageCreated.replyListener.remove(account);
-                return;
-            }
-            game.inputWord(nextWord.word());
-            thinking.edit("좋아요. `" + nextWord.word() + "`!\n뜻: " + nextWord.meaning() + "\n" +
-                    "__**" + nextWord.word().charAt(nextWord.word().length() - 1) + "**__(으)로 시작하는 단어를 입력해주세요!");
-        }));
+                game.inputWord(nextWord.word());
+                thinking.edit("좋아요. `" + nextWord.word() + "`!\n뜻: " + nextWord.meaning() + "\n" +
+                        "__**" + nextWord.word().charAt(nextWord.word().length() - 1) + "**__(으)로 시작하는 단어를 입력해주세요!");
+            });
+        });
     }
 
     public static class WordRelay {
