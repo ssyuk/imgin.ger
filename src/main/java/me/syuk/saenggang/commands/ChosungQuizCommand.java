@@ -42,7 +42,7 @@ public class ChosungQuizCommand implements Command {
 
     @Override
     public void execute(Account account, String[] args, Message message) {
-        ServerThreadChannel channel =  new ServerThreadChannelBuilder(message, "생강이와 초성퀴즈")
+        ServerThreadChannel channel = new ServerThreadChannelBuilder(message, "생강이와 초성퀴즈")
                 .create().join();
 
         AtomicReference<ChosungQuiz.QuizWord> word = new AtomicReference<>(ChosungQuiz.getRandomWord());
@@ -66,7 +66,9 @@ public class ChosungQuizCommand implements Command {
 
                 if (replyMessage.getContent().equals(word.get().word())) {
                     channel.sendMessage("정답입니다! 축하드려요!");
-                    if (count.incrementAndGet() % 10 == 0) {
+                    if (count.get() == 100) {
+                        account.giveCoin(replyMessage.getChannel(), 5, "100회 연속 정답을 맞춰서");
+                    } else if (count.incrementAndGet() % 5 == 0) {
                         account.giveCoin(replyMessage.getChannel(), 1, "연속 정답 횟수가 " + count.get() + "회가 되서");
                     }
                     word.set(ChosungQuiz.getRandomWord());

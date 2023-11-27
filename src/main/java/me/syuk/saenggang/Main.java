@@ -27,6 +27,7 @@ public class Main {
         Command.commands.add(new CoinCommand());
         Command.commands.add(new RankingCommand());
         Command.commands.add(new ChosungQuizCommand());
+        Command.commands.add(new GamblingCommand());
 
         DBManager.connect();
 
