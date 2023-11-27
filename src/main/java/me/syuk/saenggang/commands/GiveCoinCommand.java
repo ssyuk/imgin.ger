@@ -13,12 +13,12 @@ public class GiveCoinCommand implements Command {
 
     @Override
     public void execute(Account account, String[] args, Message message) {
-        if (api.getUserById(account.userId()).join().isBotOwner()) {
+        if (message.getAuthor().isBotOwner()) {
             if (args.length != 3) {
-                message.reply("지급 명령어는 `지급 [유저] [코인]` 형식으로 사용해주세요!");
+                message.reply("지급 명령어는 `지급 [@유저] [코인]` 형식으로 사용해주세요!");
                 return;
             }
-            String userId = args[1];
+            String userId = args[1].replace("<@", "").replace(">", "");
             int count = Integer.parseInt(args[2]);
             Account target = new Account(userId);
             target.giveCoin(message.getChannel(), count);
