@@ -29,11 +29,12 @@ public class DBManager {
                 .serverApi(serverApi)
                 .build();
 
-        MongoClient mongoClient = MongoClients.create(settings);
-        MongoDatabase saenggangDB = mongoClient.getDatabase("saenggang");
-        messageCollection = saenggangDB.getCollection("message");
-        accountCollection = saenggangDB.getCollection("account");
-        attendanceCollection = saenggangDB.getCollection("attendance");
+        try (MongoClient mongoClient = MongoClients.create(settings)) {
+            MongoDatabase saenggangDB = mongoClient.getDatabase("saenggang");
+            messageCollection = saenggangDB.getCollection("message");
+            accountCollection = saenggangDB.getCollection("account");
+            attendanceCollection = saenggangDB.getCollection("attendance");
+        }
 
     }
 
@@ -93,6 +94,7 @@ public class DBManager {
         if (document == null) {
             accountCollection.insertOne(new Document("userId", account.userId()).append("coin", 0));
             document = accountCollection.find(new Document("userId", account.userId())).first();
+            assert document != null;
         }
 
         accountCollection.updateOne(new Document("userId", account.userId()), new Document("$set", new Document("coin", document.getInteger("coin") + coin)));
@@ -117,6 +119,16 @@ public class DBManager {
         if (document == null) {
             attendanceCollection.insertOne(new Document("userId", account.userId()));
             document = attendanceCollection.find(new Document("userId", account.userId())).first();
+            assert document != null;
+        }
+
+        if (isAttended(account)) return -1;
+
+        for (String key : document.keySet()) {
+            if (key.equals("userId")) continue;
+            if (key.equals("_id")) continue;
+            if (key.equals(now.toString())) continue;
+            document.remove(key);
         }
 
         document.append(now.toString(), true);
