@@ -40,7 +40,7 @@ public class MessageCreated implements MessageCreateListener {
                     "`생강아 [할말]`로 저에게 말을 걸 수 있어요.\n" +
                     "`생강아 배워 [명령어] [메시지]`로 저에게 말을 가르칠 수 있어요!"
                 + (account.coin() == 0 ? "\n앞으로 저와 재미있게 놀아봐요!" : ""));
-            account.giveCoin(message.getChannel(), 5);
+            if (account.coin() == 0) account.giveCoin(message.getChannel(), 5, "첫 사용자 보상으로");
             return;
         }
         if (!content.startsWith("생강아 ")) return;
