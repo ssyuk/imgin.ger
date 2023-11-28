@@ -17,6 +17,11 @@ public class GamblingCommand implements Command {
 
     @Override
     public void execute(Account account, String[] args, Message message) {
+        if (args.length != 2) {
+            message.reply("도박 명령어는 `도박 [걸 코인]` 형식으로 사용해주세요!");
+            return;
+        }
+
         int coins = Integer.parseInt(args[1]);
         if (account.coin() < coins) {
             message.reply("코인이 부족해요!");
