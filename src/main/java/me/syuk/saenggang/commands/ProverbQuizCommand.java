@@ -90,7 +90,7 @@ public class ProverbQuizCommand implements Command {
             new Proverb("열 길 물속은 알아도/'한' 길 '사람 속'은 '모른'다", "사람의 마음은 알아내기가 어렵다는 뜻"),
             new Proverb("열 번 찍어/아니 '넘어가는' '나무' '없다'", "여러 번 계속해서 애쓰면 어떤 일이라도 이룰 수 있다는 뜻"),
             new Proverb("오뉴월 감기는/'개'도 '아니' '앓'는다", "여름철에 감기 걸린 사람을 조롱하는 말"),
-            new Proverb("오르지 못할 나무는/'쳐다'보지도 '말아'라", "될 수 없는 일은 바라지도 말라는 뜻"),
+            new Proverb("오르지 못할 나무는/'쳐다'보지도 '말'아라", "될 수 없는 일은 바라지도 말라는 뜻"),
             new Proverb("옥에/'티'", "아무리 좋아도 한 가지 결점은 있다는 말"),
             new Proverb("우물에 가서/'숭늉' '찾'는다", "일의 순서도 모르고 성급하게 덤빈다는 뜻"),
             new Proverb("울며/'겨자' 먹기", "싫은 일을 좋은 척하고 억지로 하지 않을 수 없는 경우를 나타내는 말"),
@@ -171,9 +171,7 @@ public class ProverbQuizCommand implements Command {
                     channel.sendMessage("정답입니다! 축하드려요!\n" +
                             "**" + proverb.get().proverb().replace('/', ' ').replace("'", "") + "**: " + proverb.get().description());
                     count.incrementAndGet();
-                    if (count.get() % 10 == 0) {
-                        account.giveCoin(replyMessage.getChannel(), 5, count.get() + "회 연속 정답을 맞춰서");
-                    } else if (count.get() % 5 == 0) {
+                    if (count.get() % 5 == 0) {
                         account.giveCoin(replyMessage.getChannel(), 2, "연속 정답 횟수가 " + count.get() + "회가 되서");
                     }
                 } else {
