@@ -27,13 +27,8 @@ public class LearnCommand implements Command{
             String authorName = api.getUserById(account.userId()).get().getName();
             String authorId = account.userId();
 
-            if (DBManager.getKnown(question) != null) {
-                message.reply("이미 알고있어요..");
-                return;
-            }
-
             DBManager.addKnown(new SaenggangKnown(question, answer, authorName, authorId));
-            message.reply("알겟ㅅ슴미다ㅋ `" + question + "`은 `" + answer + "`라거하라구배웟떠요");
+            message.reply("알겠습니다! `" + question + "`은 `" + answer + "`라고 배웠어요.");
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }

@@ -11,6 +11,7 @@ import org.javacord.api.entity.user.User;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import static me.syuk.saenggang.Main.properties;
 
@@ -37,9 +38,13 @@ public class DBManager {
     }
 
     public static SaenggangKnown getKnown(String command) {
-        Document document = messageCollection.find(new Document("question", command)).first();
-        if (document == null) return null;
+        FindIterable<Document> documents = messageCollection.find(new Document("question", command));
+        if (documents.first() == null) return null;
 
+        List<Document> documentList = new ArrayList<>();
+        for (Document document1 : documents) documentList.add(document1);
+
+        Document document = documentList.get(new Random().nextInt(documentList.size()));
         return new SaenggangKnown(
                 document.getString("question"),
                 document.getString("answer"),
@@ -63,7 +68,7 @@ public class DBManager {
                 .append("authorName", message.authorName())
                 .append("authorId", message.authorId());
 
-        messageCollection.deleteOne(document);
+        messageCollection.deleteMany(document);
     }
 
     public static Document getUserDocument(String userId) {
@@ -145,5 +150,20 @@ public class DBManager {
             ranking.add(new CoinRank(document.getString("userId"), coin));
         }
         return ranking;
+    }
+
+    public static List<SaenggangKnown> getKnows() {
+        List<SaenggangKnown> knows = new ArrayList<>();
+
+        FindIterable<Document> documents = messageCollection.find();
+        for (Document document : documents) {
+            knows.add(new SaenggangKnown(
+                    document.getString("question"),
+                    document.getString("answer"),
+                    document.getString("authorName"),
+                    document.getString("authorId")
+            ));
+        }
+        return knows;
     }
 }
