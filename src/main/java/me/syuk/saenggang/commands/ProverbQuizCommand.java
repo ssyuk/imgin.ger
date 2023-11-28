@@ -140,7 +140,6 @@ public class ProverbQuizCommand implements Command {
         ServerThreadChannel channel = new ServerThreadChannelBuilder(message, "생강이와 속담퀴즈").create().join();
 
         AtomicReference<Proverb> proverb = new AtomicReference<>(PROVERB_LIST.get((int) (Math.random() * PROVERB_LIST.size())));
-        System.out.println(proverb.get().proverb());
         AtomicReference<String> prov = new AtomicReference<>(proverb.get().proverb().split("/")[0]);
         AtomicReference<String> answer = new AtomicReference<>(proverb.get().proverb().split("/")[1]);
         channel.sendMessage("속담퀴즈 내드릴게요! 다음중 밑줄에 들어갈 말을 입력해주세요!\n" +
