@@ -17,7 +17,6 @@ import static me.syuk.saenggang.Main.properties;
 public class DBManager {
     private static MongoCollection<Document> messageCollection;
     private static MongoCollection<Document> accountCollection;
-    private static MongoCollection<Document> attendanceCollection;
 
     public static void connect() {
         String connectionString = "mongodb+srv://syuk:" + properties.getProperty("DB_PASSWORD") + "@saenggang.dm5clne.mongodb.net/?retryWrites=true&w=majority";
@@ -33,7 +32,6 @@ public class DBManager {
         MongoDatabase saenggangDB = mongoClient.getDatabase("saenggang");
         messageCollection = saenggangDB.getCollection("message");
         accountCollection = saenggangDB.getCollection("account");
-        attendanceCollection = saenggangDB.getCollection("attendance");
     }
 
     public static List<SaenggangKnowledge> getKnowledge(String command) {
@@ -95,44 +93,32 @@ public class DBManager {
 
     public static boolean isAttended(Account account) {
         LocalDate now = LocalDate.now();
-
-        Document document = attendanceCollection.find(new Document("userId", account.userId())).first();
-        if (document == null) {
-            attendanceCollection.insertOne(new Document("userId", account.userId()));
-            return false;
-        }
-
-        return document.containsKey(now.toString()) && document.getBoolean(now.toString());
+        Document document = getUserDocument(account.userId());
+        return document.containsKey("latestAttendance") && document.getString("latestAttendance").equals(now.toString());
     }
+    public record AttendStatus(int ranking, int streak) {}
 
-    public static int attend(Account account) {
+    public static AttendStatus attend(Account account) {
         LocalDate now = LocalDate.now();
+        LocalDate yesterday = LocalDate.now().minusDays(1);
 
-        Document document = attendanceCollection.find(new Document("userId", account.userId())).first();
-        if (document == null) {
-            attendanceCollection.insertOne(new Document("userId", account.userId()));
-            document = attendanceCollection.find(new Document("userId", account.userId())).first();
-            assert document != null;
+        Document document = getUserDocument(account.userId());
+        if (isAttended(account)) return new AttendStatus(0, 0);
+
+        if (document.containsKey("latestAttendance") && document.getString("latestAttendance").equals(yesterday.toString())) {
+            document.put("attendanceStreak", document.getInteger("attendanceStreak", 0) + 1);
+        } else {
+            document.put("attendanceStreak", 1);
         }
-
-        if (isAttended(account)) return -1;
-
-        for (String key : document.keySet()) {
-            if (key.equals("userId")) continue;
-            if (key.equals("_id")) continue;
-            if (key.equals(now.toString())) continue;
-            document.remove(key);
-        }
-
-        document.append(now.toString(), true);
-        attendanceCollection.updateOne(new Document("userId", account.userId()), new Document("$set", document));
+        document.put("latestAttendance", now.toString());
+        accountCollection.updateOne(new Document("userId", account.userId()), new Document("$set", document));
 
         int ranking = 0;
-        for (Document doc : attendanceCollection.find()) {
-            if (doc.containsKey(now.toString()) && doc.getBoolean(now.toString())) ranking++;
+        for (Document doc : accountCollection.find()) {
+            if (doc.containsKey("latestAttendance") && doc.getString("latestAttendance").equals(now.toString())) ranking++;
         }
 
-        return ranking;
+        return new AttendStatus(ranking, document.getInteger("attendanceStreak", 1));
     }
 
     public static int getCoin(String userId) {

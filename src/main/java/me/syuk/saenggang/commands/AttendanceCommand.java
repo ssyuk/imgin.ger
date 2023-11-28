@@ -17,11 +17,11 @@ public class AttendanceCommand implements Command {
             return;
         }
 
-        int ranking = DBManager.attend(account);
-        message.reply("\uD83D\uDDF3️ " + ranking + "등으로 출석했어요!");
-        if (ranking == 1) account.giveCoin(message.getChannel(), 8, "출석 1등 보상으로");
-        else if (ranking == 2) account.giveCoin(message.getChannel(), 5, "출석 2등 보상으로");
-        else if (ranking == 3) account.giveCoin(message.getChannel(), 3, "출석 3등 보상으로");
+        DBManager.AttendStatus status = DBManager.attend(account);
+        message.reply("\uD83D\uDDF3️ " + status.ranking() + "등으로 출석했어요! (현재 연속출석 " + status.streak() + "일)");
+        if (status.ranking() == 1) account.giveCoin(message.getChannel(), 8, "출석 1등 보상으로");
+        else if (status.ranking() == 2) account.giveCoin(message.getChannel(), 5, "출석 2등 보상으로");
+        else if (status.ranking() == 3) account.giveCoin(message.getChannel(), 3, "출석 3등 보상으로");
         else account.giveCoin(message.getChannel(), 1, "출석 보상으로");
     }
 }
