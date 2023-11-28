@@ -164,9 +164,7 @@ public class ProverbQuizCommand implements Command {
                 if (replyMessage.getContent().equals("그만")) {
                     channel.sendMessage("속담퀴즈를 종료합니다.");
                     MessageCreated.replyListener.remove(account);
-                    channel.removeThreadMember(Long.parseLong(account.userId()));
-                    channel.leaveThread();
-                    channel.delete();
+                    channel.createUpdater().setArchivedFlag(true).update();
                     return;
                 } else if (replyMessage.getContent().equals("스킵")) {
                     channel.sendMessage("**정답: " + answer.get().replace('/', ' ').replace("'", "") + "**");

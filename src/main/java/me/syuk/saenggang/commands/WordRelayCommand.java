@@ -51,9 +51,7 @@ public class WordRelayCommand implements Command {
                         thinking.edit("틀렸어요! 제가 이겼네요!");
                         game.end(channel, false);
                         MessageCreated.replyListener.remove(account);
-                        channel.removeThreadMember(Long.parseLong(account.userId()));
-                        channel.leaveThread();
-                        channel.delete();
+                        channel.createUpdater().setArchivedFlag(true).update();
                         return;
                     }
                 } else {
@@ -76,9 +74,7 @@ public class WordRelayCommand implements Command {
                     thinking.edit("사전에 없는 단어에요! 제가 이겼네요!");
                     game.end(channel, false);
                     MessageCreated.replyListener.remove(account);
-                    channel.removeThreadMember(Long.parseLong(account.userId()));
-                    channel.leaveThread();
-                    channel.delete();
+                    channel.createUpdater().setArchivedFlag(true).update();
                     return;
                 }
                 game.inputWord(content);
@@ -87,9 +83,7 @@ public class WordRelayCommand implements Command {
                     thinking.edit("더이상 생각나는게 없어요.. <@" + account.userId() + ">님이 이겼네요!");
                     game.end(channel, true);
                     MessageCreated.replyListener.remove(account);
-                    channel.removeThreadMember(Long.parseLong(account.userId()));
-                    channel.leaveThread();
-                    channel.delete();
+                    channel.createUpdater().setArchivedFlag(true).update();
                     return;
                 }
                 game.inputWord(nextWord.word());

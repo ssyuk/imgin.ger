@@ -58,9 +58,7 @@ public class ChosungQuizCommand implements Command {
                 if (replyMessage.getContent().equals("그만")) {
                     channel.sendMessage("초성퀴즈를 종료합니다.");
                     MessageCreated.replyListener.remove(account);
-                    channel.removeThreadMember(Long.parseLong(account.userId()));
-                    channel.leaveThread();
-                    channel.delete();
+                    channel.createUpdater().setArchivedFlag(true).update();
                     return;
                 }
 
