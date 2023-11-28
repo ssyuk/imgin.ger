@@ -11,7 +11,6 @@ import org.javacord.api.entity.user.User;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import static me.syuk.saenggang.Main.properties;
 
@@ -37,23 +36,22 @@ public class DBManager {
         attendanceCollection = saenggangDB.getCollection("attendance");
     }
 
-    public static SaenggangKnown getKnown(String command) {
+    public static List<SaenggangKnowledge> getKnowledge(String command) {
         FindIterable<Document> documents = messageCollection.find(new Document("question", command));
-        if (documents.first() == null) return null;
 
-        List<Document> documentList = new ArrayList<>();
-        for (Document document1 : documents) documentList.add(document1);
-
-        Document document = documentList.get(new Random().nextInt(documentList.size()));
-        return new SaenggangKnown(
-                document.getString("question"),
-                document.getString("answer"),
-                document.getString("authorName"),
-                document.getString("authorId")
-        );
+        List<SaenggangKnowledge> knowledge = new ArrayList<>();
+        for (Document document : documents) {
+            knowledge.add(new SaenggangKnowledge(
+                    document.getString("question"),
+                    document.getString("answer"),
+                    document.getString("authorName"),
+                    document.getString("authorId")
+            ));
+        }
+        return knowledge;
     }
 
-    public static void addKnown(SaenggangKnown message) {
+    public static void addKnowledge(SaenggangKnowledge message) {
         Document document = new Document("question", message.question())
                 .append("answer", message.answer())
                 .append("authorName", message.authorName())
@@ -62,7 +60,7 @@ public class DBManager {
         messageCollection.insertOne(document);
     }
 
-    public static void removeKnown(SaenggangKnown message) {
+    public static void removeKnowledge(SaenggangKnowledge message) {
         Document document = new Document("question", message.question())
                 .append("answer", message.answer())
                 .append("authorName", message.authorName())
@@ -150,20 +148,5 @@ public class DBManager {
             ranking.add(new CoinRank(document.getString("userId"), coin));
         }
         return ranking;
-    }
-
-    public static List<SaenggangKnown> getKnows() {
-        List<SaenggangKnown> knows = new ArrayList<>();
-
-        FindIterable<Document> documents = messageCollection.find();
-        for (Document document : documents) {
-            knows.add(new SaenggangKnown(
-                    document.getString("question"),
-                    document.getString("answer"),
-                    document.getString("authorName"),
-                    document.getString("authorId")
-            ));
-        }
-        return knows;
     }
 }

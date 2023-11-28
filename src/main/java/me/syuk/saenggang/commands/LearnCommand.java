@@ -2,7 +2,7 @@ package me.syuk.saenggang.commands;
 
 import me.syuk.saenggang.db.Account;
 import me.syuk.saenggang.db.DBManager;
-import me.syuk.saenggang.db.SaenggangKnown;
+import me.syuk.saenggang.db.SaenggangKnowledge;
 import org.javacord.api.entity.message.Message;
 
 import java.util.concurrent.ExecutionException;
@@ -27,7 +27,7 @@ public class LearnCommand implements Command{
             String authorName = api.getUserById(account.userId()).get().getName();
             String authorId = account.userId();
 
-            DBManager.addKnown(new SaenggangKnown(question, answer, authorName, authorId));
+            DBManager.addKnowledge(new SaenggangKnowledge(question, answer, authorName, authorId));
             message.reply("알겠습니다! `" + question + "`은 `" + answer + "`라고 배웠어요.");
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);

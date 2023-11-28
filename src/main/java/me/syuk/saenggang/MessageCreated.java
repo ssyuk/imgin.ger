@@ -3,7 +3,7 @@ package me.syuk.saenggang;
 import me.syuk.saenggang.commands.Command;
 import me.syuk.saenggang.db.Account;
 import me.syuk.saenggang.db.DBManager;
-import me.syuk.saenggang.db.SaenggangKnown;
+import me.syuk.saenggang.db.SaenggangKnowledge;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 
 public class MessageCreated implements MessageCreateListener {
     public static Map<Account, ReplyCallback> replyListener = new HashMap<>();
+
     @Override
     public void onMessageCreate(MessageCreateEvent event) {
         User user = event.getMessageAuthor().asUser().orElseThrow();
@@ -55,14 +56,34 @@ public class MessageCreated implements MessageCreateListener {
             return;
         }
 
-        SaenggangKnown known = DBManager.getKnown(content);
-        if (known == null) {
+        List<SaenggangKnowledge> knowledge = DBManager.getKnowledge(content);
+
+        if (knowledge.isEmpty()) {
             message.reply("ㄴ네..? 뭐라구요?\n" +
                     "`생강아 배워 [명령어] [메시지]`로 알려주세요!");
             return;
         }
 
-        message.reply(known.answer() + "\n" +
-                "`" + known.authorName() + "님이 알려주셨어요.`");
+        SaenggangKnowledge selectedKnowledge = knowledge.get((int) (Math.random() * knowledge.size()));
+        String answer = fixAnswer(selectedKnowledge, user);
+        message.reply(answer + "\n" +
+                "`" + selectedKnowledge.authorName() + "님이 알려주셨어요.`");
+    }
+
+    private static String fixAnswer(SaenggangKnowledge selectedKnowledge, User user) {
+        String answer = selectedKnowledge.answer();
+        answer = answer.replace("{user}", user.getMentionTag());
+        answer = answer.replace("\u200B", "");
+        answer = answer.replace("`", "");
+        answer = answer.replace("@everyone", "everyone");
+        answer = answer.replace("@here", "here");
+        answer = answer.replace("discord.gg", "discord,gg");
+        answer = answer.replace("discordapp.com/invite", "discordapp,com/invite");
+        answer = answer.replace("discord.com/invite", "discord,com/invite");
+        answer = answer.replace("discord.me", "discord,me");
+        answer = answer.replace("discord.io", "discord,io");
+        answer = answer.replace("discord.gg", "discord,gg");
+        answer = answer.replace("discordapp.com/invite", "discordapp,com/invite");
+        return answer;
     }
 }
