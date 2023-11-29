@@ -1,5 +1,6 @@
 package me.syuk.saenggang.commands;
 
+import app.myoun.headsound.HeadSound;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -17,8 +18,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static me.syuk.saenggang.Main.properties;
@@ -47,7 +50,8 @@ public class WordRelayCommand implements Command {
                 String lastWord = game.lastWord;
                 if (!lastWord.isEmpty()) {
                     char lastChar = lastWord.charAt(lastWord.length() - 1);
-                    if (!content.startsWith(String.valueOf(lastChar))) {
+                    char lastCharWithHeadSound = HeadSound.transform(lastChar);
+                    if (!content.startsWith(String.valueOf(lastChar)) && !content.startsWith(String.valueOf(lastCharWithHeadSound))) {
                         thinking.edit("틀렸어요! 제가 이겼네요!");
                         game.end(channel, false);
                         MessageCreated.replyListener.remove(account);
@@ -55,7 +59,7 @@ public class WordRelayCommand implements Command {
                         return;
                     }
                 } else {
-                    if (game.getNextWord(content) == null) {
+                    if (game.getNextWords(content).isEmpty()) {
                         thinking.edit("시작할땐 한방단어를 사용할 수 없어요. 다른 단어를 입력해주세요!");
                         return;
                     }
@@ -78,7 +82,9 @@ public class WordRelayCommand implements Command {
                     return;
                 }
                 game.inputWord(content);
-                WordRelay.Word nextWord = game.getNextWord(content);
+
+                List<WordRelay.Word> nextWords = game.getNextWords(content);
+                WordRelay.Word nextWord = nextWords.get((int) (Math.random() * nextWords.size()));
                 if (nextWord == null) {
                     thinking.edit("더이상 생각나는게 없어요.. <@" + account.userId() + ">님이 이겼네요!");
                     game.end(channel, true);
@@ -87,8 +93,12 @@ public class WordRelayCommand implements Command {
                     return;
                 }
                 game.inputWord(nextWord.word());
+                char nextChar = nextWord.word().charAt(nextWord.word().length() - 1);
+                char nextCharWithHeadSound = HeadSound.transform(nextChar);
+                String nextCharString = String.valueOf(nextChar);
+                if (nextCharWithHeadSound != nextChar) nextCharString += " 또는 " + nextCharWithHeadSound + "";
                 thinking.edit("좋아요. `" + nextWord.word() + "`!\n뜻: " + nextWord.meaning() + "\n" +
-                        "__**" + nextWord.word().charAt(nextWord.word().length() - 1) + "**__(으)로 시작하는 단어를 입력해주세요!");
+                        "__**" + nextCharString + "**__(으)로 시작하는 단어를 입력해주세요!");
             });
         });
     }
@@ -118,10 +128,11 @@ public class WordRelayCommand implements Command {
             }
         }
 
-        public Word getNextWord(String word) {
+        public List<Word> getNextWords(String word) {
+            char lastChar = word.charAt(word.length() - 1);
             try {
                 String apiUrl = "https://opendict.korean.go.kr/api/search?key=" + properties.getProperty("DICT_API_KEY") + "&req_type=json" +
-                        "&pos=1&method=start&type1=word&type3=general&num=100&advanced=y&letter_s=2&sort=popular&q=" + word.charAt(word.length() - 1);
+                        "&pos=1&method=start&type1=word&type3=general&num=100&advanced=y&letter_s=2&sort=popular&q=" + lastChar;
                 URL url = new URL(apiUrl);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 JsonArray item = JsonParser.parseReader(new InputStreamReader(connection.getInputStream())).getAsJsonObject().getAsJsonObject("channel").getAsJsonArray("item");
@@ -134,8 +145,10 @@ public class WordRelayCommand implements Command {
                     if (usedWords.contains(nextWord)) continue;
                     validWords.add(new Word(nextWord, object.getAsJsonArray("sense").get(0).getAsJsonObject().get("definition").getAsString()));
                 }
-                if (validWords.isEmpty()) return null;
-                return validWords.get(new Random().nextInt(validWords.size()));
+
+                if (HeadSound.transform(lastChar) != lastChar)
+                    validWords.addAll(getNextWords(String.valueOf(HeadSound.transform(lastChar))));
+                return validWords;
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
