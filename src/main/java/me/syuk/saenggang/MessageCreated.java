@@ -85,13 +85,8 @@ public class MessageCreated implements MessageCreateListener {
         answer = answer.replace("`", "");
         answer = answer.replace("@everyone", "everyone");
         answer = answer.replace("@here", "here");
-        answer = answer.replace("discord.gg", "discord,gg");
-        answer = answer.replace("discordapp.com/invite", "discordapp,com/invite");
-        answer = answer.replace("discord.com/invite", "discord,com/invite");
-        answer = answer.replace("discord.me", "discord,me");
-        answer = answer.replace("discord.io", "discord,io");
-        answer = answer.replace("discord.gg", "discord,gg");
-        answer = answer.replace("discordapp.com/invite", "discordapp,com/invite");
+        answer = answer.replaceAll("(https?:\\/\\/(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|https?:\\/\\/(?:www\\.|(?!www))[a-zA-Z0-9]+\\.[^\\s]{2,}|www\\.[a-zA-Z0-9]+\\.[^\\s]{2,})",
+                "`링크`");
         return answer;
     }
 }
