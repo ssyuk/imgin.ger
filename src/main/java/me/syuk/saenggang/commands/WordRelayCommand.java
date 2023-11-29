@@ -6,9 +6,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import me.syuk.saenggang.MessageCreated;
+import me.syuk.saenggang.Utils;
 import me.syuk.saenggang.db.Account;
 import org.javacord.api.entity.channel.ServerThreadChannel;
-import org.javacord.api.entity.channel.ServerThreadChannelBuilder;
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -34,8 +34,7 @@ public class WordRelayCommand implements Command {
 
     @Override
     public void execute(Account account, String[] args, Message message) {
-        ServerThreadChannel channel =  new ServerThreadChannelBuilder(message, "생강이와 끝말잇기")
-                .create().join();
+        ServerThreadChannel channel = Utils.createGameThread(message, "끝말잇기");
 
         WordRelayCommand.WordRelay.start(account);
         channel.sendMessage("좋아요. 먼저 시작하세요!");
@@ -96,7 +95,7 @@ public class WordRelayCommand implements Command {
                 char nextChar = nextWord.word().charAt(nextWord.word().length() - 1);
                 char nextCharWithHeadSound = HeadSound.transform(nextChar);
                 String nextCharString = String.valueOf(nextChar);
-                if (nextCharWithHeadSound != nextChar) nextCharString += " 또는 " + nextCharWithHeadSound + "";
+                if (nextCharWithHeadSound != nextChar) nextCharString += " 또는 " + nextCharWithHeadSound;
                 thinking.edit("좋아요. `" + nextWord.word() + "`!\n뜻: " + nextWord.meaning() + "\n" +
                         "__**" + nextCharString + "**__(으)로 시작하는 단어를 입력해주세요!");
             });

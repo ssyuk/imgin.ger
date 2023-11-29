@@ -1,9 +1,9 @@
 package me.syuk.saenggang.commands;
 
 import me.syuk.saenggang.MessageCreated;
+import me.syuk.saenggang.Utils;
 import me.syuk.saenggang.db.Account;
 import org.javacord.api.entity.channel.ServerThreadChannel;
-import org.javacord.api.entity.channel.ServerThreadChannelBuilder;
 import org.javacord.api.entity.message.Message;
 
 import java.util.ArrayList;
@@ -99,7 +99,7 @@ public class ProverbQuizCommand implements Command {
             new Proverb("윗물이 맑아야/'아랫물'도 '맑'다", "윗사람이 잘못하면 아랫사람도 따라서 잘못하게 된다는 뜻"),
             new Proverb("자라 보고 놀란 가슴/'솥뚜껑' '보고' '놀란'다", "무엇에 한 번 혼난 사람이 그와 비슷한 것만 보아도 깜짝 놀란다는 말"),
             new Proverb("자랄 나무는/'떡잎'부터 '알아본'다", "앞으로 크게 될 사람은 어려서부터 장래성이 엿보인 다는 말,"),
-            new Proverb("작은 고추가/'더 맵다'", "겉으로는 대수롭지 않게 보이는 사람이 하는 일이 더 다부지다는 뜻"),
+            new Proverb("작은 고추가/더 '맵다'", "겉으로는 대수롭지 않게 보이는 사람이 하는 일이 더 다부지다는 뜻"),
             new Proverb("종로에서 뺨 맞고/'한강' 가서 '눈 흘긴'다", "욕을 당한 자리에서는 아무 말도 못 하고  딴 데 가서 화풀이를 한다는 뜻"),
             new Proverb("좋은 약은/'입에 쓰'다", "듣기 싫고 귀에 거슬리는 말이라도 제 인격 수양에는 이롭다는 뜻"),
             new Proverb("쥐구멍에도/'볕 들 날'이 '있'다", "아무리 고생만 하는 사람도 운수가 터져 좋은 시기를 만날 때가 있다는 말"),
@@ -137,7 +137,7 @@ public class ProverbQuizCommand implements Command {
 
     @Override
     public void execute(Account account, String[] args, Message message) {
-        ServerThreadChannel channel = new ServerThreadChannelBuilder(message, "생강이와 속담퀴즈").create().join();
+        ServerThreadChannel channel = Utils.createGameThread(message, "속담퀴즈");
 
         AtomicReference<Proverb> proverb = new AtomicReference<>(PROVERB_LIST.get((int) (Math.random() * PROVERB_LIST.size())));
         AtomicReference<String> prov = new AtomicReference<>(proverb.get().proverb().split("/")[0]);
@@ -176,7 +176,7 @@ public class ProverbQuizCommand implements Command {
                     }
                 } else {
                     count.set(0);
-                    channel.sendMessage("틀렸어요! 연속 정답 횟수가 초기화되었습니다. 다시 시도해보세요!\n" + "그만하고 싶으시면 `그만`이라고 말해주세요!");
+                    channel.sendMessage("틀렸어요! 연속 정답 횟수가 초기화되었습니다. 다시 시도해보세요!\n" + "그만하고 싶으시면 `그만`이라고, 스킵하고 싶으시면 `스킵`이라고 말해주세요!");
                     return;
                 }
 

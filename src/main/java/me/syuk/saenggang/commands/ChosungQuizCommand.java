@@ -1,9 +1,9 @@
 package me.syuk.saenggang.commands;
 
 import me.syuk.saenggang.MessageCreated;
+import me.syuk.saenggang.Utils;
 import me.syuk.saenggang.db.Account;
 import org.javacord.api.entity.channel.ServerThreadChannel;
-import org.javacord.api.entity.channel.ServerThreadChannelBuilder;
 import org.javacord.api.entity.message.Message;
 
 import java.util.Map;
@@ -42,8 +42,7 @@ public class ChosungQuizCommand implements Command {
 
     @Override
     public void execute(Account account, String[] args, Message message) {
-        ServerThreadChannel channel = new ServerThreadChannelBuilder(message, "생강이와 초성퀴즈")
-                .create().join();
+        ServerThreadChannel channel = Utils.createGameThread(message, "초성퀴즈");
 
         AtomicReference<ChosungQuiz.QuizWord> word = new AtomicReference<>(ChosungQuiz.getRandomWord());
         channel.sendMessage("초성퀴즈 내드릴게요! 무슨 단어일까요?\n" +
