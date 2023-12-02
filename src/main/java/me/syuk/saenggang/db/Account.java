@@ -12,10 +12,10 @@ public record Account(String userId) {
         if (!reason.isEmpty()) reason += " ";
         if (count > 0) {
             DBManager.giveCoin(this, count);
-            channel.sendMessage("<@" + userId + ">님! " + reason + Utils.displayCoin(count) + "을(를) 받았어요. (현재 코인: " + coin() + ")");
+            channel.sendMessage("<@" + userId + ">님! " + reason + Utils.displayCoin(count) + "을(를) 받았어요. (현재 코인: " + Utils.displayCoin(coin()) + ")");
         } else if (count < 0) {
             DBManager.giveCoin(this, count);
-            channel.sendMessage("<@" + userId + ">님! " + reason + Utils.displayCoin(-count) + "`을(를) 잃었어요. (현재 코인: " + coin() + ")");
+            channel.sendMessage("<@" + userId + ">님! " + reason + Utils.displayCoin(-count) + "을(를) 잃었어요. (현재 코인: " + Utils.displayCoin(coin()) + ")");
         }
     }
 

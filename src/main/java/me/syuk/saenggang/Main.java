@@ -31,6 +31,7 @@ public class Main {
         Command.commands.add(new ChosungQuizCommand());
         Command.commands.add(new GamblingCommand());
         Command.commands.add(new ProverbQuizCommand());
+        Command.commands.add(new KnowledgeCommand());
 
         DBManager.connect();
 

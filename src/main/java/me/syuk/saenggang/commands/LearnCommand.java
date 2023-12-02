@@ -24,7 +24,6 @@ public class LearnCommand implements Command {
                 message.reply(new EmbedBuilder()
                         .setTitle("배워 명령어는 `배워 [명령어] [메시지]` 형식으로 사용해주세요!")
                         .setColor(Color.red)
-                                .setThumbnail("https://cdn.discordapp.com/attachments/819587757000749568/819587779534059274/unknown.png")
                         .setDescription("사용 가능한 파라미터:")
                         .addInlineField("{user.name}", "사용자를 멘션(@)합니다.")
                         .addInlineField("{user.coin}", "사용자의 코인을 표시합니다.")
