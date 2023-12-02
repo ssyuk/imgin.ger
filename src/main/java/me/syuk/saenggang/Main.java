@@ -21,7 +21,7 @@ public class Main {
         properties.load(Files.newBufferedReader(Paths.get(".properties")));
 
         Command.commands.add(new GiveCoinCommand());
-
+        Command.commands.add(new HelpCommand());
         Command.commands.add(new LearnCommand());
         Command.commands.add(new ForgetCommand());
         Command.commands.add(new WordRelayCommand());
