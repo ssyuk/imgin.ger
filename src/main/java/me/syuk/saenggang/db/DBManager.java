@@ -10,7 +10,9 @@ import org.javacord.api.entity.user.User;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static me.syuk.saenggang.Main.properties;
 
@@ -67,6 +69,25 @@ public class DBManager {
         messageCollection.deleteMany(document);
     }
 
+    public static Map<String, List<SaenggangKnowledge>> getKnowledgeList() {
+        FindIterable<Document> documents = messageCollection.find();
+
+        Map<String, List<SaenggangKnowledge>> knowledgeList = new HashMap<>();
+        for (Document document : documents) {
+            List<SaenggangKnowledge> knowledge = new ArrayList<>();
+            String question = document.getString("question");
+            String answer = document.getString("answer");
+            String authorName = document.getString("authorName");
+            String authorId = document.getString("authorId");
+
+            SaenggangKnowledge message = new SaenggangKnowledge(question, answer, authorName, authorId);
+            knowledge.add(message);
+
+            knowledgeList.put(question, knowledge);
+        }
+        return knowledgeList;
+    }
+
     public static Document getUserDocument(String userId) {
         Document document = accountCollection.find(new Document("userId", userId)).first();
         if (document == null) {
@@ -96,7 +117,6 @@ public class DBManager {
         Document document = getUserDocument(account.userId());
         return document.containsKey("latestAttendance") && document.getString("latestAttendance").equals(now.toString());
     }
-    public record AttendStatus(int ranking, int streak) {}
 
     public static AttendStatus attend(Account account) {
         LocalDate now = LocalDate.now();
@@ -115,7 +135,8 @@ public class DBManager {
 
         int ranking = 0;
         for (Document doc : accountCollection.find()) {
-            if (doc.containsKey("latestAttendance") && doc.getString("latestAttendance").equals(now.toString())) ranking++;
+            if (doc.containsKey("latestAttendance") && doc.getString("latestAttendance").equals(now.toString()))
+                ranking++;
         }
 
         return new AttendStatus(ranking, document.getInteger("attendanceStreak", 1));
@@ -134,5 +155,8 @@ public class DBManager {
             ranking.add(new CoinRank(document.getString("userId"), coin));
         }
         return ranking;
+    }
+
+    public record AttendStatus(int ranking, int streak) {
     }
 }

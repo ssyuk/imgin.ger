@@ -31,7 +31,8 @@ public class ForgetCommand implements Command {
         }
 
         List<SaenggangKnowledge> knowledgeByUser = new ArrayList<>();
-        for (SaenggangKnowledge known : knowledge)
+        if (message.getAuthor().isBotOwner()) knowledgeByUser.addAll(knowledge);
+        else for (SaenggangKnowledge known : knowledge)
             if (known.authorId().equals(account.userId())) knowledgeByUser.add(known);
 
         if (knowledgeByUser.isEmpty()) {
@@ -43,15 +44,21 @@ public class ForgetCommand implements Command {
                 .setTitle("어떤걸 잊게 하실 건가요?")
                 .setDescription("이곳에 잊게할 명령어의 번호를 입력해주세요!");
 
+        embed.addField("0번", "*취소*");
         for (int i = 0; i < knowledgeByUser.size(); i++) {
             SaenggangKnowledge known = knowledgeByUser.get(i);
-            embed.addField(i + 1 + "번", known.answer());
+            embed.addField(i + 1 + "번" + (!known.authorId().equals(account.userId()) ? "*" : ""), MessageCreated.fixAnswer(known, account));
         }
         message.reply(embed);
 
         MessageCreated.replyListener.put(account, (msg) -> {
             try {
                 int index = Integer.parseInt(msg.getContent()) - 1;
+                if (index == -1) {
+                    msg.reply("취소되었어요!");
+                    MessageCreated.replyListener.remove(account);
+                    return;
+                }
                 SaenggangKnowledge known = knowledgeByUser.get(index);
                 DBManager.removeKnowledge(known);
                 msg.reply("알겠습니다! `" + known.question() + "`을(를) 잊었어요.");

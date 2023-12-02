@@ -73,18 +73,21 @@ public class MessageCreated implements MessageCreateListener {
         }
 
         SaenggangKnowledge selectedKnowledge = knowledge.get((int) (Math.random() * knowledge.size()));
-        String answer = fixAnswer(selectedKnowledge, user);
+        String answer = fixAnswer(selectedKnowledge, account);
         message.reply(answer + "\n" +
                 "`" + selectedKnowledge.authorName() + "님이 알려주셨어요.`");
     }
 
-    private static String fixAnswer(SaenggangKnowledge selectedKnowledge, User user) {
+    public static String fixAnswer(SaenggangKnowledge selectedKnowledge, Account account) {
         String answer = selectedKnowledge.answer();
-        answer = answer.replace("{user}", user.getMentionTag());
+        answer = answer.replace("{user.name}", "<@" + account.userId() + ">");
+        answer = answer.replace("{user.coin}", String.valueOf(account.coin()));
+        answer = answer.replace("{user.displayCoin}", Utils.displayCoin(account.coin()));
+
         answer = answer.replace("\u200B", "");
         answer = answer.replace("`", "");
-        answer = answer.replace("@everyone", "everyone");
-        answer = answer.replace("@here", "here");
+        answer = answer.replace("@everyone", "@\u200Beveryone");
+        answer = answer.replace("@here", "@\u200Bhere");
         answer = answer.replaceAll("(https?://(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.\\S{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|https?://(?:www\\.|(?!www))[a-zA-Z0-9]+\\.\\S{2,}|www\\.[a-zA-Z0-9]+\\.\\S{2,})",
                 "`링크`");
         return answer;

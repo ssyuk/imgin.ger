@@ -1,5 +1,6 @@
 package me.syuk.saenggang.commands;
 
+import me.syuk.saenggang.Utils;
 import me.syuk.saenggang.db.Account;
 import me.syuk.saenggang.db.DBManager;
 import me.syuk.saenggang.db.CoinRank;
@@ -31,7 +32,7 @@ public class RankingCommand implements Command {
                 case 2 -> "\uD83E\uDD49 ";
                 default -> "";
             };
-            builder.addField(emoji + (i + 1) + "위", "<@" + rank.user() + "> `\uD83E\uDE99" + rank.coin() + "`", false);
+            builder.addField(emoji + (i + 1) + "위", "<@" + rank.user() + "> " + Utils.displayCoin(rank.coin()), false);
         }
 
         message.reply(builder);

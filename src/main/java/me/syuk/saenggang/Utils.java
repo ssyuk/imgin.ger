@@ -11,4 +11,8 @@ public class Utils {
                 .setAutoArchiveDuration(AutoArchiveDuration.ONE_HOUR)
                 .create().join();
     }
+
+    public static String displayCoin(int coin) {
+        return "`\uD83E\uDE99" + coin + "`";
+    }
 }
