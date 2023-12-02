@@ -29,7 +29,7 @@ public class HelpCommand implements Command {
 
             commandMap.putIfAbsent(command.theme(), new ArrayList<>());
             List<String> list = commandMap.get(command.theme());
-            list.add("생강아" + command.name());
+            list.add("`" + command.name() + "`");
             commandMap.put(command.theme(), list);
         }
         commandMap.forEach((theme, strings) -> builder.addInlineField(theme.name(), String.join(", ", strings)));
