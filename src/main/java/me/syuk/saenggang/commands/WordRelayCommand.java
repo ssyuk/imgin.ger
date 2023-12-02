@@ -166,7 +166,7 @@ public class WordRelayCommand implements Command {
                     validWords.add(new Word(nextWord, object.getAsJsonArray("sense").get(0).getAsJsonObject().get("definition").getAsString()));
                 }
 
-                if (HeadSound.transform(lastChar) != lastChar)
+                if (HeadSound.transform(lastChar) != lastChar && validWords.isEmpty())
                     validWords.addAll(getNextWords(String.valueOf(HeadSound.transform(lastChar))));
                 return validWords;
             } catch (IOException e) {
