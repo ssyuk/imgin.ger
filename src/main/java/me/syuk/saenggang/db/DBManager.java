@@ -152,7 +152,7 @@ public class DBManager {
         FindIterable<Document> documents = accountCollection.find().sort(new Document("coin", -1));
         for (Document document : documents) {
             int coin = document.getInteger("coin");
-            ranking.add(new CoinRank(document.getString("userId"), coin));
+            if (coin != 0) ranking.add(new CoinRank(document.getString("userId"), coin));
         }
         return ranking;
     }
