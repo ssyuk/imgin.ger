@@ -41,11 +41,11 @@ public class GamblingCommand implements Command {
                 number = Integer.parseInt(content);
             } catch (NumberFormatException e) {
                 replyMessage.reply("\uD83C\uDFB0 1~10 사이의 숫자를 입력해주세요!");
-                return;
+                return true;
             }
             if (1 > number || number > 10) {
                 replyMessage.reply("\uD83C\uDFB0 1~10 사이의 숫자를 입력해주세요!");
-                return;
+                return true;
             }
 
             int index = numbers.indexOf(number);
@@ -73,6 +73,7 @@ public class GamblingCommand implements Command {
                 }
             }
             MessageCreated.replyListener.remove(account);
+            return true;
         });
     }
 }

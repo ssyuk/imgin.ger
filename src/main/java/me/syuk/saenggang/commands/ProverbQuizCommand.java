@@ -77,7 +77,7 @@ public class ProverbQuizCommand implements Command {
             new Proverb("서당 개 삼 년에/'풍월'을 '읊는'다", "무식한 사람이라도 유식한 사람과 같이 오래 지내면 자연히 견문이 생긴다는 말"),
             new Proverb("세 살 버릇/'여든'까지 '간'다", "어려서부터 좋은 버릇을 들여야 한다는 뜻"),
             new Proverb("소문난 잔치에/'먹을 것' '없'다", "소문난 것이 흔히 실지로는 보잘것없다는 말"),
-            new Proverb("소 잃고/'외양간' '고친'다", "이미 일을 그르치고 난 뒤 뉘어쳐도 소용이 없다는 뜻"),
+            new Proverb("소 잃고/'외양간' '고'친다", "이미 일을 그르치고 난 뒤 뉘어쳐도 소용이 없다는 뜻"),
             new Proverb("소뿔도/'단김'에 '빼라' 했다", "어떤 일을 하려고 생각하였으면 망설이지 알고 곧 행동으로 옮기라는 뜻"),
             new Proverb("수박/'겉핥기'", "내용이나 참뜻은 모르면서 대충 일하는 것을 비유해서 쓰는 말"),
             new Proverb("식은/'죽 먹기'", "어떤 일이 아주 하기 쉽다는 말"),
@@ -148,9 +148,9 @@ public class ProverbQuizCommand implements Command {
 
         AtomicInteger count = new AtomicInteger();
         MessageCreated.replyListener.put(account, replyMessage -> {
-            if (replyMessage.getChannel().getId() != channel.getId()) return;
+            if (replyMessage.getChannel().getId() != channel.getId()) return false;
 
-            CompletableFuture.runAsync(() -> {
+            return CompletableFuture.supplyAsync(() -> {
                 String content = replyMessage.getContent().replace(" ", "");
                 boolean isAnswer = true;
                 for (String extractWordsInQuote : extractWordsInQuotes(answer.get())) {
@@ -164,7 +164,7 @@ public class ProverbQuizCommand implements Command {
                     channel.sendMessage("속담퀴즈를 종료합니다.");
                     MessageCreated.replyListener.remove(account);
                     channel.createUpdater().setArchivedFlag(true).update();
-                    return;
+                    return true;
                 } else if (replyMessage.getContent().equals("스킵")) {
                     channel.sendMessage("**정답: " + answer.get().replace('/', ' ').replace("'", "") + "**");
                 } else if (isAnswer) {
@@ -177,7 +177,7 @@ public class ProverbQuizCommand implements Command {
                 } else {
                     count.set(0);
                     channel.sendMessage("틀렸어요! 연속 정답 횟수가 초기화되었습니다. 다시 시도해보세요!\n" + "그만하고 싶으시면 `그만`이라고, 스킵하고 싶으시면 `스킵`이라고 말해주세요!");
-                    return;
+                    return true;
                 }
 
                 int at = (int) (Math.random() * PROVERB_LIST.size());
@@ -188,7 +188,8 @@ public class ProverbQuizCommand implements Command {
                         "# " + prov + " " + "___\n" +
                         "뜻: **" + proverb.get().description() + "**\n" +
                         "그만하고 싶으시면 `그만`이라고, 스킵하고 싶으시면 `스킵`이라고 말해주세요!");
-            });
+                return true;
+            }).join();
         });
     }
 

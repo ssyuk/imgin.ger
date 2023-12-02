@@ -35,11 +35,6 @@ public class ForgetCommand implements Command {
         else for (SaenggangKnowledge known : knowledge)
             if (known.authorId().equals(account.userId())) knowledgeByUser.add(known);
 
-        if (knowledgeByUser.isEmpty()) {
-            message.reply("알려주신 분만 잊게할 수 있어요!");
-            return;
-        }
-
         EmbedBuilder embed = new EmbedBuilder()
                 .setTitle("어떤걸 잊게 하실 건가요?")
                 .setDescription("이곳에 잊게할 명령어의 번호를 입력해주세요!");
@@ -52,12 +47,20 @@ public class ForgetCommand implements Command {
         message.reply(embed);
 
         MessageCreated.replyListener.put(account, (msg) -> {
+            String content = msg.getContent();
+            if (content.equals("전체") && message.getAuthor().isBotOwner()) {
+                for (SaenggangKnowledge known : knowledge) DBManager.removeKnowledge(known);
+                msg.reply("알겠습니다! `" + question + "`을(를) 전부 잊었어요.");
+                MessageCreated.replyListener.remove(account);
+                return true;
+            }
+
             try {
-                int index = Integer.parseInt(msg.getContent()) - 1;
+                int index = Integer.parseInt(content) - 1;
                 if (index == -1) {
                     msg.reply("취소되었어요!");
                     MessageCreated.replyListener.remove(account);
-                    return;
+                    return true;
                 }
                 SaenggangKnowledge known = knowledgeByUser.get(index);
                 DBManager.removeKnowledge(known);
@@ -68,6 +71,7 @@ public class ForgetCommand implements Command {
             } catch (IndexOutOfBoundsException e) {
                 msg.reply("잘못된 번호에요!");
             }
+            return true;
         });
     }
 }

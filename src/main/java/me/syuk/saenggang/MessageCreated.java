@@ -31,8 +31,7 @@ public class MessageCreated implements MessageCreateListener {
 
         if (replyListener.containsKey(account)) {
             ReplyCallback callback = replyListener.get(account);
-            callback.onReply(message);
-            return;
+            if (callback.onReply(message)) return;
         }
 
         if (content.equals("생강아")) {

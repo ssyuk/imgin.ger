@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import static me.syuk.saenggang.Main.properties;
 
@@ -40,65 +42,79 @@ public class WordRelayCommand implements Command {
         channel.sendMessage("좋아요. 먼저 시작하세요!");
 
         MessageCreated.replyListener.put(account, replyMessage -> {
-            if (replyMessage.getChannel().getId() != channel.getId()) return;
+            if (replyMessage.getChannel().getId() != channel.getId()) return false;
 
-            CompletableFuture.runAsync(() -> {
+            try {
                 String content = replyMessage.getContent();
                 Message thinking = channel.sendMessage("생각중이에요...").join();
                 WordRelay game = WordRelay.playerWordRelayMap.get(account.userId());
                 String lastWord = game.lastWord;
-                if (!lastWord.isEmpty()) {
-                    char lastChar = lastWord.charAt(lastWord.length() - 1);
-                    char lastCharWithHeadSound = HeadSound.transform(lastChar);
-                    if (!content.startsWith(String.valueOf(lastChar)) && !content.startsWith(String.valueOf(lastCharWithHeadSound))) {
-                        thinking.edit("틀렸어요! 제가 이겼네요!");
+
+                boolean result = CompletableFuture.supplyAsync(() -> {
+                    if (!lastWord.isEmpty()) {
+                        char lastChar = lastWord.charAt(lastWord.length() - 1);
+                        char lastCharWithHeadSound = HeadSound.transform(lastChar);
+                        if (!content.startsWith(String.valueOf(lastChar)) && !content.startsWith(String.valueOf(lastCharWithHeadSound))) {
+                            thinking.edit("틀렸어요! 제가 이겼네요!");
+                            game.end(channel, false);
+                            MessageCreated.replyListener.remove(account);
+                            channel.createUpdater().setArchivedFlag(true).update();
+                            return true;
+                        }
+                    } else {
+                        if (game.getNextWords(content).isEmpty()) {
+                            thinking.edit("시작할땐 한방단어를 사용할 수 없어요. 다른 단어를 입력해주세요!");
+                            return true;
+                        }
+                    }
+
+                    if (content.length() == 1) {
+                        thinking.edit("한 글자는 너무 짧아요! 다른 단어를 입력해주세요!");
+                        return true;
+                    } else if (content.contains(" ")) {
+                        thinking.edit("띄어쓰기는 안돼요! 다른 단어를 입력해주세요!");
+                        return true;
+                    } else if (game.usedWords.contains(content)) {
+                        thinking.edit("이미 나온 단어에요! 다른 단어를 입력해주세요!");
+                        return true;
+                    } else if (!WordRelay.isValidWord(content)) {
+                        thinking.edit("사전에 없는 단어에요! 제가 이겼네요!");
                         game.end(channel, false);
                         MessageCreated.replyListener.remove(account);
                         channel.createUpdater().setArchivedFlag(true).update();
-                        return;
+                        return true;
                     }
-                } else {
-                    if (game.getNextWords(content).isEmpty()) {
-                        thinking.edit("시작할땐 한방단어를 사용할 수 없어요. 다른 단어를 입력해주세요!");
-                        return;
+                    game.inputWord(content);
+
+                    List<WordRelay.Word> nextWords = game.getNextWords(content);
+                    if (nextWords.isEmpty()) {
+                        thinking.edit("더이상 생각나는게 없어요.. <@" + account.userId() + ">님이 이겼네요!");
+                        game.end(channel, true);
+                        MessageCreated.replyListener.remove(account);
+                        channel.createUpdater().setArchivedFlag(true).update();
+                        return true;
                     }
-                }
+                    WordRelay.Word nextWord = nextWords.get((int) (Math.random() * nextWords.size()));
+                    game.inputWord(nextWord.word());
+                    char nextChar = nextWord.word().charAt(nextWord.word().length() - 1);
+                    char nextCharWithHeadSound = HeadSound.transform(nextChar);
+                    String nextCharString = String.valueOf(nextChar);
+                    if (nextCharWithHeadSound != nextChar) nextCharString += " 또는 " + nextCharWithHeadSound;
+                    thinking.edit("좋아요. `" + nextWord.word() + "`!\n뜻: " + nextWord.meaning() + "\n" +
+                            "__**" + nextCharString + "**__(으)로 시작하는 단어를 입력해주세요!");
+                    return true;
+                }).completeOnTimeout(false, 10, TimeUnit.SECONDS).get();
 
-                if (content.length() == 1) {
-                    thinking.edit("한 글자는 너무 짧아요! 다른 단어를 입력해주세요!");
-                    return;
-                } else if (content.contains(" ")) {
-                    thinking.edit("띄어쓰기는 안돼요! 다른 단어를 입력해주세요!");
-                    return;
-                } else if (game.usedWords.contains(content)) {
-                    thinking.edit("이미 나온 단어에요! 다른 단어를 입력해주세요!");
-                    return;
-                } else if (!WordRelay.isValidWord(content)) {
-                    thinking.edit("사전에 없는 단어에요! 제가 이겼네요!");
-                    game.end(channel, false);
-                    MessageCreated.replyListener.remove(account);
-                    channel.createUpdater().setArchivedFlag(true).update();
-                    return;
-                }
-                game.inputWord(content);
-
-                List<WordRelay.Word> nextWords = game.getNextWords(content);
-                WordRelay.Word nextWord = nextWords.get((int) (Math.random() * nextWords.size()));
-                if (nextWord == null) {
+                if (!result) {
                     thinking.edit("더이상 생각나는게 없어요.. <@" + account.userId() + ">님이 이겼네요!");
                     game.end(channel, true);
                     MessageCreated.replyListener.remove(account);
                     channel.createUpdater().setArchivedFlag(true).update();
-                    return;
                 }
-                game.inputWord(nextWord.word());
-                char nextChar = nextWord.word().charAt(nextWord.word().length() - 1);
-                char nextCharWithHeadSound = HeadSound.transform(nextChar);
-                String nextCharString = String.valueOf(nextChar);
-                if (nextCharWithHeadSound != nextChar) nextCharString += " 또는 " + nextCharWithHeadSound;
-                thinking.edit("좋아요. `" + nextWord.word() + "`!\n뜻: " + nextWord.meaning() + "\n" +
-                        "__**" + nextCharString + "**__(으)로 시작하는 단어를 입력해주세요!");
-            });
+                return true;
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
         });
     }
 

@@ -6,6 +6,8 @@ import me.syuk.saenggang.db.Account;
 import org.javacord.api.entity.channel.ServerThreadChannel;
 import org.javacord.api.entity.message.Message;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
@@ -51,17 +53,19 @@ public class ChosungQuizCommand implements Command {
 
         AtomicInteger count = new AtomicInteger();
         MessageCreated.replyListener.put(account, replyMessage -> {
-            if (replyMessage.getChannel().getId() != channel.getId()) return;
+            if (replyMessage.getChannel().getId() != channel.getId()) return false;
 
-            CompletableFuture.runAsync(() -> {
+            return CompletableFuture.supplyAsync(() -> {
                 if (replyMessage.getContent().equals("그만")) {
                     channel.sendMessage("초성퀴즈를 종료합니다.");
                     MessageCreated.replyListener.remove(account);
                     channel.createUpdater().setArchivedFlag(true).update();
-                    return;
+                    return true;
                 }
 
-                if (replyMessage.getContent().equals(word.get().word())) {
+                List<String> answers = Arrays.stream(ChosungQuiz.WORD_LISTS.get(word.get().theme())).filter(s -> getInitialSound(s).equals(getInitialSound(word.get().word()))).toList();
+
+                if (answers.contains(replyMessage.getContent())) {
                     channel.sendMessage("정답입니다! 축하드려요!");
                     count.incrementAndGet();
                     if (count.get() % 100 == 0) {
@@ -79,7 +83,9 @@ public class ChosungQuizCommand implements Command {
                     channel.sendMessage("틀렸어요! 연속 정답 횟수가 초기화되었습니다. 다시 시도해보세요!\n" +
                             "그만하고 싶으시면 `그만`이라고 말해주세요!");
                 }
-            });
+
+                return true;
+            }).join();
         });
     }
 
