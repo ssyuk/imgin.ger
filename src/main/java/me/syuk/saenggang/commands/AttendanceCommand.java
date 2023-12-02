@@ -11,6 +11,11 @@ public class AttendanceCommand implements Command {
     }
 
     @Override
+    public Theme theme() {
+        return Theme.ACCOUNT;
+    }
+
+    @Override
     public void execute(Account account, String[] args, Message message) {
         if (DBManager.isAttended(account)) {
             message.reply("이미 출석했어요!");

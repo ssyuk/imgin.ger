@@ -17,6 +17,11 @@ public class RankingCommand implements Command {
     }
 
     @Override
+    public Theme theme() {
+        return Theme.ACCOUNT;
+    }
+
+    @Override
     public void execute(Account account, String[] args, Message message) {
         List<CoinRank> ranking = DBManager.getCoinRanking();
 

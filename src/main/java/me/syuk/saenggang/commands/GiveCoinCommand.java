@@ -3,12 +3,15 @@ package me.syuk.saenggang.commands;
 import me.syuk.saenggang.db.Account;
 import org.javacord.api.entity.message.Message;
 
-import static me.syuk.saenggang.Main.api;
-
 public class GiveCoinCommand implements Command {
     @Override
     public String name() {
         return "지급";
+    }
+
+    @Override
+    public Theme theme() {
+        return Theme.FOR_OWNER;
     }
 
     @Override

@@ -16,6 +16,11 @@ public class ForgetCommand implements Command {
         return "잊어";
     }
 
+
+    @Override
+    public Theme theme() {
+        return Theme.TALKING;
+    }
     @Override
     public void execute(Account account, String[] args, Message message) {
         if (args.length != 2) {

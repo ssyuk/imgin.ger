@@ -15,6 +15,11 @@ public class KnowledgeCommand implements Command {
     }
 
     @Override
+    public Theme theme() {
+        return Theme.TALKING;
+    }
+
+    @Override
     public void execute(Account account, String[] args, Message message) {
         if (args.length != 2) {
             message.reply("지식 명령어는 `지식 [명령어]` 형식으로 사용해주세요!");

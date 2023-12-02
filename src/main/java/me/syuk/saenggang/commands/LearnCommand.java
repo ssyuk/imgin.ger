@@ -18,6 +18,11 @@ public class LearnCommand implements Command {
     }
 
     @Override
+    public Theme theme() {
+        return Theme.TALKING;
+    }
+
+    @Override
     public void execute(Account account, String[] args, Message message) {
         try {
             if (args.length != 3) {

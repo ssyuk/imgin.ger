@@ -20,26 +20,9 @@ public class ChosungQuizCommand implements Command {
         return "초성퀴즈";
     }
 
-    String getInitialSound(String text) {
-        String[] chs = {
-                "ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ",
-                "ㄹ", "ㅁ", "ㅂ", "ㅃ", "ㅅ",
-                "ㅆ", "ㅇ", "ㅈ", "ㅉ", "ㅊ",
-                "ㅋ", "ㅌ", "ㅍ", "ㅎ"
-        };
-
-        AtomicReference<String> result = new AtomicReference<>("");
-
-        text.chars().forEach(value -> {
-            if (value >= 0xAC00) {
-                int uniVal = value - 0xAC00;
-                int cho = ((uniVal - (uniVal % 28)) / 28) / 21;
-
-                result.set(result.get() + chs[cho]);
-            }
-        });
-
-        return result.get();
+    @Override
+    public Theme theme() {
+        return Theme.GAME;
     }
 
     @Override
@@ -89,7 +72,29 @@ public class ChosungQuizCommand implements Command {
         });
     }
 
+    String getInitialSound(String text) {
+        String[] chs = {
+                "ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ",
+                "ㄹ", "ㅁ", "ㅂ", "ㅃ", "ㅅ",
+                "ㅆ", "ㅇ", "ㅈ", "ㅉ", "ㅊ",
+                "ㅋ", "ㅌ", "ㅍ", "ㅎ"
+        };
+
+        AtomicReference<String> result = new AtomicReference<>("");
+
+        text.chars().forEach(value -> {
+            if (value >= 0xAC00) {
+                int uniVal = value - 0xAC00;
+                int cho = ((uniVal - (uniVal % 28)) / 28) / 21;
+
+                result.set(result.get() + chs[cho]);
+            }
+        });
+
+        return result.get();
+    }
     public static class ChosungQuiz {
+
         public static String[] ANIMAL = new String[]{ // 30
                 "강아지", "고양이", "원숭이", "코끼리", "사자", "호랑이", "코알라", "판다", "기린", "캥거루",
                 "앵무새", "카멜레온", "다람쥐", "하마", "펭귄", "돌고래", "햄스터", "침팬지", "물범",

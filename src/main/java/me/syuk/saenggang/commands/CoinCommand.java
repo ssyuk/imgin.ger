@@ -4,10 +4,15 @@ import me.syuk.saenggang.Utils;
 import me.syuk.saenggang.db.Account;
 import org.javacord.api.entity.message.Message;
 
-public class CoinCommand implements Command{
+public class CoinCommand implements Command {
     @Override
     public String name() {
         return "코인";
+    }
+
+    @Override
+    public Theme theme() {
+        return Theme.ACCOUNT;
     }
 
     @Override

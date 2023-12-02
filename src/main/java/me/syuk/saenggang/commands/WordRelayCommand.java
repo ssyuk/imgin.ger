@@ -35,6 +35,11 @@ public class WordRelayCommand implements Command {
     }
 
     @Override
+    public Theme theme() {
+        return Theme.GAME;
+    }
+
+    @Override
     public void execute(Account account, String[] args, Message message) {
         ServerThreadChannel channel = Utils.createGameThread(message, "끝말잇기");
 
