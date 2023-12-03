@@ -76,15 +76,15 @@ public class KpopQuizCommand implements Command {
             new QuizMusic("Beatbox", "NCT DREAM"),
             new QuizMusic("버퍼링 (Glitch Mode)", "NCT DREAM"),
 
-            // 프로미스나인 MUSICS
-            new QuizMusic("Stay this way" , "프로미스나인"),
-            new QuizMusic("Dm" , "프로미스나인"),
-            new QuizMusic("We go" , "프로미스나인"),
-            new QuizMusic("Talk&talk" , "프로미스나인"),
-            new QuizMusic("#menow" , " 프로미스나인"),
-            new QuizMusic("Love boom" , "프로미스나인"),
-            new QuizMusic("Feel good" , "프로미스나인"),
-            new QuizMusic("Escape room" , "프로미스나인"),
+            // fromis_9 MUSICS
+            new QuizMusic("Stay this way" , "fromis_9"),
+            new QuizMusic("Dm" , "fromis_9"),
+            new QuizMusic("We go" , "fromis_9"),
+            new QuizMusic("Talk&talk" , "fromis_9"),
+            new QuizMusic("#menow" , " fromis_9"),
+            new QuizMusic("Love boom" , "fromis_9"),
+            new QuizMusic("Feel good" , "fromis_9"),
+            new QuizMusic("Escape room" , "fromis_9"),
 
             
             // Red Velvet MUSICS

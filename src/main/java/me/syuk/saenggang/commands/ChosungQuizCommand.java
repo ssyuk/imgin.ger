@@ -72,7 +72,11 @@ public class ChosungQuizCommand implements Command {
     public void execute(DBManager.Account account, String[] args, Message message) {
         ServerThreadChannel channel = Utils.createGameThread(message, "초성퀴즈");
 
-        channel.sendMessage("다음 초성을 보고, 힌트를 참고하여 알맞은 **단어**를 입력해주세요!");
+        channel.sendMessage("""
+                다음 초성을 보고, 힌트를 참고하여 알맞은 **단어**를 입력해주세요!
+                그만하고 싶으시면 `그만`이라고 말해주세요!
+                **5번 연속 정답을 맞추면 1코인, 100번 연속 정답을 맞추면 5코인을 드립니다!**
+                """);
         AtomicReference<QuizWord> word = new AtomicReference<>(getRandomWord());
         channel.sendMessage("무슨 단어일까요?\n" +
                 "# " + getInitialSound(word.get().word()) + "\n" +

@@ -25,7 +25,7 @@ public class Main {
         Command.commands.add(new LearnCommand());
         Command.commands.add(new ForgetCommand());
         Command.commands.add(new AttendanceCommand());
-        Command.commands.add(new CoinCommand());
+        Command.commands.add(new WalletCommand());
         Command.commands.add(new RankingCommand());
         Command.commands.add(new KnowledgeCommand());
 

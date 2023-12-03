@@ -44,6 +44,12 @@ public class WordRelayCommand implements Command {
         ServerThreadChannel channel = Utils.createGameThread(message, "끝말잇기");
 
         WordRelayCommand.WordRelay.start(account);
+        channel.sendMessage("""
+                끝말잇기는 제시된 단어의 끝 글자로 시작하는 단어를 입력하는 게임입니다.
+                예를 들어, `사과`라는 단어가 나왔다면 `과일`라는 단어를 입력할 수 있습니다.
+                단어는 사전에 있는 단어여야 하며, 한글자 단어와 띄어쓰기가 포함되는 단어는 사용할 수 없습니다.
+                **승리했을때, 이어진 단어 4개당 1코인을 얻을 수 있습니다.**
+                """);
         channel.sendMessage("좋아요. 먼저 시작하세요!");
 
         MessageCreated.replyCallbackMap.put(account, replyMessage -> {
