@@ -49,19 +49,18 @@ public class WordRelayCommand implements Command {
         MessageCreated.replyListener.put(account, replyMessage -> {
             if (replyMessage.getChannel().getId() != channel.getId()) return false;
 
+            String content = replyMessage.getContent();
+            Message thinking = channel.sendMessage("생각중이에요...").join();
+            WordRelay game = WordRelay.playerWordRelayMap.get(account.userId());
+            String lastWord = game.lastWord;
             try {
-                String content = replyMessage.getContent();
-                Message thinking = channel.sendMessage("생각중이에요...").join();
-                WordRelay game = WordRelay.playerWordRelayMap.get(account.userId());
-                String lastWord = game.lastWord;
-
                 boolean result = CompletableFuture.supplyAsync(() -> {
                     if (!lastWord.isEmpty()) {
                         char lastChar = lastWord.charAt(lastWord.length() - 1);
                         char lastCharWithHeadSound = HeadSound.transform(lastChar);
                         if (!content.startsWith(String.valueOf(lastChar)) && !content.startsWith(String.valueOf(lastCharWithHeadSound))) {
                             thinking.edit("틀렸어요! 제가 이겼네요!");
-                            game.end(channel, false);
+                            game.end(channel, "틀렸어요!", false);
                             MessageCreated.replyListener.remove(account);
                             channel.createUpdater().setArchivedFlag(true).update();
                             return true;
@@ -84,7 +83,7 @@ public class WordRelayCommand implements Command {
                         return true;
                     } else if (!WordRelay.isValidWord(content)) {
                         thinking.edit("사전에 없는 단어에요! 제가 이겼네요!");
-                        game.end(channel, false);
+                        game.end(channel, "사전에 없는 단어에요!", false);
                         MessageCreated.replyListener.remove(account);
                         channel.createUpdater().setArchivedFlag(true).update();
                         return true;
@@ -94,7 +93,7 @@ public class WordRelayCommand implements Command {
                     List<WordRelay.Word> nextWords = game.getNextWords(content);
                     if (nextWords.isEmpty()) {
                         thinking.edit("더이상 생각나는게 없어요.. <@" + account.userId() + ">님이 이겼네요!");
-                        game.end(channel, true);
+                        game.end(channel, "더이상 생각나는게 없어요..", true);
                         MessageCreated.replyListener.remove(account);
                         channel.createUpdater().setArchivedFlag(true).update();
                         return true;
@@ -112,14 +111,17 @@ public class WordRelayCommand implements Command {
 
                 if (!result) {
                     thinking.edit("더이상 생각나는게 없어요.. <@" + account.userId() + ">님이 이겼네요!");
-                    game.end(channel, true);
+                    game.end(channel, "더이상 생각나는게 없어요..", true);
                     MessageCreated.replyListener.remove(account);
                     channel.createUpdater().setArchivedFlag(true).update();
                 }
-                return true;
             } catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException(e);
+                thinking.edit("죄송해요. 오류가 발생했어요. <@" + account.userId() + ">님이 이겼네요!");
+                game.end(channel, "오류가 발생했어요.", true);
+                MessageCreated.replyListener.remove(account);
+                channel.createUpdater().setArchivedFlag(true).update();
             }
+            return true;
         });
     }
 
@@ -179,11 +181,12 @@ public class WordRelayCommand implements Command {
             lastWord = word;
         }
 
-        public void end(TextChannel channel, boolean playerWin) {
+        public void end(TextChannel channel, String reason, boolean playerWin) {
             playerWordRelayMap.remove(player.userId());
             channel.sendMessage(new EmbedBuilder()
                     .setTitle(playerWin ? "승리!" : "패배..")
-                    .setDescription(String.join(" -> ", usedWords))
+                    .setDescription("**사유**: " + reason + "\n" +
+                            String.join(" -> ", usedWords))
                     .setColor(playerWin ? Color.green : Color.red)
                     .addField("플레이어", "<@" + player.userId() + ">")
                     .setFooter("생강이 by syuk")
