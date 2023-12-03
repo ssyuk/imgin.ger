@@ -54,22 +54,22 @@ public class GamblingCommand implements Command {
 
             int index = numbers.indexOf(number);
             switch (index) {
-                case 0, 1 -> {
+                case 0 -> {
                     replyMessage.reply("\uD83C\uDF89 축하해요! " + Utils.displayCoin(coins) + "을 얻었어요! (2배)");
                     DBManager.giveCoin(account, coins);
                 }
-                case 2, 3 -> {
+                case 1, 2 -> {
                     replyMessage.reply("\uD83C\uDF89 축하해요! " + Utils.displayCoin((int) (coins * 0.5)) + "을 얻었어요! (1.5배)");
                     DBManager.giveCoin(account, (int) (coins * .5));
                 }
-                case 4, 5, 6 -> replyMessage.reply("코인을 그대로 돌려받았어요! (1배)");
-                case 7, 8 -> {
-                    replyMessage.reply("\uD83D\uDC94 " + Utils.displayCoin((int) (coins * .3)) + "을 잃었어요ㅠ (0.7배)");
-                    DBManager.giveCoin(account, (int) -(coins * .3));
+                case 3, 4, 5 -> replyMessage.reply("코인을 그대로 돌려받았어요! (1배)");
+                case 6, 7, 8 -> {
+                    replyMessage.reply("\uD83D\uDC94 " + Utils.displayCoin((int) (coins * .4)) + "을 잃었어요ㅠ (0.6배)");
+                    DBManager.giveCoin(account, (int) -(coins * .4));
                 }
                 case 9 -> {
-                    replyMessage.reply("\uD83C\uDF29 " + Utils.displayCoin((int) (coins * .6)) + "을 잃었어요ㅠ (0.4배)");
-                    DBManager.giveCoin(account, (int) -(coins * .6));
+                    replyMessage.reply("\uD83C\uDF29 " + Utils.displayCoin((int) (coins * .8)) + "을 잃었어요ㅠ (0.2배)");
+                    DBManager.giveCoin(account, (int) -(coins * .8));
                 }
             }
             MessageCreated.replyCallbackMap.remove(account);
