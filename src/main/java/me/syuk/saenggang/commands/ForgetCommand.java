@@ -1,9 +1,7 @@
 package me.syuk.saenggang.commands;
 
 import me.syuk.saenggang.MessageCreated;
-import me.syuk.saenggang.db.Account;
 import me.syuk.saenggang.db.DBManager;
-import me.syuk.saenggang.db.SaenggangKnowledge;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 
@@ -22,22 +20,22 @@ public class ForgetCommand implements Command {
         return Theme.TALKING;
     }
     @Override
-    public void execute(Account account, String[] args, Message message) {
+    public void execute(DBManager.Account account, String[] args, Message message) {
         if (args.length != 2) {
             message.reply("잊어 명령어는 `잊어 [명령어]` 형식으로 사용해주세요!");
             return;
         }
         String question = args[1];
-        List<SaenggangKnowledge> knowledge = DBManager.getKnowledge(question);
+        List<DBManager.SaenggangKnowledge> knowledge = DBManager.getKnowledge(question);
 
         if (knowledge.isEmpty()) {
             message.reply("그런 명령어는 없어요!");
             return;
         }
 
-        List<SaenggangKnowledge> knowledgeByUser = new ArrayList<>();
+        List<DBManager.SaenggangKnowledge> knowledgeByUser = new ArrayList<>();
         if (message.getAuthor().isBotOwner()) knowledgeByUser.addAll(knowledge);
-        else for (SaenggangKnowledge known : knowledge)
+        else for (DBManager.SaenggangKnowledge known : knowledge)
             if (known.authorId().equals(account.userId())) knowledgeByUser.add(known);
 
         EmbedBuilder embed = new EmbedBuilder()
@@ -46,7 +44,7 @@ public class ForgetCommand implements Command {
 
         embed.addField("0번", "*취소*");
         for (int i = 0; i < knowledgeByUser.size(); i++) {
-            SaenggangKnowledge known = knowledgeByUser.get(i);
+            DBManager.SaenggangKnowledge known = knowledgeByUser.get(i);
             embed.addField(i + 1 + "번" + (!known.authorId().equals(account.userId()) ? "*" : ""), MessageCreated.fixAnswer(known, account));
         }
         message.reply(embed);
@@ -54,7 +52,7 @@ public class ForgetCommand implements Command {
         MessageCreated.replyListener.put(account, (msg) -> {
             String content = msg.getContent();
             if (content.equals("전체") && message.getAuthor().isBotOwner()) {
-                for (SaenggangKnowledge known : knowledge) DBManager.removeKnowledge(known);
+                for (DBManager.SaenggangKnowledge known : knowledge) DBManager.removeKnowledge(known);
                 msg.reply("알겠습니다! `" + question + "`을(를) 전부 잊었어요.");
                 MessageCreated.replyListener.remove(account);
                 return true;
@@ -67,7 +65,7 @@ public class ForgetCommand implements Command {
                     MessageCreated.replyListener.remove(account);
                     return true;
                 }
-                SaenggangKnowledge known = knowledgeByUser.get(index);
+                DBManager.SaenggangKnowledge known = knowledgeByUser.get(index);
                 DBManager.removeKnowledge(known);
                 msg.reply("알겠습니다! `" + known.question() + "`을(를) 잊었어요.");
                 MessageCreated.replyListener.remove(account);

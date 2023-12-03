@@ -2,7 +2,7 @@ package me.syuk.saenggang.commands;
 
 import me.syuk.saenggang.MessageCreated;
 import me.syuk.saenggang.Utils;
-import me.syuk.saenggang.db.Account;
+import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.channel.ServerThreadChannel;
 import org.javacord.api.entity.message.Message;
 
@@ -141,7 +141,7 @@ public class ProverbQuizCommand implements Command {
     }
 
     @Override
-    public void execute(Account account, String[] args, Message message) {
+    public void execute(DBManager.Account account, String[] args, Message message) {
         ServerThreadChannel channel = Utils.createGameThread(message, "속담퀴즈");
 
         channel.sendMessage("다음은 일부가 지워진 속담이다. 밑줄에 들어갈 말을 입력하시오. (단, 필수 단어만 포함되면 정답 인정)");

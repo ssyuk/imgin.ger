@@ -1,6 +1,6 @@
 package me.syuk.saenggang.commands;
 
-import me.syuk.saenggang.db.Account;
+import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.message.Message;
 
 public class GiveCoinCommand implements Command {
@@ -15,7 +15,7 @@ public class GiveCoinCommand implements Command {
     }
 
     @Override
-    public void execute(Account account, String[] args, Message message) {
+    public void execute(DBManager.Account account, String[] args, Message message) {
         if (message.getAuthor().isBotOwner()) {
             if (args.length != 3) {
                 message.reply("지급 명령어는 `지급 [@유저] [코인]` 형식으로 사용해주세요!");
@@ -23,7 +23,7 @@ public class GiveCoinCommand implements Command {
             }
             String userId = args[1].replace("<@", "").replace(">", "");
             int count = Integer.parseInt(args[2]);
-            Account target = new Account(userId);
+            DBManager.Account target = new DBManager.Account(userId);
             target.giveCoin(message.getChannel(), count);
         } else {
             message.reply("이 명령어는 봇 주인만 사용할 수 있어요!");

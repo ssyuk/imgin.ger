@@ -2,7 +2,6 @@ package me.syuk.saenggang.commands;
 
 import me.syuk.saenggang.MessageCreated;
 import me.syuk.saenggang.Utils;
-import me.syuk.saenggang.db.Account;
 import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.message.Message;
 
@@ -22,7 +21,7 @@ public class GamblingCommand implements Command {
     }
 
     @Override
-    public void execute(Account account, String[] args, Message message) {
+    public void execute(DBManager.Account account, String[] args, Message message) {
         if (args.length != 2 || !args[1].matches("\\d+")) {
             message.reply("도박 명령어는 `도박 [걸 코인]` 형식으로 사용해주세요!");
             return;

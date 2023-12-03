@@ -1,8 +1,6 @@
 package me.syuk.saenggang.commands;
 
 import me.syuk.saenggang.Utils;
-import me.syuk.saenggang.db.Account;
-import me.syuk.saenggang.db.CoinRank;
 import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -22,12 +20,12 @@ public class RankingCommand implements Command {
     }
 
     @Override
-    public void execute(Account account, String[] args, Message message) {
-        List<CoinRank> ranking = DBManager.getCoinRanking();
+    public void execute(DBManager.Account account, String[] args, Message message) {
+        List<DBManager.CoinRank> ranking = DBManager.getCoinRanking();
 
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < Math.min(ranking.size(), 7); i++) {
-            CoinRank rank = ranking.get(i);
+            DBManager.CoinRank rank = ranking.get(i);
 
             String emoji = switch (i) {
                 case 0 -> "\uD83E\uDD47 ";
@@ -40,7 +38,7 @@ public class RankingCommand implements Command {
 
         if (ranking.size() > 7 && ranking.subList(0, 7).stream().noneMatch(rank -> rank.user().equals(account.userId()))) {
             int myRank;
-            CoinRank coinRank;
+            DBManager.CoinRank coinRank;
             for (myRank = 0; myRank < ranking.size(); myRank++)
                 if (ranking.get(myRank).user().equals(account.userId())) break;
             coinRank = ranking.get(myRank);

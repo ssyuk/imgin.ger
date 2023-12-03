@@ -1,6 +1,6 @@
 package me.syuk.saenggang.commands;
 
-import me.syuk.saenggang.db.Account;
+import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 
@@ -21,7 +21,7 @@ public class HelpCommand implements Command {
     }
 
     @Override
-    public void execute(Account account, String[] args, Message message) {
+    public void execute(DBManager.Account account, String[] args, Message message) {
         EmbedBuilder builder = new EmbedBuilder().setTitle("생강이 도움말");
         Map<Command.Theme, List<String>> commandMap = new HashMap<>();
         for (Command command : Command.commands) {

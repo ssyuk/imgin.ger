@@ -5,7 +5,9 @@ import com.mongodb.MongoClientSettings;
 import com.mongodb.ServerApi;
 import com.mongodb.ServerApiVersion;
 import com.mongodb.client.*;
+import me.syuk.saenggang.Utils;
 import org.bson.Document;
+import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.user.User;
 
 import java.time.LocalDate;
@@ -158,5 +160,32 @@ public class DBManager {
     }
 
     public record AttendStatus(int ranking, int streak) {
+    }
+
+    public record CoinRank(String user, int coin) {
+    }
+
+    public record Account(String userId) {
+        public int coin() {
+            return getCoin(userId);
+        }
+
+        public void giveCoin(TextChannel channel, int count, String reason) {
+            if (!reason.isEmpty()) reason += " ";
+            if (count > 0) {
+                DBManager.giveCoin(this, count);
+                channel.sendMessage("<@" + userId + ">님! " + reason + Utils.displayCoin(count) + "을(를) 받았어요. (현재 코인: " + Utils.displayCoin(coin()) + ")");
+            } else if (count < 0) {
+                DBManager.giveCoin(this, count);
+                channel.sendMessage("<@" + userId + ">님! " + reason + Utils.displayCoin(-count) + "을(를) 잃었어요. (현재 코인: " + Utils.displayCoin(coin()) + ")");
+            }
+        }
+
+        public void giveCoin(TextChannel channel, int count) {
+            giveCoin(channel, count, "");
+        }
+    }
+
+    public record SaenggangKnowledge(String question, String answer, String authorName, String authorId) {
     }
 }

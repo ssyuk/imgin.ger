@@ -1,6 +1,5 @@
 package me.syuk.saenggang.commands;
 
-import me.syuk.saenggang.db.Account;
 import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.message.Message;
 
@@ -16,7 +15,7 @@ public class AttendanceCommand implements Command {
     }
 
     @Override
-    public void execute(Account account, String[] args, Message message) {
+    public void execute(DBManager.Account account, String[] args, Message message) {
         if (DBManager.isAttended(account)) {
             message.reply("이미 출석했어요!");
             return;

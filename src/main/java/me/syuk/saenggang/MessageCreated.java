@@ -1,9 +1,7 @@
 package me.syuk.saenggang;
 
 import me.syuk.saenggang.commands.Command;
-import me.syuk.saenggang.db.Account;
 import me.syuk.saenggang.db.DBManager;
-import me.syuk.saenggang.db.SaenggangKnowledge;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -17,14 +15,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MessageCreated implements MessageCreateListener {
-    public static Map<Account, ReplyCallback> replyListener = new HashMap<>();
+    public static Map<DBManager.Account, ReplyCallback> replyListener = new HashMap<>();
 
     @Override
     public void onMessageCreate(MessageCreateEvent event) {
         User user = event.getMessageAuthor().asUser().orElseThrow();
         if (user.isBot()) return;
 
-        Account account = DBManager.getAccount(user);
+        DBManager.Account account = DBManager.getAccount(user);
 
         String content = event.getMessageContent();
         Message message = event.getMessage();
@@ -63,7 +61,7 @@ public class MessageCreated implements MessageCreateListener {
             return;
         }
 
-        List<SaenggangKnowledge> knowledge = DBManager.getKnowledge(content);
+        List<DBManager.SaenggangKnowledge> knowledge = DBManager.getKnowledge(content);
 
         if (knowledge.isEmpty()) {
             message.reply("ㄴ네..? 뭐라구요?\n" +
@@ -71,13 +69,13 @@ public class MessageCreated implements MessageCreateListener {
             return;
         }
 
-        SaenggangKnowledge selectedKnowledge = knowledge.get((int) (Math.random() * knowledge.size()));
+        DBManager.SaenggangKnowledge selectedKnowledge = knowledge.get((int) (Math.random() * knowledge.size()));
         String answer = fixAnswer(selectedKnowledge, account);
         message.reply(answer + "\n" +
                 "`" + selectedKnowledge.authorName() + "님이 알려주셨어요.`");
     }
 
-    public static String fixAnswer(SaenggangKnowledge selectedKnowledge, Account account) {
+    public static String fixAnswer(DBManager.SaenggangKnowledge selectedKnowledge, DBManager.Account account) {
         String answer = selectedKnowledge.answer();
         answer = answer.replace("{user.name}", "<@" + account.userId() + ">");
         answer = answer.replace("{user.coin}", String.valueOf(account.coin()));

@@ -2,7 +2,7 @@ package me.syuk.saenggang.commands;
 
 import me.syuk.saenggang.MessageCreated;
 import me.syuk.saenggang.Utils;
-import me.syuk.saenggang.db.Account;
+import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.channel.ServerThreadChannel;
 import org.javacord.api.entity.message.Message;
 
@@ -69,7 +69,7 @@ public class ChosungQuizCommand implements Command {
     }
 
     @Override
-    public void execute(Account account, String[] args, Message message) {
+    public void execute(DBManager.Account account, String[] args, Message message) {
         ServerThreadChannel channel = Utils.createGameThread(message, "초성퀴즈");
 
         channel.sendMessage("다음 초성을 보고, 힌트를 참고하여 알맞은 **단어**를 입력해주세요!");

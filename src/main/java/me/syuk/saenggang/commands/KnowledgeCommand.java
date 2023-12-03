@@ -1,8 +1,6 @@
 package me.syuk.saenggang.commands;
 
-import me.syuk.saenggang.db.Account;
 import me.syuk.saenggang.db.DBManager;
-import me.syuk.saenggang.db.SaenggangKnowledge;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 
@@ -20,14 +18,14 @@ public class KnowledgeCommand implements Command {
     }
 
     @Override
-    public void execute(Account account, String[] args, Message message) {
+    public void execute(DBManager.Account account, String[] args, Message message) {
         if (args.length != 2) {
             message.reply("지식 명령어는 `지식 [명령어]` 형식으로 사용해주세요!");
             return;
         }
         String question = args[1];
         StringBuilder builder = new StringBuilder();
-        List<SaenggangKnowledge> knowledge = DBManager.getKnowledge(question);
+        List<DBManager.SaenggangKnowledge> knowledge = DBManager.getKnowledge(question);
 
         if (knowledge.isEmpty()) {
             message.reply("아직 배우지 못했어요.\n" +

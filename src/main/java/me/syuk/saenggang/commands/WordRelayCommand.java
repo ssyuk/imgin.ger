@@ -7,7 +7,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import me.syuk.saenggang.MessageCreated;
 import me.syuk.saenggang.Utils;
-import me.syuk.saenggang.db.Account;
+import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.channel.ServerThreadChannel;
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.Message;
@@ -40,7 +40,7 @@ public class WordRelayCommand implements Command {
     }
 
     @Override
-    public void execute(Account account, String[] args, Message message) {
+    public void execute(DBManager.Account account, String[] args, Message message) {
         ServerThreadChannel channel = Utils.createGameThread(message, "끝말잇기");
 
         WordRelayCommand.WordRelay.start(account);
@@ -127,11 +127,11 @@ public class WordRelayCommand implements Command {
 
     public static class WordRelay {
         public static Map<String, WordRelay> playerWordRelayMap = new HashMap<>();
-        public Account player;
+        public DBManager.Account player;
         public String lastWord = "";
         public List<String> usedWords = new ArrayList<>();
 
-        public static void start(Account player) {
+        public static void start(DBManager.Account player) {
             WordRelay wordRelay = new WordRelay();
             wordRelay.player = player;
             playerWordRelayMap.put(player.userId(), wordRelay);

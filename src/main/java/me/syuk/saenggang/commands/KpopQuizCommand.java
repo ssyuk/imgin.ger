@@ -2,7 +2,7 @@ package me.syuk.saenggang.commands;
 
 import me.syuk.saenggang.MessageCreated;
 import me.syuk.saenggang.Utils;
-import me.syuk.saenggang.db.Account;
+import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.channel.ServerThreadChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -97,7 +97,7 @@ public class KpopQuizCommand implements Command {
     }
 
     @Override
-    public void execute(Account account, String[] args, Message message) {
+    public void execute(DBManager.Account account, String[] args, Message message) {
         ServerThreadChannel channel = Utils.createGameThread(message, "케이팝퀴즈");
 
         channel.sendMessage("다음 KPOP 노래 제목을 보고, 보기에서 알맞는 아티스트명의 번호를 입력해 주세요!");

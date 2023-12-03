@@ -1,8 +1,6 @@
 package me.syuk.saenggang.commands;
 
-import me.syuk.saenggang.db.Account;
 import me.syuk.saenggang.db.DBManager;
-import me.syuk.saenggang.db.SaenggangKnowledge;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 
@@ -23,7 +21,7 @@ public class LearnCommand implements Command {
     }
 
     @Override
-    public void execute(Account account, String[] args, Message message) {
+    public void execute(DBManager.Account account, String[] args, Message message) {
         try {
             if (args.length != 3) {
                 message.reply(new EmbedBuilder()
@@ -46,7 +44,7 @@ public class LearnCommand implements Command {
                 return;
             }
 
-            DBManager.addKnowledge(new SaenggangKnowledge(question, answer, authorName, authorId));
+            DBManager.addKnowledge(new DBManager.SaenggangKnowledge(question, answer, authorName, authorId));
             message.reply("알겠습니다! `" + question + "`은 `" + answer + "`라고 배웠어요.");
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);

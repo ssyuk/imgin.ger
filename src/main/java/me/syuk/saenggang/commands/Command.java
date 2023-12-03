@@ -1,6 +1,6 @@
 package me.syuk.saenggang.commands;
 
-import me.syuk.saenggang.db.Account;
+import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.message.Message;
 
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ public interface Command {
 
     String name();
     Theme theme();
-    void execute(Account account, String[] args, Message message);
+    void execute(DBManager.Account account, String[] args, Message message);
 
     static Command findCommand(String name) {
         for (Command command : commands) {
