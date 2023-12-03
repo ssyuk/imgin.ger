@@ -24,14 +24,16 @@ public class Main {
         Command.commands.add(new HelpCommand());
         Command.commands.add(new LearnCommand());
         Command.commands.add(new ForgetCommand());
-        Command.commands.add(new WordRelayCommand());
         Command.commands.add(new AttendanceCommand());
         Command.commands.add(new CoinCommand());
         Command.commands.add(new RankingCommand());
-        Command.commands.add(new ChosungQuizCommand());
-        Command.commands.add(new GamblingCommand());
-        Command.commands.add(new ProverbQuizCommand());
         Command.commands.add(new KnowledgeCommand());
+
+        Command.commands.add(new WordRelayCommand());
+        Command.commands.add(new GamblingCommand());
+        Command.commands.add(new ChosungQuizCommand());
+        Command.commands.add(new ProverbQuizCommand());
+        Command.commands.add(new KpopQuizCommand());
 
         DBManager.connect();
 

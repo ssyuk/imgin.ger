@@ -144,10 +144,11 @@ public class ProverbQuizCommand implements Command {
     public void execute(Account account, String[] args, Message message) {
         ServerThreadChannel channel = Utils.createGameThread(message, "속담퀴즈");
 
+        channel.sendMessage("다음은 일부가 지워진 속담이다. 밑줄에 들어갈 말을 입력하시오. (단, 필수 단어만 포함되면 정답 인정)");
         AtomicReference<Proverb> proverb = new AtomicReference<>(PROVERB_LIST.get((int) (Math.random() * PROVERB_LIST.size())));
         AtomicReference<String> prov = new AtomicReference<>(proverb.get().proverb().split("/")[0]);
         AtomicReference<String> answer = new AtomicReference<>(proverb.get().proverb().split("/")[1]);
-        channel.sendMessage("속담퀴즈 내드릴게요! 다음중 밑줄에 들어갈 말을 입력해주세요!\n" +
+        channel.sendMessage("속담퀴즈 내드릴게요!\n" +
                 "# " + prov + " " + "___\n" +
                 "뜻: **" + proverb.get().description() + "**");
 
