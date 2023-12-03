@@ -141,7 +141,11 @@ public class DBManager {
                 ranking++;
         }
 
-        return new AttendStatus(ranking, document.getInteger("attendanceStreak", 1));
+        return new AttendStatus(ranking, getAttendanceStreak(account));
+    }
+
+    public static int getAttendanceStreak(Account account) {
+        return getUserDocument(account.userId()).getInteger("attendanceStreak", 0);
     }
 
     public static int getCoin(String userId) {

@@ -11,13 +11,13 @@ import org.javacord.api.entity.message.component.Button;
 import org.javacord.api.entity.message.component.HighLevelComponent;
 import org.javacord.api.entity.message.component.LowLevelComponent;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.interaction.callback.InteractionImmediateResponseBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class KpopQuizCommand implements Command {
     public static QuizMusic[] MUSICS = new QuizMusic[]{
@@ -67,7 +67,7 @@ public class KpopQuizCommand implements Command {
             new QuizMusic("자각몽" , "aespa"),
             new QuizMusic("aenergy" , "aespa"),
             new QuizMusic("Salty&sweet" , "aespa"),
-            new QuizMusic("Welcome to my world" , "aespa"),
+            new QuizMusic("Welcome to MY world" , "aespa"),
 
             // NCT DREAM MUSICS
             new QuizMusic("ISTJ", "NCT DREAM"),
@@ -81,12 +81,11 @@ public class KpopQuizCommand implements Command {
             new QuizMusic("Dm" , "fromis_9"),
             new QuizMusic("We go" , "fromis_9"),
             new QuizMusic("Talk&talk" , "fromis_9"),
-            new QuizMusic("#menow" , " fromis_9"),
+            new QuizMusic("#menow" , "fromis_9"),
             new QuizMusic("Love boom" , "fromis_9"),
             new QuizMusic("Feel good" , "fromis_9"),
             new QuizMusic("Escape room" , "fromis_9"),
 
-            
             // Red Velvet MUSICS
             new QuizMusic("Feel my rhythm" , "Red Velvet"),
             new QuizMusic("Psycho" , "Red Velvet"),
@@ -124,8 +123,8 @@ public class KpopQuizCommand implements Command {
             String randomArtist = getRandomMusic().artist();
             while (artists.contains(randomArtist)) randomArtist = getRandomMusic().artist();
 
-            components.add(Button.primary(randomArtist.toLowerCase(), randomArtist));
             artists.add(randomArtist);
+            components.add(Button.primary(randomArtist.toLowerCase(), randomArtist));
         }
         components.add(Button.primary(quizMusic.artist().toLowerCase(), quizMusic.artist()));
         components.sort((o1, o2) -> {
@@ -159,41 +158,39 @@ public class KpopQuizCommand implements Command {
         var ref = new Object() {
             Game game = createGameEmbed();
         };
-        new MessageBuilder().addEmbed(ref.game.embed()).addComponents(ref.game.component())
-                .send(channel).whenComplete((message1, throwable) -> {
-            throw new RuntimeException(throwable);
-        });
+        AtomicReference<Message> gameMessage = new AtomicReference<>(new MessageBuilder().addEmbed(ref.game.embed()).addComponents(ref.game.component())
+                .send(channel).join());
 
         AtomicInteger count = new AtomicInteger();
         ButtonClick.buttonCallbackMap.put(account, interaction -> CompletableFuture.supplyAsync(() -> {
+            gameMessage.get().delete();
             String id = interaction.getCustomId();
-            InteractionImmediateResponseBuilder response = interaction.createImmediateResponder();
             if (id.equals("stop")) {
-                response.append("케이팝퀴즈를 종료합니다.").respond().whenComplete((interactionOriginalResponseUpdater, throwable) -> {
+                channel.sendMessage("케이팝퀴즈를 종료합니다.").whenComplete((message1, throwable) -> {
                     ButtonClick.buttonCallbackMap.remove(account);
                     channel.createUpdater().setArchivedFlag(true).update();
                     channel.removeThreadMember(Long.parseLong(account.userId()));
                 });
                 return true;
             }
+            StringBuilder content = new StringBuilder();
 
             if (id.equals(ref.game.answer)) {
-                response.append("정답입니다! 축하드려요! (연속 정답: " + count.get() + "회)");
                 count.incrementAndGet();
+                content.append("정답입니다! 축하드려요! (연속 정답: ").append(count.get()).append("회)\n");
                 if (count.get() % 10 == 0) {
                     DBManager.giveCoin(account, 1);
-                    response.appendNewLine();
-                    response.append("연속 정답 횟수가 " + count.get() + "회가 되서" + Utils.displayCoin(1) + "을(를) 받았어요! (현재 코인: " + Utils.displayCoin(account.coin()) + ")");
+                    content.append("연속 정답 횟수가 ").append(count.get()).append("회가 되서").append(Utils.displayCoin(1)).append("을(를) 받았어요! (현재 코인: ").append(Utils.displayCoin(account.coin())).append(")");
                 }
                 ref.game = createGameEmbed();
+
             } else {
                 count.set(0);
-                response.append("틀렸어요! (연속 정답: 0회)");
+                content.append("틀렸어요! (연속 정답: 0회)");
                 ref.game = createGameEmbed();
             }
-            response.addEmbed(ref.game.embed());
-            response.addComponents(ref.game.component());
-            response.respond();
+            gameMessage.set(new MessageBuilder().setContent(content.toString()).addEmbed(ref.game.embed()).addComponents(ref.game.component())
+                    .send(channel).join());
             return true;
         }).join());
     }
