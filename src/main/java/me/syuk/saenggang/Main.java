@@ -47,5 +47,6 @@ public class Main {
         api.updateActivity(ActivityType.LISTENING, "뉴진스의 하입보이");
 
         api.addListener(new MessageCreated());
+        api.addListener(new ButtonClick());
     }
 }

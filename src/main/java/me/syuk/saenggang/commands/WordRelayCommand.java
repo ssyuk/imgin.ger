@@ -46,7 +46,7 @@ public class WordRelayCommand implements Command {
         WordRelayCommand.WordRelay.start(account);
         channel.sendMessage("좋아요. 먼저 시작하세요!");
 
-        MessageCreated.replyListener.put(account, replyMessage -> {
+        MessageCreated.replyCallbackMap.put(account, replyMessage -> {
             if (replyMessage.getChannel().getId() != channel.getId()) return false;
 
             String content = replyMessage.getContent();
@@ -61,7 +61,7 @@ public class WordRelayCommand implements Command {
                         if (!content.startsWith(String.valueOf(lastChar)) && !content.startsWith(String.valueOf(lastCharWithHeadSound))) {
                             thinking.edit("틀렸어요! 제가 이겼네요!");
                             game.end(channel, "틀렸어요!", false);
-                            MessageCreated.replyListener.remove(account);
+                            MessageCreated.replyCallbackMap.remove(account);
                             channel.createUpdater().setArchivedFlag(true).update();
                             return true;
                         }
@@ -84,7 +84,7 @@ public class WordRelayCommand implements Command {
                     } else if (!WordRelay.isValidWord(content)) {
                         thinking.edit("사전에 없는 단어에요! 제가 이겼네요!");
                         game.end(channel, "사전에 없는 단어에요!", false);
-                        MessageCreated.replyListener.remove(account);
+                        MessageCreated.replyCallbackMap.remove(account);
                         channel.createUpdater().setArchivedFlag(true).update();
                         return true;
                     }
@@ -94,7 +94,7 @@ public class WordRelayCommand implements Command {
                     if (nextWords.isEmpty()) {
                         thinking.edit("더이상 생각나는게 없어요.. <@" + account.userId() + ">님이 이겼네요!");
                         game.end(channel, "더이상 생각나는게 없어요..", true);
-                        MessageCreated.replyListener.remove(account);
+                        MessageCreated.replyCallbackMap.remove(account);
                         channel.createUpdater().setArchivedFlag(true).update();
                         return true;
                     }
@@ -112,13 +112,13 @@ public class WordRelayCommand implements Command {
                 if (!result) {
                     thinking.edit("더이상 생각나는게 없어요.. <@" + account.userId() + ">님이 이겼네요!");
                     game.end(channel, "더이상 생각나는게 없어요..", true);
-                    MessageCreated.replyListener.remove(account);
+                    MessageCreated.replyCallbackMap.remove(account);
                     channel.createUpdater().setArchivedFlag(true).update();
                 }
             } catch (InterruptedException | ExecutionException e) {
                 thinking.edit("죄송해요. 오류가 발생했어요. <@" + account.userId() + ">님이 이겼네요!");
                 game.end(channel, "오류가 발생했어요.", true);
-                MessageCreated.replyListener.remove(account);
+                MessageCreated.replyCallbackMap.remove(account);
                 channel.createUpdater().setArchivedFlag(true).update();
             }
             return true;

@@ -38,7 +38,7 @@ public class GamblingCommand implements Command {
         Collections.shuffle(numbers);
 
         message.reply("\uD83C\uDFB0 1~10 사이의 숫자를 입력해주세요!");
-        MessageCreated.replyListener.put(account, replyMessage -> {
+        MessageCreated.replyCallbackMap.put(account, replyMessage -> {
             String content = replyMessage.getContent();
             int number;
             try {
@@ -76,7 +76,7 @@ public class GamblingCommand implements Command {
                     DBManager.giveCoin(account, -coins);
                 }
             }
-            MessageCreated.replyListener.remove(account);
+            MessageCreated.replyCallbackMap.remove(account);
             return true;
         });
     }

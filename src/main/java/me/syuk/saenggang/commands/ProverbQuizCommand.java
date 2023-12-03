@@ -153,7 +153,7 @@ public class ProverbQuizCommand implements Command {
                 "뜻: **" + proverb.get().description() + "**");
 
         AtomicInteger count = new AtomicInteger();
-        MessageCreated.replyListener.put(account, replyMessage -> {
+        MessageCreated.replyCallbackMap.put(account, replyMessage -> {
             if (replyMessage.getChannel().getId() != channel.getId()) return false;
 
             return CompletableFuture.supplyAsync(() -> {
@@ -168,7 +168,7 @@ public class ProverbQuizCommand implements Command {
 
                 if (replyMessage.getContent().equals("그만")) {
                     channel.sendMessage("속담퀴즈를 종료합니다.");
-                    MessageCreated.replyListener.remove(account);
+                    MessageCreated.replyCallbackMap.remove(account);
                     channel.createUpdater().setArchivedFlag(true).update();
                     return true;
                 } else if (replyMessage.getContent().equals("스킵")) {

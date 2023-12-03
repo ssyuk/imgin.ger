@@ -7,19 +7,19 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.listener.message.MessageCreateListener;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MessageCreated implements MessageCreateListener {
-    public static Map<DBManager.Account, ReplyCallback> replyListener = new HashMap<>();
+    public static Map<DBManager.Account, ReplyCallback> replyCallbackMap = new HashMap<>();
 
     @Override
     public void onMessageCreate(MessageCreateEvent event) {
-        User user = event.getMessageAuthor().asUser().orElseThrow();
+        Optional<User> oUser = event.getMessageAuthor().asUser();
+        if (oUser.isEmpty()) return;
+
+        User user = oUser.get();
         if (user.isBot()) return;
 
         DBManager.Account account = DBManager.getAccount(user);
@@ -27,8 +27,8 @@ public class MessageCreated implements MessageCreateListener {
         String content = event.getMessageContent();
         Message message = event.getMessage();
 
-        if (replyListener.containsKey(account)) {
-            ReplyCallback callback = replyListener.get(account);
+        if (replyCallbackMap.containsKey(account)) {
+            ReplyCallback callback = replyCallbackMap.get(account);
             if (callback.onReply(message)) return;
         }
 
@@ -88,5 +88,9 @@ public class MessageCreated implements MessageCreateListener {
         answer = answer.replaceAll("(https?://(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.\\S{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|https?://(?:www\\.|(?!www))[a-zA-Z0-9]+\\.\\S{2,}|www\\.[a-zA-Z0-9]+\\.\\S{2,})",
                 "`링크`");
         return answer;
+    }
+
+    public interface ReplyCallback {
+        boolean onReply(Message message);
     }
 }

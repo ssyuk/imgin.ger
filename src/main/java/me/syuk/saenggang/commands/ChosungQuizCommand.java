@@ -79,13 +79,13 @@ public class ChosungQuizCommand implements Command {
                 "힌트: __**" + word.get().theme() + "**__\n");
 
         AtomicInteger count = new AtomicInteger();
-        MessageCreated.replyListener.put(account, replyMessage -> {
+        MessageCreated.replyCallbackMap.put(account, replyMessage -> {
             if (replyMessage.getChannel().getId() != channel.getId()) return false;
 
             return CompletableFuture.supplyAsync(() -> {
                 if (replyMessage.getContent().equals("그만")) {
                     channel.sendMessage("초성퀴즈를 종료합니다.");
-                    MessageCreated.replyListener.remove(account);
+                    MessageCreated.replyCallbackMap.remove(account);
                     channel.createUpdater().setArchivedFlag(true).update();
                     return true;
                 }
