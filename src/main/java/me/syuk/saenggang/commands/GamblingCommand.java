@@ -32,10 +32,7 @@ public class GamblingCommand implements Command {
         if (lastMessageTime.containsKey(account)) {
             LocalDateTime lastTime = lastMessageTime.get(account);
             long secondsBetween = ChronoUnit.SECONDS.between(lastTime, LocalDateTime.now());
-            if (secondsBetween < 1) {
-                message.reply("너무 빨리 메시지를 보내고있어요. 조금 천천히 보내주세요!");
-                return;
-            }
+            if (secondsBetween < 5) return;
         }
         lastMessageTime.put(account, LocalDateTime.now());
 
