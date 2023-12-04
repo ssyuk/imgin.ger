@@ -11,6 +11,7 @@ import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.user.User;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -96,6 +97,12 @@ public class DBManager {
             accountCollection.insertOne(new Document("userId", userId).append("coin", 0));
             document = accountCollection.find(new Document("userId", userId)).first();
         }
+        if (!document.containsKey("coinHistory")) {
+            accountCollection.updateOne(new Document("userId", userId),
+                    new Document("$set", new Document("coinHistory", new ArrayList<>(List.of(
+                            new Document("coin", 0).append("date", LocalDateTime.now().toString())
+                    )))));
+        }
         return document;
     }
 
@@ -104,14 +111,16 @@ public class DBManager {
     }
 
     public static void giveCoin(Account account, int coin) {
-        Document document = accountCollection.find(new Document("userId", account.userId())).first();
-        if (document == null) {
-            accountCollection.insertOne(new Document("userId", account.userId()).append("coin", 0));
-            document = accountCollection.find(new Document("userId", account.userId())).first();
-            assert document != null;
-        }
+        Document document = getUserDocument(account.userId);
 
-        accountCollection.updateOne(new Document("userId", account.userId()), new Document("$set", new Document("coin", document.getInteger("coin") + coin)));
+        List<Document> coinHistory = document.getList("coinHistory", Document.class, new ArrayList<>());
+        coinHistory.add(new Document("coin", coin).append("date", LocalDateTime.now().toString()));
+
+        accountCollection.updateOne(new Document("userId", account.userId()),
+                new Document("$set",
+                        new Document("coin", document.getInteger("coin") + coin)
+                                .append("coinHistory", coinHistory)
+                ));
     }
 
     public static boolean isAttended(Account account) {
@@ -163,6 +172,17 @@ public class DBManager {
         return ranking;
     }
 
+    public static List<CoinHistory> getCoinHistory(Account account) {
+        List<CoinHistory> coinHistory = new ArrayList<>();
+
+        Document document = getUserDocument(account.userId);
+        List<Document> history = document.getList("coinHistory", Document.class, new ArrayList<>());
+        for (Document doc : history) {
+            coinHistory.add(new CoinHistory(doc.getInteger("coin")));
+        }
+        return coinHistory;
+    }
+
     public record AttendStatus(int ranking, int streak) {
     }
 
@@ -191,5 +211,8 @@ public class DBManager {
     }
 
     public record SaenggangKnowledge(String question, String answer, String authorName, String authorId) {
+    }
+
+    public record CoinHistory(int coin) {
     }
 }

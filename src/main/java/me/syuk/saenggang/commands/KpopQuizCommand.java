@@ -179,8 +179,8 @@ public class KpopQuizCommand implements Command {
                 count.incrementAndGet();
                 content.append("정답입니다! 축하드려요! (연속 정답: ").append(count.get()).append("회)\n");
                 if (count.get() % 10 == 0) {
-                    DBManager.giveCoin(account, 1);
-                    content.append("연속 정답 횟수가 ").append(count.get()).append("회가 되서").append(Utils.displayCoin(1)).append("을(를) 받았어요! (현재 코인: ").append(Utils.displayCoin(account.coin())).append(")");
+                    DBManager.giveCoin(account, 3);
+                    content.append("연속 정답 횟수가 ").append(count.get()).append("회가 되서").append(Utils.displayCoin(3)).append("을(를) 받았어요! (현재 코인: ").append(Utils.displayCoin(account.coin())).append(")");
                 }
                 ref.game = createGameEmbed();
 

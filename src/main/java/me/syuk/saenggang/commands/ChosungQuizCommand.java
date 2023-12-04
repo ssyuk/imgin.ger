@@ -75,7 +75,7 @@ public class ChosungQuizCommand implements Command {
         channel.sendMessage("""
                 다음 초성을 보고, 힌트를 참고하여 알맞은 **단어**를 입력해주세요!
                 그만하고 싶으시면 `그만`이라고 말해주세요!
-                **5번 연속 정답을 맞추면 1코인, 100번 연속 정답을 맞추면 5코인을 드립니다!**
+                **5번 연속 정답을 맞추면 3코인, 100번 연속 정답을 맞추면 20코인을 드립니다!**
                 """);
         AtomicReference<QuizWord> word = new AtomicReference<>(getRandomWord());
         channel.sendMessage("무슨 단어일까요?\n" +
@@ -100,9 +100,9 @@ public class ChosungQuizCommand implements Command {
                     channel.sendMessage("정답입니다! 축하드려요!");
                     count.incrementAndGet();
                     if (count.get() % 100 == 0) {
-                        account.giveCoin(replyMessage.getChannel(), 5, count.get() + "회 연속 정답을 맞춰서");
+                        account.giveCoin(replyMessage.getChannel(), 20, count.get() + "회 연속 정답을 맞춰서");
                     } else if (count.get() % 5 == 0) {
-                        account.giveCoin(replyMessage.getChannel(), 1, "연속 정답 횟수가 " + count.get() + "회가 되서");
+                        account.giveCoin(replyMessage.getChannel(), 3, "연속 정답 횟수가 " + count.get() + "회가 되서");
                     }
                     word.set(getRandomWord());
                     channel.sendMessage("다음 문제를 내드릴게요! (연속 정답: " + count.get() + "회)\n" +
