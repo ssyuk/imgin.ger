@@ -27,7 +27,7 @@ public class RankingCommand implements Command {
         for (int i = 0; i < Math.min(ranking.size(), 7); i++) {
             DBManager.CoinRank rank = ranking.get(i);
 
-            builder.append("**").append(getRankingEmoji(i)).append((i + 1)).append("위** <@").append(rank.user()).append("> ").append(Utils.displayCoin(rank.coin())).append("\n");
+            builder.append("**").append(Utils.getRankingEmoji(i + 1)).append((i + 1)).append("위** <@").append(rank.user()).append("> ").append(Utils.displayCoin(rank.coin())).append("\n");
         }
 
         if (ranking.size() > 7 && ranking.subList(0, 7).stream().noneMatch(rank -> rank.user().equals(account.userId()))) {
@@ -53,14 +53,5 @@ public class RankingCommand implements Command {
                 .setColor(Color.green)
                 .setFooter("코인은 끝말잇기, 출석체크 등으로 획득할 수 있습니다.")
         );
-    }
-
-    public static String getRankingEmoji(int rank) {
-        return switch (rank) {
-            case 0 -> "\uD83E\uDD47 ";
-            case 1 -> "\uD83E\uDD48 ";
-            case 2 -> "\uD83E\uDD49 ";
-            default -> "";
-        };
     }
 }
