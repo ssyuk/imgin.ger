@@ -41,6 +41,12 @@ public class BadgeSelectCommand implements Command {
 
         SelectMenuChoose.selectMenuCallbackMap.put(account, interaction -> {
             if (interaction.getCustomId().equals("badgeSelector")) {
+                if (!interaction.getUser().getIdAsString().equals(account.userId())) {
+                    interaction.createImmediateResponder()
+                            .setContent("본인만 응답할 수 있습니다.")
+                            .respond();
+                    return;
+                }
                 int badgeId = Integer.parseInt(interaction.getChosenOptions().get(0).getValue());
                 DBManager.selectBadge(account, badgeId);
                 interaction.createImmediateResponder()

@@ -1,7 +1,8 @@
-package me.syuk.saenggang.commands;
+package me.syuk.saenggang.commands.game;
 
 import me.syuk.saenggang.MessageCreated;
 import me.syuk.saenggang.Utils;
+import me.syuk.saenggang.commands.Command;
 import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.channel.ServerThreadChannel;
 import org.javacord.api.entity.message.Message;
@@ -148,7 +149,7 @@ public class ProverbQuizCommand implements Command {
                 일부분이 지워진 속담이 주어집니다. 지워진 부분에 들어갈 말을 입력해주세요! (필수 단어만 포함되면 정답 인정됩니다.)
                 그만하고 싶으시면 `그만`이라고 말해주세요!
                 스킵하고 싶으시면 `스킵`이라고 말해주세요! (스킵하더라도 연속 정답이 초기화되지 않습니다.)
-                *5번 연속 정답을 맞추면 5코인을 드립니다!**
+                *3번 연속 정답을 맞추면 25코인을 드립니다!**
                 """);
         AtomicReference<Proverb> proverb = new AtomicReference<>(PROVERB_LIST.get((int) (Math.random() * PROVERB_LIST.size())));
         AtomicReference<String> prov = new AtomicReference<>(proverb.get().proverb().split("/")[0]);
@@ -182,8 +183,8 @@ public class ProverbQuizCommand implements Command {
                     channel.sendMessage("정답입니다! 축하드려요!\n" +
                             "**" + proverb.get().proverb().replace('/', ' ').replace("'", "") + "**: " + proverb.get().description());
                     count.incrementAndGet();
-                    if (count.get() % 5 == 0) {
-                        account.giveCoin(replyMessage.getChannel(), 5, "연속 정답 횟수가 " + count.get() + "회가 되서");
+                    if (count.get() % 3 == 0) {
+                        account.giveCoin(replyMessage.getChannel(), 25, "연속 정답 횟수가 " + count.get() + "회가 되서");
                     }
                 } else {
                     count.set(0);

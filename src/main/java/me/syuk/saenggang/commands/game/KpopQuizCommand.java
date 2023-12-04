@@ -1,7 +1,8 @@
-package me.syuk.saenggang.commands;
+package me.syuk.saenggang.commands.game;
 
 import me.syuk.saenggang.ButtonClick;
 import me.syuk.saenggang.Utils;
+import me.syuk.saenggang.commands.Command;
 import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.channel.ServerThreadChannel;
 import org.javacord.api.entity.message.Message;
@@ -154,7 +155,8 @@ public class KpopQuizCommand implements Command {
     public void execute(DBManager.Account account, String[] args, Message message) {
         ServerThreadChannel channel = Utils.createGameThread(message, "케이팝퀴즈");
 
-        channel.sendMessage("다음 KPOP 노래 제목을 보고, 보기에서 알맞는 아티스트명의 번호를 클릭해 주세요!");
+        channel.sendMessage("다음 KPOP 노래 제목을 보고, 보기에서 알맞는 아티스트명의 번호를 클릭해 주세요!\n" +
+                "10번 연속 정답을 맞추면 25코인을 드립니다!");
         var ref = new Object() {
             Game game = createGameEmbed();
         };
@@ -179,8 +181,8 @@ public class KpopQuizCommand implements Command {
                 count.incrementAndGet();
                 content.append("정답입니다! 축하드려요! (연속 정답: ").append(count.get()).append("회)\n");
                 if (count.get() % 10 == 0) {
-                    DBManager.giveCoin(account, 3);
-                    content.append("연속 정답 횟수가 ").append(count.get()).append("회가 되서").append(Utils.displayCoin(3)).append("을(를) 받았어요! (현재 코인: ").append(Utils.displayCoin(account.coin())).append(")");
+                    DBManager.giveCoin(account, 25);
+                    content.append("연속 정답 횟수가 ").append(count.get()).append("회가 되서").append(Utils.displayCoin(25)).append("을(를) 받았어요! (현재 코인: ").append(Utils.displayCoin(account.coin())).append(")");
                 }
                 ref.game = createGameEmbed();
 

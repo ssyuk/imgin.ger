@@ -1,7 +1,8 @@
-package me.syuk.saenggang.commands;
+package me.syuk.saenggang.commands.game;
 
 import me.syuk.saenggang.MessageCreated;
 import me.syuk.saenggang.Utils;
+import me.syuk.saenggang.commands.Command;
 import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.message.Message;
 
@@ -72,11 +73,11 @@ public class GamblingCommand implements Command {
                     reply.append("\uD83C\uDF89 축하해요! ").append(Utils.displayCoin((int) (coins * 0.5))).append("을 얻었어요! (1.5배)");
                     DBManager.giveCoin(account, (int) (coins * .5));
                 }
-                case 2, 3, 4 -> {
+                case 2, 3 -> {
                     reply.append("\uD83C\uDF89 축하해요! ").append(Utils.displayCoin((int) (coins * 0.3))).append("을 얻었어요! (1.3배)");
                     DBManager.giveCoin(account, (int) (coins * .3));
                 }
-                case 5 -> reply.append("코인을 그대로 돌려받았어요! (1배)");
+                case 4, 5 -> reply.append("코인을 그대로 돌려받았어요! (1배)");
                 case 6, 7, 8 -> {
                     reply.append("\uD83D\uDC94 ").append(Utils.displayCoin((int) (coins * .3))).append("을 잃었어요ㅠ (0.7배)");
                     DBManager.giveCoin(account, (int) -(coins * .3));

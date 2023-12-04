@@ -1,6 +1,7 @@
 package me.syuk.saenggang;
 
 import me.syuk.saenggang.commands.*;
+import me.syuk.saenggang.commands.game.*;
 import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
