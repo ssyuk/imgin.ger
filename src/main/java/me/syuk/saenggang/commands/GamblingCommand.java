@@ -78,7 +78,7 @@ public class GamblingCommand implements Command {
                     DBManager.giveCoin(account, (int) -(coins * .3));
                 }
                 case 9 -> {
-                    reply.append("\uD83C\uDF29 ").append(Utils.displayCoin((int) (coins * .8))).append("을 잃었어요ㅠ (0.5배)");
+                    reply.append("\uD83C\uDF29 ").append(Utils.displayCoin((int) (coins * .5))).append("을 잃었어요ㅠ (0.5배)");
                     DBManager.giveCoin(account, (int) -(coins * .5));
                 }
             }
