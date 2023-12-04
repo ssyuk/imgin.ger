@@ -27,7 +27,7 @@ public class RankingCommand implements Command {
         for (int i = 0; i < Math.min(ranking.size(), 7); i++) {
             DBManager.CoinRank rank = ranking.get(i);
 
-            builder.append("**").append(Utils.getRankingEmoji(i + 1)).append((i + 1)).append("위** <@").append(rank.user()).append("> ").append(Utils.displayCoin(rank.coin())).append("\n");
+            builder.append("**").append(Utils.getRankBadge(i + 1)).append((i + 1)).append("위** <@").append(rank.user()).append("> ").append(Utils.displayCoin(rank.coin())).append("\n");
         }
 
         if (ranking.size() > 7 && ranking.subList(0, 7).stream().noneMatch(rank -> rank.user().equals(account.userId()))) {

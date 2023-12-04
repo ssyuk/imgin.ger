@@ -35,6 +35,7 @@ public class Main {
         Command.commands.add(new ChosungQuizCommand());
         Command.commands.add(new ProverbQuizCommand());
         Command.commands.add(new KpopQuizCommand());
+        Command.commands.add(new BadgeDrawCommand());
 
         DBManager.connect();
 

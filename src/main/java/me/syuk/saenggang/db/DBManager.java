@@ -12,10 +12,7 @@ import org.javacord.api.entity.user.User;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static me.syuk.saenggang.Main.properties;
 
@@ -97,6 +94,7 @@ public class DBManager {
             accountCollection.insertOne(new Document("userId", userId).append("coin", 0));
             document = accountCollection.find(new Document("userId", userId)).first();
         }
+        assert document != null;
         if (!document.containsKey("coinHistory")) {
             int currentCoin = document.getInteger("coin");
             accountCollection.updateOne(new Document("userId", userId),
@@ -184,6 +182,19 @@ public class DBManager {
         return coinHistory;
     }
 
+    public static int getUserBadgeId(Account account) {
+        return getUserDocument(account.userId).getInteger("currentBadge", 0);
+    }
+
+    public static void setUserBadgeId(Account account, int badgeId) {
+        accountCollection.updateOne(new Document("userId", account.userId()),
+                new Document("$set", new Document("currentBadge", badgeId)));
+    }
+
+    public static int drawBadge(Account account) {
+        return new Random().nextInt(23) + 1;
+    }
+
     public record AttendStatus(int ranking, int streak) {
     }
 
@@ -202,7 +213,7 @@ public class DBManager {
                 channel.sendMessage("<@" + userId + ">님! " + reason + Utils.displayCoin(count) + "을(를) 받았어요. (현재 코인: " + Utils.displayCoin(coin()) + ")");
             } else if (count < 0) {
                 DBManager.giveCoin(this, count);
-                channel.sendMessage("<@" + userId + ">님! " + reason + Utils.displayCoin(-count) + "을(를) 잃었어요. (현재 코인: " + Utils.displayCoin(coin()) + ")");
+                channel.sendMessage("<@" + userId + ">님! " + reason + Utils.displayCoin(-count) + "을(를) 사용했어요. (현재 코인: " + Utils.displayCoin(coin()) + ")");
             }
         }
 

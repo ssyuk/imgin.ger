@@ -30,19 +30,47 @@ public class Utils {
     }
 
     public static String getUserName(User user) {
-        return Utils.getRankingEmoji(getRank(DBManager.getAccount(user))) + user.getName();
+        DBManager.Account account = DBManager.getAccount(user);
+        return getRankBadge(getRank(account)) + getBadge(DBManager.getUserBadgeId(account)) + user.getName();
     }
 
-    public static String getRankingEmoji(int rank, String defaultEmoji) {
+    public static String getRankBadge(int rank) {
         return switch (rank) {
             case 1 -> "\uD83E\uDD47 ";
             case 2 -> "\uD83E\uDD48 ";
             case 3 -> "\uD83E\uDD49 ";
-            default -> defaultEmoji;
+            default -> "";
         };
     }
 
-    public static String getRankingEmoji(int rank) {
-        return getRankingEmoji(rank, "");
+    public static String getBadge(int badgeId) {
+        String badgeEmoji = switch (badgeId) {
+            case 1 -> ":poop:";
+            case 2 -> ":dog:";
+            case 3 -> ":cat:";
+            case 4 -> ":mouse:";
+            case 5 -> ":hamster:";
+            case 6 -> ":fox:";
+            case 7 -> ":bear:";
+            case 8 -> ":panda_face:";
+            case 9 -> ":koala:";
+            case 10 -> ":tiger:";
+            case 11 -> ":lion:";
+            case 12 -> ":cow:";
+            case 13 -> ":pig:";
+            case 14 -> ":frog:";
+            case 15 -> ":monkey_face:";
+            case 16 -> ":chicken:";
+            case 17 -> ":penguin:";
+            case 18 -> ":bird:";
+            case 19 -> ":baby_chick:";
+            case 20 -> ":hatching_chick:";
+            case 21 -> ":hatched_chick:";
+            case 22 -> ":wolf:";
+            case 23 -> ":boar:";
+            default -> "";
+        };
+        if (!badgeEmoji.isEmpty()) badgeEmoji = badgeEmoji + " ";
+        return badgeEmoji;
     }
 }
