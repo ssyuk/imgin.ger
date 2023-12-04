@@ -51,7 +51,7 @@ public class RankingCommand implements Command {
                 .setTitle("코인 랭킹 (전체서버)")
                 .setDescription(builder.toString())
                 .setColor(Color.green)
-                .setFooter("코인은 끝말잇기, 출석체크 등으로 획득할 수 있습니다.")
+                .setFooter("코인은 게임, 출석체크 등으로 획득할 수 있습니다.")
         );
     }
 }

@@ -98,9 +98,10 @@ public class DBManager {
             document = accountCollection.find(new Document("userId", userId)).first();
         }
         if (!document.containsKey("coinHistory")) {
+            int currentCoin = document.getInteger("coin");
             accountCollection.updateOne(new Document("userId", userId),
                     new Document("$set", new Document("coinHistory", new ArrayList<>(List.of(
-                            new Document("coin", 0).append("date", LocalDateTime.now().toString())
+                            new Document("coin", currentCoin).append("date", LocalDateTime.now().toString())
                     )))));
         }
         return document;

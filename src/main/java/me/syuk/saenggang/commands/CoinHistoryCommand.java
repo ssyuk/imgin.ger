@@ -34,6 +34,11 @@ public class CoinHistoryCommand implements Command {
         Graphics2D g2d = image.createGraphics();
 
         List<DBManager.CoinHistory> coinHistory = DBManager.getCoinHistory(account);
+        if (coinHistory.size() == 1) {
+            message.reply("아직 코인 변동 내역이 기록되지 않았어요.");
+            return;
+        }
+
         List<Integer> data = new ArrayList<>();
         int lastCoin = 0;
         for (DBManager.CoinHistory history : coinHistory) {
@@ -41,6 +46,7 @@ public class CoinHistoryCommand implements Command {
             data.add(lastCoin);
         }
 
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setColor(Color.WHITE);
         g2d.fillRect(0, 0, width, height);
         drawLineGraph(g2d, data.toArray(Integer[]::new), width, height);
@@ -71,6 +77,9 @@ public class CoinHistoryCommand implements Command {
         // x축에 띄울 여백 추가
         double xPadding = graphWidth / (numPoints - 1.0);
 
+        // y축 눈금 간격 계산
+        int yTickInterval = (maxValue - minValue) / 5;
+
         // 최대값과 최소값을 기준으로 그래프를 그릴 경로(Path2D) 생성
         Path2D path = new Path2D.Double();
         for (int i = 0; i < numPoints; i++) {
@@ -97,5 +106,13 @@ public class CoinHistoryCommand implements Command {
         g2d.setColor(Color.BLACK);
         g2d.drawLine(50, height - 50, width - 50, height - 50); // x축
         g2d.drawLine(50, 50, 50, height - 50); // y축
+
+        // y축 눈금과 숫자 그리기
+        for (int i = 0; i <= 5; i++) {
+            int yValue = minValue + i * yTickInterval;
+            double yCoord = height - 50 - ((double) graphHeight / 5) * i;
+            g2d.drawLine(45, (int) yCoord, 50, (int) yCoord);
+            g2d.drawString(Integer.toString(yValue), 40 - g2d.getFontMetrics().stringWidth(Integer.toString(yValue)), (int) yCoord + 5);
+        }
     }
 }
