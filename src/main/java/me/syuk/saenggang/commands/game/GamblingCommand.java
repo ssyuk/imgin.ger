@@ -78,12 +78,12 @@ public class GamblingCommand implements Command {
                     DBManager.giveCoin(account, (int) (coins * .3));
                 }
                 case 5, 6, 7 -> {
-                    reply.append("\uD83D\uDC94 ").append(Utils.displayCoin((int) (coins * .4))).append("을 잃었어요ㅠ (0.6배)");
-                    DBManager.giveCoin(account, (int) -(coins * .4));
+                    reply.append("\uD83D\uDC94 ").append(Utils.displayCoin((int) (coins * .3))).append("을 잃었어요ㅠ (0.7배)");
+                    DBManager.giveCoin(account, (int) -(coins * .3));
                 }
                 case 8, 9 -> {
-                    reply.append("\uD83C\uDF29 ").append(Utils.displayCoin((int) (coins * .7))).append("을 잃었어요ㅠ (0.3배)");
-                    DBManager.giveCoin(account, (int) -(coins * .7));
+                    reply.append("\uD83C\uDF29 ").append(Utils.displayCoin((int) (coins * .6))).append("을 잃었어요ㅠ (0.4배)");
+                    DBManager.giveCoin(account, (int) -(coins * .6));
                 }
             }
             reply.append("\n").append("현재 코인: ").append(Utils.displayCoin(account.coin()));
