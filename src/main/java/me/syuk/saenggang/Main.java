@@ -29,6 +29,7 @@ public class Main {
         Command.commands.add(new RankingCommand());
         Command.commands.add(new KnowledgeCommand());
         Command.commands.add(new CoinHistoryCommand());
+        Command.commands.add(new SendCoinCommand());
 
         Command.commands.add(new WordRelayCommand());
         Command.commands.add(new GamblingCommand());
