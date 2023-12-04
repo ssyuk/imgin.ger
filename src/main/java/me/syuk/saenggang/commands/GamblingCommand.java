@@ -53,25 +53,32 @@ public class GamblingCommand implements Command {
             }
 
             int index = numbers.indexOf(number);
+            StringBuilder reply = new StringBuilder();
             switch (index) {
                 case 0 -> {
-                    replyMessage.reply("\uD83C\uDF89 축하해요! " + Utils.displayCoin(coins) + "을 얻었어요! (2배)");
+                    reply.append("\uD83C\uDF89 축하해요! ").append(Utils.displayCoin(coins)).append("을 얻었어요! (2배)");
                     DBManager.giveCoin(account, coins);
                 }
                 case 1, 2 -> {
-                    replyMessage.reply("\uD83C\uDF89 축하해요! " + Utils.displayCoin((int) (coins * 0.5)) + "을 얻었어요! (1.5배)");
+                    reply.append("\uD83C\uDF89 축하해요! ").append(Utils.displayCoin((int) (coins * 0.5))).append("을 얻었어요! (1.5배)");
                     DBManager.giveCoin(account, (int) (coins * .5));
                 }
-                case 3, 4, 5 -> replyMessage.reply("코인을 그대로 돌려받았어요! (1배)");
-                case 6, 7, 8 -> {
-                    replyMessage.reply("\uD83D\uDC94 " + Utils.displayCoin((int) (coins * .4)) + "을 잃었어요ㅠ (0.6배)");
+                case 3, 4 -> {
+                    reply.append("\uD83C\uDF89 축하해요! ").append(Utils.displayCoin((int) (coins * 0.2))).append("을 얻었어요! (1.2배)");
+                    DBManager.giveCoin(account, (int) (coins * .2));
+                }
+                case 5, 6 -> reply.append("코인을 그대로 돌려받았어요! (1배)");
+                case 7, 8 -> {
+                    reply.append("\uD83D\uDC94 ").append(Utils.displayCoin((int) (coins * .4))).append("을 잃었어요ㅠ (0.6배)");
                     DBManager.giveCoin(account, (int) -(coins * .4));
                 }
                 case 9 -> {
-                    replyMessage.reply("\uD83C\uDF29 " + Utils.displayCoin((int) (coins * .8)) + "을 잃었어요ㅠ (0.2배)");
+                    reply.append("\uD83C\uDF29 ").append(Utils.displayCoin((int) (coins * .8))).append("을 잃었어요ㅠ (0.2배)");
                     DBManager.giveCoin(account, (int) -(coins * .8));
                 }
             }
+            reply.append("\n").append("현재 코인: ").append(Utils.displayCoin(account.coin()));
+            replyMessage.reply(reply.toString());
             MessageCreated.replyCallbackMap.remove(account);
             return true;
         });
