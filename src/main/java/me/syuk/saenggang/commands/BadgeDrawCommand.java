@@ -12,7 +12,7 @@ public class BadgeDrawCommand implements Command {
 
     @Override
     public Theme theme() {
-        return Theme.GAME;
+        return Theme.COSMETIC;
     }
 
     @Override

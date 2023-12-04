@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface Command {
     enum Theme {
-        ACCOUNT, GAME, FOR_OWNER, UTILS, TALKING
+        ACCOUNT, GAME, FOR_OWNER, UTILS, TALKING, COSMETIC
     }
     List<Command> commands = new ArrayList<>();
 
