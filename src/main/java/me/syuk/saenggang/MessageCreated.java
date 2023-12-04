@@ -14,6 +14,21 @@ import java.util.regex.Pattern;
 public class MessageCreated implements MessageCreateListener {
     public static Map<DBManager.Account, ReplyCallback> replyCallbackMap = new HashMap<>();
 
+    public static String fixAnswer(DBManager.SaenggangKnowledge selectedKnowledge, DBManager.Account account) {
+        String answer = selectedKnowledge.answer();
+        answer = answer.replace("{user.name}", "<@" + account.userId() + ">");
+        answer = answer.replace("{user.coin}", String.valueOf(account.coin()));
+        answer = answer.replace("{user.displayCoin}", Utils.displayCoin(account.coin()));
+
+        answer = answer.replace("\u200B", "");
+        answer = answer.replace("`", "");
+        answer = answer.replace("@everyone", "@\u200Beveryone");
+        answer = answer.replace("@here", "@\u200Bhere");
+        answer = answer.replaceAll("(https?://(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.\\S{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|https?://(?:www\\.|(?!www))[a-zA-Z0-9]+\\.\\S{2,}|www\\.[a-zA-Z0-9]+\\.\\S{2,})",
+                "`링크`");
+        return answer;
+    }
+
     @Override
     public void onMessageCreate(MessageCreateEvent event) {
         Optional<User> oUser = event.getMessageAuthor().asUser();
@@ -36,7 +51,7 @@ public class MessageCreated implements MessageCreateListener {
             message.reply("안녕하세요! 생강이에요.\n" +
                     "`생강아 [할말]`로 저에게 말을 걸 수 있어요.\n" +
                     "`생강아 배워 [명령어] [메시지]`로 저에게 말을 가르칠 수 있어요!"
-                + (account.coin() == 0 ? "\n앞으로 저와 재미있게 놀아봐요!" : ""));
+                    + (account.coin() == 0 ? "\n앞으로 저와 재미있게 놀아봐요!" : ""));
             if (account.coin() == 0) account.giveCoin(message.getChannel(), 5, "첫 사용자 보상으로");
             return;
         }
@@ -73,21 +88,6 @@ public class MessageCreated implements MessageCreateListener {
         String answer = fixAnswer(selectedKnowledge, account);
         message.reply(answer + "\n" +
                 "`" + selectedKnowledge.authorName() + "님이 알려주셨어요.`");
-    }
-
-    public static String fixAnswer(DBManager.SaenggangKnowledge selectedKnowledge, DBManager.Account account) {
-        String answer = selectedKnowledge.answer();
-        answer = answer.replace("{user.name}", "<@" + account.userId() + ">");
-        answer = answer.replace("{user.coin}", String.valueOf(account.coin()));
-        answer = answer.replace("{user.displayCoin}", Utils.displayCoin(account.coin()));
-
-        answer = answer.replace("\u200B", "");
-        answer = answer.replace("`", "");
-        answer = answer.replace("@everyone", "@\u200Beveryone");
-        answer = answer.replace("@here", "@\u200Bhere");
-        answer = answer.replaceAll("(https?://(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.\\S{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|https?://(?:www\\.|(?!www))[a-zA-Z0-9]+\\.\\S{2,}|www\\.[a-zA-Z0-9]+\\.\\S{2,})",
-                "`링크`");
-        return answer;
     }
 
     public interface ReplyCallback {

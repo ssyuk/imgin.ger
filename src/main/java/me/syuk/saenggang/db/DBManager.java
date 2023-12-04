@@ -186,9 +186,22 @@ public class DBManager {
         return getUserDocument(account.userId).getInteger("currentBadge", 0);
     }
 
-    public static void setUserBadgeId(Account account, int badgeId) {
-        accountCollection.updateOne(new Document("userId", account.userId()),
-                new Document("$set", new Document("currentBadge", badgeId)));
+    public static void addBadge(Account account, int badgeId) {
+        Document document = getUserDocument(account.userId);
+        List<Integer> badges = document.getList("badges", Integer.class, new ArrayList<>());
+        badges.add(badgeId);
+        accountCollection.updateOne(new Document("userId", account.userId()), new Document("$set", new Document("badges", badges)));
+    }
+
+    public static List<Integer> getBadges(Account account) {
+        return getUserDocument(account.userId).getList("badges", Integer.class, new ArrayList<>());
+    }
+
+    public static void selectBadge(Account account, int badge) {
+        if (badge < 1 || badge > Utils.LAST_BADGE) return;
+        if (!getBadges(account).contains(badge)) return;
+
+        accountCollection.updateOne(new Document("userId", account.userId()), new Document("$set", new Document("currentBadge", badge)));
     }
 
     public static int drawBadge(Account account) {

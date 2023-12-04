@@ -1,0 +1,52 @@
+package me.syuk.saenggang.commands;
+
+import me.syuk.saenggang.SelectMenuChoose;
+import me.syuk.saenggang.Utils;
+import me.syuk.saenggang.db.DBManager;
+import org.javacord.api.entity.message.Message;
+import org.javacord.api.entity.message.MessageBuilder;
+import org.javacord.api.entity.message.component.ActionRow;
+import org.javacord.api.entity.message.component.SelectMenu;
+import org.javacord.api.entity.message.component.SelectMenuOption;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class BadgeSelectCommand implements Command {
+    @Override
+    public String name() {
+        return "뱃지착용";
+    }
+
+    @Override
+    public Theme theme() {
+        return Theme.GAME;
+    }
+
+    @Override
+    public void execute(DBManager.Account account, String[] args, Message message) {
+        List<SelectMenuOption> options = new ArrayList<>();
+        DBManager.getBadges(account).forEach(badge -> options.add(
+                SelectMenuOption.create(
+                        Utils.getBadge(badge),
+                        String.valueOf(badge),
+                        Utils.getBadge(badge) + " 뱃지를 착용합니다."
+                )
+        ));
+        new MessageBuilder()
+                .append("착용할 뱃지를 선택해주세요.")
+                .addComponents(ActionRow.of(SelectMenu.createStringMenu("badgeSelector", "어떤 뱃지를 착용하실건가요?", 1, 1, options)))
+                .replyTo(message)
+                .send(message.getChannel());
+
+        SelectMenuChoose.selectMenuCallbackMap.put(account, interaction -> {
+            if (interaction.getCustomId().equals("badgeSelector")) {
+                int badgeId = Integer.parseInt(interaction.getChosenOptions().get(0).getValue());
+                DBManager.selectBadge(account, badgeId);
+                interaction.createImmediateResponder()
+                        .setContent(Utils.getBadge(badgeId) + " 뱃지를 착용했습니다.")
+                        .respond();
+            }
+        });
+    }
+}

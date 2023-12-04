@@ -36,6 +36,8 @@ public class Main {
         Command.commands.add(new ProverbQuizCommand());
         Command.commands.add(new KpopQuizCommand());
         Command.commands.add(new BadgeDrawCommand());
+        Command.commands.add(new BadgeListCommand());
+        Command.commands.add(new BadgeSelectCommand());
 
         DBManager.connect();
 
@@ -50,5 +52,6 @@ public class Main {
 
         api.addListener(new MessageCreated());
         api.addListener(new ButtonClick());
+        api.addListener(new SelectMenuChoose());
     }
 }

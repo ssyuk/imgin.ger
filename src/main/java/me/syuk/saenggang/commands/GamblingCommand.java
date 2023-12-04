@@ -5,11 +5,13 @@ import me.syuk.saenggang.Utils;
 import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.message.Message;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
 public class GamblingCommand implements Command {
+    public static Map<DBManager.Account, LocalDateTime> lastMessageTime = new HashMap<>();
+
     @Override
     public String name() {
         return "도박";
@@ -26,6 +28,16 @@ public class GamblingCommand implements Command {
             message.reply("도박 명령어는 `도박 [걸 코인]` 형식으로 사용해주세요!");
             return;
         }
+
+        if (lastMessageTime.containsKey(account)) {
+            LocalDateTime lastTime = lastMessageTime.get(account);
+            long secondsBetween = ChronoUnit.SECONDS.between(lastTime, LocalDateTime.now());
+            if (secondsBetween < 1) {
+                message.reply("너무 빨리 메시지를 보내고있어요. 조금 천천히 보내주세요!");
+                return;
+            }
+        }
+        lastMessageTime.put(account, LocalDateTime.now());
 
         int coins = Integer.parseInt(args[1]);
         if (account.coin() < coins) {
@@ -55,22 +67,18 @@ public class GamblingCommand implements Command {
             int index = numbers.indexOf(number);
             StringBuilder reply = new StringBuilder();
             switch (index) {
-                case 0 -> {
-                    reply.append("\uD83C\uDF89 축하해요! ").append(Utils.displayCoin(coins)).append("을 얻었어요! (2배)");
-                    DBManager.giveCoin(account, coins);
+                case 0, 1 -> {
+                    reply.append("\uD83C\uDF89 축하해요! ").append(Utils.displayCoin((int) (coins * 0.3))).append("을 얻었어요! (1.3배)");
+                    DBManager.giveCoin(account, (int) (coins * .3));
                 }
-                case 1, 2 -> {
-                    reply.append("\uD83C\uDF89 축하해요! ").append(Utils.displayCoin((int) (coins * 0.5))).append("을 얻었어요! (1.5배)");
-                    DBManager.giveCoin(account, (int) (coins * .5));
+                case 2, 3, 4 -> {
+                    reply.append("\uD83C\uDF89 축하해요! ").append(Utils.displayCoin((int) (coins * 0.1))).append("을 얻었어요! (1.1배)");
+                    DBManager.giveCoin(account, (int) (coins * .1));
                 }
-                case 3, 4 -> {
-                    reply.append("\uD83C\uDF89 축하해요! ").append(Utils.displayCoin((int) (coins * 0.2))).append("을 얻었어요! (1.2배)");
-                    DBManager.giveCoin(account, (int) (coins * .2));
-                }
-                case 5, 6 -> reply.append("코인을 그대로 돌려받았어요! (1배)");
-                case 7, 8 -> {
-                    reply.append("\uD83D\uDC94 ").append(Utils.displayCoin((int) (coins * .4))).append("을 잃었어요ㅠ (0.6배)");
-                    DBManager.giveCoin(account, (int) -(coins * .4));
+                case 5 -> reply.append("코인을 그대로 돌려받았어요! (1배)");
+                case 6, 7, 8 -> {
+                    reply.append("\uD83D\uDC94 ").append(Utils.displayCoin((int) (coins * .5))).append("을 잃었어요ㅠ (0.5배)");
+                    DBManager.giveCoin(account, (int) -(coins * .5));
                 }
                 case 9 -> {
                     reply.append("\uD83C\uDF29 ").append(Utils.displayCoin((int) (coins * .8))).append("을 잃었어요ㅠ (0.2배)");

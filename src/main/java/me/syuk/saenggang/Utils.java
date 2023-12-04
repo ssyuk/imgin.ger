@@ -9,6 +9,8 @@ import org.javacord.api.entity.user.User;
 import java.util.List;
 
 public class Utils {
+    public static final int LAST_BADGE = 23;
+
     public static ServerThreadChannel createGameThread(Message message, String name) {
         return message.createThread(name + " with " + message.getAuthor().getName(), AutoArchiveDuration.ONE_HOUR).join();
     }
