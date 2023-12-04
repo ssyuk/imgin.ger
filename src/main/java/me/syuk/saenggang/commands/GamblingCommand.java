@@ -37,6 +37,10 @@ public class GamblingCommand implements Command {
         lastMessageTime.put(account, LocalDateTime.now());
 
         int coins = Integer.parseInt(args[1]);
+        if (coins > 300) {
+            message.reply("최대 300 코인까지 걸 수 있어요!");
+            return;
+        }
         if (account.coin() < coins) {
             message.reply("코인이 부족해요!");
             return;
