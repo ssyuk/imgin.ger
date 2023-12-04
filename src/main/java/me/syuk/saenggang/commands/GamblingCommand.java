@@ -38,7 +38,7 @@ public class GamblingCommand implements Command {
 
         int coins = Integer.parseInt(args[1]);
         if (coins > 300) {
-            message.reply("최대 300 코인까지 걸 수 있어요!");
+            message.reply("최대 " + Utils.displayCoin(300) + "까지 걸 수 있어요!");
             return;
         }
         if (account.coin() < coins) {
