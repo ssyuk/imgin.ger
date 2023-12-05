@@ -1,5 +1,6 @@
 package me.syuk.saenggang.commands.cosmetic;
 
+import me.syuk.saenggang.Badge;
 import me.syuk.saenggang.ButtonClick;
 import me.syuk.saenggang.Utils;
 import me.syuk.saenggang.commands.Command;
@@ -47,10 +48,10 @@ public class BadgeDrawCommand implements Command {
                     return;
                 }
 
-                int badgeId = DBManager.drawBadge(account);
-                account.giveCoin(message.getChannel(), -100, "뱃지뽑기에");
-                response.append("뽑은 뱃지: " + Utils.getBadge(badgeId));
-                if (!DBManager.addBadge(account, badgeId)) {
+                Badge badge = Badge.getRandomBadge();
+//                account.giveCoin(message.getChannel(), -100, "뱃지뽑기에");
+                response.append("뽑은 뱃지: " + badge.getEmoji() + " (" + badge.getGrade() + ")");
+                if (!DBManager.addBadge(account, badge.getId())) {
                     response.append("\n이미 가지고 계신 뱃지라서 " + Utils.displayCoin(50) + "을 돌려드렸어요!");
                     DBManager.giveCoin(account, 50);
                 }

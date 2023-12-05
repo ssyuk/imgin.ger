@@ -1,7 +1,7 @@
 package me.syuk.saenggang.commands.cosmetic;
 
+import me.syuk.saenggang.Badge;
 import me.syuk.saenggang.SelectMenuChoose;
-import me.syuk.saenggang.Utils;
 import me.syuk.saenggang.commands.Command;
 import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.message.Message;
@@ -27,13 +27,16 @@ public class BadgeSelectCommand implements Command {
     @Override
     public void execute(DBManager.Account account, String[] args, Message message) {
         List<SelectMenuOption> options = new ArrayList<>();
-        DBManager.getBadges(account).forEach(badge -> options.add(
-                SelectMenuOption.create(
-                        Utils.getBadge(badge),
-                        String.valueOf(badge),
-                        Utils.getBadge(badge) + " 뱃지를 착용합니다."
-                )
-        ));
+        DBManager.getBadges(account).forEach(badgeId -> {
+            Badge badge = Badge.getBadgeById(badgeId);
+            assert badge != null;
+
+            options.add(SelectMenuOption.create(
+                    badge.getName(),
+                    String.valueOf(badge.getId()),
+                    badge.getName() + " 뱃지를 착용합니다."
+            ));
+        });
         new MessageBuilder()
                 .append("착용할 뱃지를 선택해주세요.")
                 .addComponents(ActionRow.of(SelectMenu.createStringMenu("badgeSelector", "어떤 뱃지를 착용하실건가요?", 1, 1, options)))
@@ -54,7 +57,7 @@ public class BadgeSelectCommand implements Command {
                 int badgeId = Integer.parseInt(interaction.getChosenOptions().get(0).getValue());
                 DBManager.selectBadge(account, badgeId);
                 interaction.createImmediateResponder()
-                        .setContent(Utils.getBadge(badgeId) + " 뱃지를 착용했습니다.")
+                        .setContent(Badge.getBadgeById(badgeId) + " 뱃지를 착용했습니다.")
                         .respond();
             }
         });

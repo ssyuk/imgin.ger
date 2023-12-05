@@ -12,7 +12,10 @@ import org.javacord.api.entity.user.User;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static me.syuk.saenggang.Main.properties;
 
@@ -204,10 +207,6 @@ public class DBManager {
         if (!getBadges(account).contains(badge)) return;
 
         accountCollection.updateOne(new Document("userId", account.userId()), new Document("$set", new Document("currentBadge", badge)));
-    }
-
-    public static int drawBadge(Account account) {
-        return new Random().nextInt(23) + 1;
     }
 
     public record AttendStatus(int ranking, int streak) {
