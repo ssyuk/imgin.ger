@@ -1,5 +1,6 @@
-package me.syuk.saenggang.commands;
+package me.syuk.saenggang.commands.utils;
 
+import me.syuk.saenggang.commands.Command;
 import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;

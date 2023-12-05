@@ -1,6 +1,7 @@
-package me.syuk.saenggang.commands;
+package me.syuk.saenggang.commands.cosmetic;
 
 import me.syuk.saenggang.Utils;
+import me.syuk.saenggang.commands.Command;
 import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.message.Message;
 

@@ -1,7 +1,19 @@
 package me.syuk.saenggang;
 
-import me.syuk.saenggang.commands.*;
+import me.syuk.saenggang.commands.Command;
+import me.syuk.saenggang.commands.account.AttendanceCommand;
+import me.syuk.saenggang.commands.account.CoinHistoryCommand;
+import me.syuk.saenggang.commands.account.RankingCommand;
+import me.syuk.saenggang.commands.account.WalletCommand;
+import me.syuk.saenggang.commands.cosmetic.BadgeDrawCommand;
+import me.syuk.saenggang.commands.cosmetic.BadgeListCommand;
+import me.syuk.saenggang.commands.cosmetic.BadgeSelectCommand;
 import me.syuk.saenggang.commands.game.*;
+import me.syuk.saenggang.commands.owner.GiveCoinCommand;
+import me.syuk.saenggang.commands.talking.ForgetCommand;
+import me.syuk.saenggang.commands.talking.KnowledgeCommand;
+import me.syuk.saenggang.commands.talking.LearnCommand;
+import me.syuk.saenggang.commands.utils.HelpCommand;
 import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
@@ -21,25 +33,28 @@ public class Main {
         properties = new Properties();
         properties.load(Files.newBufferedReader(Paths.get(".properties")));
 
-        Command.commands.add(new GiveCoinCommand());
-        Command.commands.add(new HelpCommand());
-        Command.commands.add(new LearnCommand());
-        Command.commands.add(new ForgetCommand());
         Command.commands.add(new AttendanceCommand());
-        Command.commands.add(new WalletCommand());
-        Command.commands.add(new RankingCommand());
-        Command.commands.add(new KnowledgeCommand());
         Command.commands.add(new CoinHistoryCommand());
-//        Command.commands.add(new SendCoinCommand());
+        Command.commands.add(new RankingCommand());
+        Command.commands.add(new WalletCommand());
 
-        Command.commands.add(new WordRelayCommand());
-        Command.commands.add(new GamblingCommand());
-        Command.commands.add(new ChosungQuizCommand());
-        Command.commands.add(new ProverbQuizCommand());
-        Command.commands.add(new KpopQuizCommand());
         Command.commands.add(new BadgeDrawCommand());
         Command.commands.add(new BadgeListCommand());
         Command.commands.add(new BadgeSelectCommand());
+
+        Command.commands.add(new ChosungQuizCommand());
+        Command.commands.add(new GamblingCommand());
+        Command.commands.add(new KpopQuizCommand());
+        Command.commands.add(new ProverbQuizCommand());
+        Command.commands.add(new WordRelayCommand());
+
+        Command.commands.add(new GiveCoinCommand());
+
+        Command.commands.add(new ForgetCommand());
+        Command.commands.add(new KnowledgeCommand());
+        Command.commands.add(new LearnCommand());
+
+        Command.commands.add(new HelpCommand());
 
         DBManager.connect();
 
