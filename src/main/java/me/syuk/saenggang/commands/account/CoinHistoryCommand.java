@@ -13,6 +13,8 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
+import static me.syuk.saenggang.Main.api;
+
 public class CoinHistoryCommand implements Command {
     @Override
     public String name() {
@@ -25,8 +27,14 @@ public class CoinHistoryCommand implements Command {
     }
 
     @Override
-    public void execute(DBManager.Account account, String[] args, Message message) {
+    public void execute(DBManager.Account sender, String[] args, Message message) {
         User user = message.getUserAuthor().orElseThrow();
+        DBManager.Account account = sender;
+        if (args.length > 1) {
+            String userId = args[1].replace("<@", "").replace(">", "");
+            user = api.getUserById(userId).join();
+            account = DBManager.getAccount(user);
+        }
 
         int width = 800;
         int height = 600;

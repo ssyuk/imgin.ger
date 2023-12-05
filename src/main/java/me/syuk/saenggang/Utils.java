@@ -37,7 +37,13 @@ public class Utils {
 
     public static String getUserName(User user) {
         DBManager.Account account = DBManager.getAccount(user);
-        return getRankBadge(getRank(account)) + Badge.getBadgeById(DBManager.getUserBadgeId(account)).getEmoji() + user.getName();
+        StringBuilder builder = new StringBuilder();
+        builder.append(getRankBadge(getRank(account)));
+        Badge badge = Badge.getBadgeById(DBManager.getUserBadgeId(account));
+        if (badge != null) {
+            builder.append(badge.getEmoji()).append(" ");
+        }
+        return builder + user.getName();
     }
 
     public static String getRankBadge(int rank) {

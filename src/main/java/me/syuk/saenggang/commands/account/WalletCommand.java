@@ -7,6 +7,8 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 
+import static me.syuk.saenggang.Main.api;
+
 public class WalletCommand implements Command {
     @Override
     public String name() {
@@ -19,8 +21,15 @@ public class WalletCommand implements Command {
     }
 
     @Override
-    public void execute(DBManager.Account account, String[] args, Message message) {
+    public void execute(DBManager.Account sender, String[] args, Message message) {
         User user = message.getUserAuthor().orElseThrow();
+        DBManager.Account account = sender;
+        if (args.length > 1) {
+            String userId = args[1].replace("<@", "").replace(">", "");
+            user = api.getUserById(userId).join();
+            account = DBManager.getAccount(user);
+        }
+
         int rank = Utils.getRank(account);
         message.reply(
                 new EmbedBuilder()
