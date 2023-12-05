@@ -49,7 +49,7 @@ public class WordRelayCommand implements Command {
                 끝말잇기는 제시된 단어의 끝 글자로 시작하는 단어를 입력하는 게임입니다.
                 예를 들어, `사과`라는 단어가 나왔다면 `과일`라는 단어를 입력할 수 있습니다.
                 단어는 사전에 있는 단어여야 하며, 한글자 단어와 띄어쓰기가 포함되는 단어는 사용할 수 없습니다.
-                **승리했을때, 이어진 단어당 5코인을 얻을 수 있습니다.**
+                **승리했을때, 이어진 단어당 2코인을 얻을 수 있습니다.**
                 """);
         channel.sendMessage("좋아요. 먼저 시작하세요!");
 
@@ -204,7 +204,7 @@ public class WordRelayCommand implements Command {
                     channel.sendMessage("<@" + player.userId() + ">님! 코인을 얻지 못했어요. 더 길게 이어보세요!");
                     return;
                 }
-                int coin = usedWords.size() * 5;
+                int coin = usedWords.size() * 2;
                 player.giveCoin(channel, coin);
             }
         }
