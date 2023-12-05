@@ -37,7 +37,10 @@ public class BadgeSelectCommand implements Command {
                 .append("착용할 뱃지를 선택해주세요.")
                 .addComponents(ActionRow.of(SelectMenu.createStringMenu("badgeSelector", "어떤 뱃지를 착용하실건가요?", 1, 1, options)))
                 .replyTo(message)
-                .send(message.getChannel());
+                .send(message.getChannel())
+                .whenComplete((message1, throwable) -> {
+                    if (throwable != null) throwable.printStackTrace();
+                });
 
         SelectMenuChoose.selectMenuCallbackMap.put(account, interaction -> {
             if (interaction.getCustomId().equals("badgeSelector")) {

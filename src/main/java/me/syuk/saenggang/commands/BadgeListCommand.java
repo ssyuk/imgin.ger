@@ -21,6 +21,8 @@ public class BadgeListCommand implements Command {
         for (int i = 1; i <= Utils.LAST_BADGE; i++) {
             builder.append(Utils.getBadge(i));
         }
-        message.reply(builder.toString());
+        message.reply(builder.toString()).whenComplete((message1, throwable) -> {
+            if (throwable != null) throwable.printStackTrace();
+        });
     }
 }
