@@ -39,7 +39,6 @@ public class SendCoinCommand implements Command {
             message.reply("<@" + target.userId() + ">님께 " + Utils.displayCoin(count) + "을 선물하셨어요! (오늘 한도: " + Utils.displayCoin(account.sentCoin()) + "/" + Utils.displayCoin(300) + ")");
         } catch (Exception e) {
             message.reply("선물 명령어는 `선물 [@유저] [코인]` 형식으로 사용해주세요!");
-            e.printStackTrace();
         }
     }
 }
