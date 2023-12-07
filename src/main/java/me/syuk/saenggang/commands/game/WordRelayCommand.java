@@ -133,7 +133,7 @@ public class WordRelayCommand implements Command {
     }
 
     public static class WordRelay {
-        public static Map<String, WordRelay> playerWordRelayMap = new HashMap<>();
+        public static Map<Long, WordRelay> playerWordRelayMap = new HashMap<>();
         public DBManager.Account player;
         public String lastWord = "";
         public List<String> usedWords = new ArrayList<>();

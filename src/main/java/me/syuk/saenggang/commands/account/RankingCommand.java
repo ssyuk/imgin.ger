@@ -27,24 +27,23 @@ public class RankingCommand implements Command {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < Math.min(ranking.size(), 7); i++) {
             DBManager.CoinRank rank = ranking.get(i);
-
-            builder.append("**").append(Utils.getRankBadge(i + 1)).append((i + 1)).append("위** <@").append(rank.user()).append("> ").append(Utils.displayCoin(rank.coin())).append("\n");
+            builder.append("**").append(Utils.getRankBadge(i + 1)).append((i + 1)).append("위** <@").append(rank.userId()).append("> ").append(Utils.displayCoin(rank.coin())).append("\n");
         }
 
-        if (ranking.size() > 7 && ranking.subList(0, 7).stream().noneMatch(rank -> rank.user().equals(account.userId()))) {
+        if (ranking.size() > 7 && ranking.subList(0, 7).stream().noneMatch(rank -> rank.userId() == account.userId())) {
             int myRank;
             DBManager.CoinRank coinRank;
             for (myRank = 0; myRank < ranking.size(); myRank++)
-                if (ranking.get(myRank).user().equals(account.userId())) break;
+                if (ranking.get(myRank).userId() == account.userId()) break;
             coinRank = ranking.get(myRank);
             builder.append("...").append("\n");
-            builder.append("**").append(myRank + 1).append("위** <@").append(coinRank.user()).append("> ").append(Utils.displayCoin(coinRank.coin())).append("\n");
+            builder.append("**").append(myRank + 1).append("위** <@").append(coinRank.userId()).append("> ").append(Utils.displayCoin(coinRank.coin())).append("\n");
             builder.append("...").append("\n");
         }
 
         if (ranking.size() > 7) {
             int count = ranking.size() - 7;
-            if (ranking.subList(0, 7).stream().noneMatch(rank -> rank.user().equals(account.userId()))) count--;
+            if (ranking.subList(0, 7).stream().noneMatch(rank -> rank.userId() == account.userId())) count--;
             builder.append("외 ").append(count).append("명");
         }
 

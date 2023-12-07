@@ -37,7 +37,7 @@ public class ForgetCommand implements Command {
         List<DBManager.SaenggangKnowledge> knowledgeByUser = new ArrayList<>();
         if (message.getAuthor().isBotOwner()) knowledgeByUser.addAll(knowledge);
         else for (DBManager.SaenggangKnowledge known : knowledge)
-            if (known.authorId().equals(account.userId())) knowledgeByUser.add(known);
+            if (known.authorId() == account.userId()) knowledgeByUser.add(known);
 
         EmbedBuilder embed = new EmbedBuilder()
                 .setTitle("어떤걸 잊게 하실 건가요?")
@@ -46,7 +46,7 @@ public class ForgetCommand implements Command {
         embed.addField("0번", "*취소*");
         for (int i = 0; i < knowledgeByUser.size(); i++) {
             DBManager.SaenggangKnowledge known = knowledgeByUser.get(i);
-            embed.addField(i + 1 + "번" + (!known.authorId().equals(account.userId()) ? "*" : ""), MessageCreated.fixAnswer(known, account));
+            embed.addField(i + 1 + "번" + (known.authorId() != account.userId() ? "*" : ""), MessageCreated.fixAnswer(known, account));
         }
         message.reply(embed);
 

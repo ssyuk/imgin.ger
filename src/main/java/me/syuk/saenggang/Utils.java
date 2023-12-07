@@ -27,7 +27,7 @@ public class Utils {
         List<DBManager.CoinRank> ranking = DBManager.getCoinRanking();
         int myRank = 0;
         for (int i = 0; i < ranking.size(); i++) {
-            if (ranking.get(i).user().equals(account.userId())) {
+            if (ranking.get(i).userId() == account.userId()) {
                 myRank = i;
                 break;
             }

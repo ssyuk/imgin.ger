@@ -22,7 +22,7 @@ public class GiveCoinCommand implements Command {
                 message.reply("지급 명령어는 `지급 [@유저] [코인]` 형식으로 사용해주세요!");
                 return;
             }
-            String userId = args[1].replace("<@", "").replace(">", "");
+            long userId = Long.parseLong(args[1].replace("<@", "").replace(">", ""));
             int count = Integer.parseInt(args[2]);
             DBManager.Account target = new DBManager.Account(userId);
             target.giveCoin(message.getChannel(), count);

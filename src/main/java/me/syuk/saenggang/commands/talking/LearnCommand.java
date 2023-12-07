@@ -38,7 +38,7 @@ public class LearnCommand implements Command {
             String question = args[1];
             String answer = args[2];
             String authorName = api.getUserById(account.userId()).get().getName();
-            String authorId = account.userId();
+            long authorId = account.userId();
 
             if (DBManager.getKnowledge(question).stream().map(k -> k.question() + k.answer()).anyMatch(s -> s.equals(question + answer))) {
                 message.reply("같은 질문, 같은 답변으로는 배울 수 없어요!");

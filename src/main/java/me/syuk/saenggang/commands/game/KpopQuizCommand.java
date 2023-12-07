@@ -171,7 +171,7 @@ public class KpopQuizCommand implements Command {
                 channel.sendMessage("케이팝퀴즈를 종료합니다.").whenComplete((message1, throwable) -> {
                     ButtonClick.buttonCallbackMap.remove(account);
                     channel.createUpdater().setArchivedFlag(true).update();
-                    channel.removeThreadMember(Long.parseLong(account.userId()));
+                    channel.removeThreadMember(account.userId());
                 });
                 return true;
             }

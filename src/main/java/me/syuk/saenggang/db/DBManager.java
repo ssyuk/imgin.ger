@@ -12,10 +12,7 @@ import org.javacord.api.entity.user.User;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static me.syuk.saenggang.Main.properties;
 
@@ -48,7 +45,7 @@ public class DBManager {
                     document.getString("question"),
                     document.getString("answer"),
                     document.getString("authorName"),
-                    document.getString("authorId")
+                    document.getLong("authorId")
             ));
         }
         return knowledge;
@@ -81,7 +78,7 @@ public class DBManager {
             String question = document.getString("question");
             String answer = document.getString("answer");
             String authorName = document.getString("authorName");
-            String authorId = document.getString("authorId");
+            long authorId = document.getLong("authorId");
 
             SaenggangKnowledge message = new SaenggangKnowledge(question, answer, authorName, authorId);
             knowledge.add(message);
@@ -91,7 +88,7 @@ public class DBManager {
         return knowledgeList;
     }
 
-    public static Document getUserDocument(String userId) {
+    public static Document getUserDocument(long userId) {
         Document document = accountCollection.find(new Document("userId", userId)).first();
         if (document == null) {
             accountCollection.insertOne(new Document("userId", userId).append("coin", 0));
@@ -109,7 +106,7 @@ public class DBManager {
     }
 
     public static Account getAccount(User user) {
-        return new Account(getUserDocument(user.getIdAsString()).getString("userId"));
+        return new Account(getUserDocument(user.getId()).getLong("userId"));
     }
 
     public static void giveCoin(Account account, int coin) {
@@ -159,7 +156,7 @@ public class DBManager {
         return getUserDocument(account.userId()).getInteger("attendanceStreak", 0);
     }
 
-    public static int getCoin(String userId) {
+    public static int getCoin(long userId) {
         return getUserDocument(userId).getInteger("coin");
     }
 
@@ -169,7 +166,7 @@ public class DBManager {
         FindIterable<Document> documents = accountCollection.find().sort(new Document("coin", -1));
         for (Document document : documents) {
             int coin = document.getInteger("coin");
-            if (coin != 0) ranking.add(new CoinRank(document.getString("userId"), coin));
+            if (coin != 0) ranking.add(new CoinRank(document.getLong("userId"), coin));
         }
         return ranking;
     }
@@ -212,10 +209,10 @@ public class DBManager {
     public record AttendStatus(int ranking, int streak) {
     }
 
-    public record CoinRank(String user, int coin) {
+    public record CoinRank(long userId, int coin) {
     }
 
-    public record Account(String userId) {
+    public record Account(long userId) {
         public int coin() {
             return getCoin(userId);
         }
@@ -234,9 +231,32 @@ public class DBManager {
         public void giveCoin(TextChannel channel, int count) {
             giveCoin(channel, count, "");
         }
+
+        public int sentCoin() {
+            if (!Objects.equals(getUserDocument(userId).getString("sentDate"), LocalDate.now().toString())) {
+                accountCollection.updateOne(new Document("userId", userId), new Document("$set",
+                        new Document("sentCoin", 0).append("sentDate", LocalDate.now().toString())
+                ));
+                return 0;
+            }
+
+            return getUserDocument(userId).getInteger("sentCoin", 0);
+        }
+
+        public void addSentCoin(int count) {
+            if (!Objects.equals(getUserDocument(userId).getString("sentDate"), LocalDate.now().toString())) {
+                accountCollection.updateOne(new Document("userId", userId), new Document("$set",
+                        new Document("sentCoin", 0).append("sentDate", LocalDate.now().toString())
+                ));
+            }
+
+            accountCollection.updateOne(new Document("userId", userId), new Document("$set",
+                    new Document("sentCoin", sentCoin() + count).append("sentDate", LocalDate.now().toString())
+            ));
+        }
     }
 
-    public record SaenggangKnowledge(String question, String answer, String authorName, String authorId) {
+    public record SaenggangKnowledge(String question, String answer, String authorName, long authorId) {
     }
 
     public record CoinHistory(int coin) {
