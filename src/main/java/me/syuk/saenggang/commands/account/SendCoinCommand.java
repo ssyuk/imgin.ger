@@ -30,6 +30,9 @@ public class SendCoinCommand implements Command {
             } else if (count + account.sentCoin() > 300) {
                 message.reply("**1일** 선물 한도는 " + Utils.displayCoin(300) + "이에요.");
                 return;
+            } else if (account.coin() < count) {
+                message.reply("코인이 부족해요.");
+                return;
             }
 
             account.addSentCoin(count);
