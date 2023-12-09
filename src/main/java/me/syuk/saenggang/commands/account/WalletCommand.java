@@ -35,7 +35,7 @@ public class WalletCommand implements Command {
                 new EmbedBuilder()
                         .setTitle(Utils.getUserName(user) + "님의 지갑")
                         .addInlineField("보유 코인", Utils.displayCoin(account.coin()))
-                        .addInlineField("코인 랭킹", Utils.getRankBadge(rank) + rank + "위")
+                        .addInlineField("코인 랭킹", rank == 0 ? "랭킹에 없어요!" : Utils.getRankBadge(rank) + rank + "위")
                         .addInlineField("연속 출석", DBManager.getAttendanceStreak(account) + "회")
         );
     }

@@ -35,10 +35,12 @@ public class RankingCommand implements Command {
             DBManager.CoinRank coinRank;
             for (myRank = 0; myRank < ranking.size(); myRank++)
                 if (ranking.get(myRank).userId() == account.userId()) break;
-            coinRank = ranking.get(myRank);
-            builder.append("...").append("\n");
-            builder.append("**").append(myRank + 1).append("위** <@").append(coinRank.userId()).append("> ").append(Utils.displayCoin(coinRank.coin())).append("\n");
-            builder.append("...").append("\n");
+            if (myRank < ranking.size()) {
+                coinRank = ranking.get(myRank);
+                builder.append("...").append("\n");
+                builder.append("**").append(myRank + 1).append("위** <@").append(coinRank.userId()).append("> ").append(Utils.displayCoin(coinRank.coin())).append("\n");
+                builder.append("...").append("\n");
+            }
         }
 
         if (ranking.size() > 7) {
