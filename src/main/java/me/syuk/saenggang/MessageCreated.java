@@ -35,7 +35,7 @@ public class MessageCreated implements MessageCreateListener {
         if (oUser.isEmpty()) return;
 
         User user = oUser.get();
-        if (user.isBot()) return;
+        if (Utils.isBot(user)) return;
 
         DBManager.Account account = DBManager.getAccount(user);
 

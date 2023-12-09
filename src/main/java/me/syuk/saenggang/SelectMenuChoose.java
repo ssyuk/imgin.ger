@@ -15,7 +15,7 @@ public class SelectMenuChoose implements SelectMenuChooseListener {
     public void onSelectMenuChoose(SelectMenuChooseEvent event) {
         SelectMenuInteraction interaction = event.getSelectMenuInteraction();
         User user = interaction.getUser();
-        if (user.isBot()) return;
+        if (Utils.isBot(user)) return;
 
         DBManager.Account account = DBManager.getAccount(user);
 

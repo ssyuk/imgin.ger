@@ -11,6 +11,7 @@ import me.syuk.saenggang.commands.talking.ForgetCommand;
 import me.syuk.saenggang.commands.talking.KnowledgeCommand;
 import me.syuk.saenggang.commands.talking.LearnCommand;
 import me.syuk.saenggang.commands.utils.HelpCommand;
+import me.syuk.saenggang.commands.utils.InviteCommand;
 import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
@@ -53,6 +54,7 @@ public class Main {
         Command.commands.add(new LearnCommand());
 
         Command.commands.add(new HelpCommand());
+        Command.commands.add(new InviteCommand());
 
         DBManager.connect();
 
@@ -63,7 +65,7 @@ public class Main {
                 .login()
                 .whenComplete((discordApi, throwable) -> System.out.println("Logged in as " + discordApi.getYourself().getName())).join();
 
-        api.updateActivity(ActivityType.LISTENING, "뉴진스의 하입보이");
+        api.addServerJoinListener(event -> api.updateActivity(ActivityType.LISTENING, api.getServers().size() + "개의 서버에서 뉴진스의 하입보이"));
 
         api.addListener(new MessageCreated());
         api.addListener(new ButtonClick());

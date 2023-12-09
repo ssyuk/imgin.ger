@@ -8,6 +8,8 @@ import org.javacord.api.entity.user.User;
 
 import java.util.List;
 
+import static me.syuk.saenggang.Main.api;
+
 public class Utils {
     public static final int LAST_BADGE = 23;
 
@@ -53,5 +55,13 @@ public class Utils {
             case 3 -> "\uD83E\uDD49 ";
             default -> "";
         };
+    }
+
+    public static boolean isBot(long id) {
+        return isBot(api.getUserById(id).join());
+    }
+
+    public static boolean isBot(User user) {
+        return user.isBot();
     }
 }

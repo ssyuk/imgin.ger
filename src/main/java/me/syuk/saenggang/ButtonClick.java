@@ -15,7 +15,7 @@ public class ButtonClick implements ButtonClickListener {
     public void onButtonClick(ButtonClickEvent event) {
         ButtonInteraction interaction = event.getButtonInteraction();
         User user = interaction.getUser();
-        if (user.isBot()) return;
+        if (Utils.isBot(user)) return;
 
         DBManager.Account account = DBManager.getAccount(user);
 
