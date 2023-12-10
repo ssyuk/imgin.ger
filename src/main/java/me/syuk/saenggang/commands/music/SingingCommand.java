@@ -16,6 +16,7 @@ import me.syuk.saenggang.music.LavaplayerAudioSource;
 import org.javacord.api.audio.AudioConnection;
 import org.javacord.api.audio.AudioSource;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
+import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
@@ -54,6 +55,7 @@ public class SingingCommand implements Command {
     }
 
     private void singing(String songName, Message message) {
+        TextChannel textChannel = message.getChannel();
         if (message.getServer().isEmpty()) {
             message.reply("서버에서만 노래를 불러드릴 수 있어요.");
             return;
@@ -93,12 +95,12 @@ public class SingingCommand implements Command {
                         serverPlayerMap.remove(server.getId());
                         serverConnectionMap.remove(server.getId());
                         serverPlaylistMap.remove(server.getId());
-                        message.reply("더이상 불러드릴 노래가 없어요. 음성채널을 나갈게요.");
+                        textChannel.sendMessage("더이상 불러드릴 노래가 없어요. 음성채널을 나갈게요.");
                     } else {
                         String nextSong = playlist.get(0);
                         playlist.remove(0);
                         serverPlaylistMap.put(server.getId(), playlist);
-                        message.reply("다 불러드렸어요. 다음으로는 `" + nextSong + "`을(를) 불러드릴게요!");
+                        textChannel.sendMessage("다 불러드렸어요. 다음으로는 `" + nextSong + "`을(를) 불러드릴게요!");
                         playMusic(player, audioConnection, playerManager, nextSong, message);
                     }
                 }
