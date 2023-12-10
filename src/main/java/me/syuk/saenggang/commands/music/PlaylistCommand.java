@@ -4,16 +4,17 @@ import me.syuk.saenggang.commands.Command;
 import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.message.Message;
+import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 
 import java.util.Optional;
 
 import static me.syuk.saenggang.Main.api;
 
-public class StopSingingCommand implements Command {
+public class PlaylistCommand implements Command {
     @Override
     public String name() {
-        return "그만불러줘";
+        return "플레이리스트";
     }
 
     @Override
@@ -35,11 +36,12 @@ public class StopSingingCommand implements Command {
             return;
         }
 
-        message.reply("그만 불러드릴게요!");
-        oChannel.get().disconnect();
-        SingingCommand.serverPlayerManagerMap.remove(server.getId());
-        SingingCommand.serverPlayerMap.remove(server.getId());
-        SingingCommand.serverConnectionMap.remove(server.getId());
-        SingingCommand.serverPlaylistMap.remove(server.getId());
+        EmbedBuilder builder = new EmbedBuilder()
+                .setTitle("플레이리스트 :notes:")
+                .setDescription("현재 플레이리스트에 있는 노래 목록입니다.");
+        SingingCommand.serverPlaylistMap.get(server.getId()).forEach(audioTrack -> {
+            builder.addField(audioTrack.getInfo().title + " - " + audioTrack.getInfo().author, audioTrack.getInfo().uri);
+        });
+        message.reply(builder);
     }
 }

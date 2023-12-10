@@ -6,10 +6,7 @@ import me.syuk.saenggang.commands.cosmetic.BadgeDrawCommand;
 import me.syuk.saenggang.commands.cosmetic.BadgeListCommand;
 import me.syuk.saenggang.commands.cosmetic.BadgeSelectCommand;
 import me.syuk.saenggang.commands.game.*;
-import me.syuk.saenggang.commands.music.SingingCommand;
-import me.syuk.saenggang.commands.music.SkipCommand;
-import me.syuk.saenggang.commands.music.StopSingingCommand;
-import me.syuk.saenggang.commands.music.VolumeCommand;
+import me.syuk.saenggang.commands.music.*;
 import me.syuk.saenggang.commands.owner.GiveCoinCommand;
 import me.syuk.saenggang.commands.talking.ForgetCommand;
 import me.syuk.saenggang.commands.talking.KnowledgeCommand;
@@ -51,6 +48,7 @@ public class Main {
         Command.commands.add(new ProverbQuizCommand());
         Command.commands.add(new WordRelayCommand());
 
+        Command.commands.add(new PlaylistCommand());
         Command.commands.add(new SingingCommand());
         Command.commands.add(new SkipCommand());
         Command.commands.add(new StopSingingCommand());
