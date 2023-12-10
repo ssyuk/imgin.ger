@@ -6,6 +6,9 @@ import me.syuk.saenggang.commands.cosmetic.BadgeDrawCommand;
 import me.syuk.saenggang.commands.cosmetic.BadgeListCommand;
 import me.syuk.saenggang.commands.cosmetic.BadgeSelectCommand;
 import me.syuk.saenggang.commands.game.*;
+import me.syuk.saenggang.commands.music.SingingCommand;
+import me.syuk.saenggang.commands.music.StopSingingCommand;
+import me.syuk.saenggang.commands.music.VolumeCommand;
 import me.syuk.saenggang.commands.owner.GiveCoinCommand;
 import me.syuk.saenggang.commands.talking.ForgetCommand;
 import me.syuk.saenggang.commands.talking.KnowledgeCommand;
@@ -47,6 +50,10 @@ public class Main {
         Command.commands.add(new ProverbQuizCommand());
         Command.commands.add(new WordRelayCommand());
 
+        Command.commands.add(new SingingCommand());
+        Command.commands.add(new StopSingingCommand());
+        Command.commands.add(new VolumeCommand());
+
         Command.commands.add(new GiveCoinCommand());
 
         Command.commands.add(new ForgetCommand());
@@ -64,6 +71,8 @@ public class Main {
                 .addIntents(Intent.MESSAGE_CONTENT)
                 .login()
                 .whenComplete((discordApi, throwable) -> System.out.println("Logged in as " + discordApi.getYourself().getName())).join();
+
+        api.updateActivity(ActivityType.LISTENING, api.getServers().size() + "개의 서버에서 뉴진스의 하입보이");
 
         api.addServerJoinListener(event -> api.updateActivity(ActivityType.LISTENING, api.getServers().size() + "개의 서버에서 뉴진스의 하입보이"));
 

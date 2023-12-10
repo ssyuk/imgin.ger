@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static me.syuk.saenggang.Main.api;
 import static me.syuk.saenggang.Main.properties;
 
 public class DBManager {
@@ -253,6 +254,10 @@ public class DBManager {
             accountCollection.updateOne(new Document("userId", userId), new Document("$set",
                     new Document("sentCoin", sentCoin() + count).append("sentDate", LocalDate.now().toString())
             ));
+        }
+
+        public User asUser() {
+            return api.getUserById(userId).join();
         }
     }
 
