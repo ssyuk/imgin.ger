@@ -118,17 +118,15 @@ public class SingingCommand implements Command {
             @Override
             public void trackLoaded(AudioTrack track) {
                 List<AudioTrack> playlist = serverPlaylistMap.get(serverId);
+                if (playlist.isEmpty()) {
+                    message.getChannel().sendMessage("`" + track.getInfo().title + "`을(를) 불러드릴게요!");
+                    serverPlayerMap.get(serverId).playTrack(track);
+                    return;
+                }
+
                 playlist.add(track);
                 serverPlaylistMap.put(serverId, playlist);
                 message.reply("`" + track.getInfo().title + "`을(를) 플레이리스트에 추가했어요!");
-
-                if (serverPlayerMap.get(serverId).getPlayingTrack() == null) {
-                    AudioTrack nextSong = playlist.get(0);
-                    playlist.remove(0);
-                    serverPlaylistMap.put(serverId, playlist);
-                    message.getChannel().sendMessage("`" + nextSong.getInfo().title + "`을(를) 불러드릴게요!");
-                    serverPlayerMap.get(serverId).playTrack(nextSong);
-                }
             }
 
             @Override
