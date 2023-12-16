@@ -53,7 +53,7 @@ public class SpeedCommand implements Command {
         if (args.length >= 2) {
             try {
                 double speed = Double.parseDouble(args[1]);
-                if (speed < 0 || speed > 5) {
+                if (speed < 0.1 || speed > 5) {
                     message.reply("속도은 0 ~ 5 사이여야해요.");
                     return;
                 }
@@ -67,7 +67,7 @@ public class SpeedCommand implements Command {
                 MessageCreated.replyCallbackMap.remove(account);
                 try {
                     double speed = Double.parseDouble(message1.getContent());
-                    if (speed < 0 || speed > 5) {
+                    if (speed < 0.1 || speed > 5) {
                         message.reply("속도은 0 ~ 5 사이여야해요.");
                         return true;
                     }
