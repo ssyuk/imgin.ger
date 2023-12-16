@@ -119,7 +119,7 @@ public class SingingCommand implements Command {
             @Override
             public void trackLoaded(AudioTrack track) {
                 List<AudioTrack> playlist = serverPlaylistMap.get(serverId);
-                if (playlist.isEmpty()) {
+                if (playlist.isEmpty() && serverPlayerMap.get(serverId).getPlayingTrack() == null) {
                     message.getChannel().sendMessage("`" + track.getInfo().title + "`을(를) 불러드릴게요!");
                     serverPlayerMap.get(serverId).playTrack(track);
                     return;
