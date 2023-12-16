@@ -59,7 +59,7 @@ public class SpeedCommand implements Command {
                 }
                 changeSpeed(message, server, player, speed);
             } catch (Exception e) {
-                message.reply("배속 명령어는 `배속 [배속]` 형식으로 사용해주세요!");
+                message.reply("속도은 0 ~ 5 사이여야해요.");
             }
         } else {
             message.reply("얼마나 빠르게 부를까요? (현재 속도: " + serverMusicSpeedMap.get(server.getId()) + ")");
