@@ -80,6 +80,7 @@ public class SingingCommand implements Command {
 
             AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
             playerManager.registerSourceManager(new YoutubeAudioSourceManager());
+            playerManager.getConfiguration().setFilterHotSwapEnabled(true);
 
             AudioPlayer player = playerManager.createPlayer();
 

@@ -51,6 +51,7 @@ public class Main {
         Command.commands.add(new PlaylistCommand());
         Command.commands.add(new SingingCommand());
         Command.commands.add(new SkipCommand());
+        Command.commands.add(new SpeedCommand());
         Command.commands.add(new StopSingingCommand());
         Command.commands.add(new VolumeCommand());
 
