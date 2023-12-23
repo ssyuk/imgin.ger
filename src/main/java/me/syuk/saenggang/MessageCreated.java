@@ -127,6 +127,7 @@ public class MessageCreated implements MessageCreateListener {
                 }
                 if (answer.startsWith("blocked_")) {
                     message.reply("죄송합니다. 질문이 차단되었습니다. (차단 사유: " + answer.substring("blocked_".length()) + ")");
+                    return;
                 }
                 UUID aiReplyId = UUID.randomUUID();
                 new MessageBuilder().setContent(fixAnswer(answer, account) + "\n" +
