@@ -1,5 +1,6 @@
 package me.syuk.saenggang.commands.talking;
 
+import me.syuk.saenggang.MessageCreated;
 import me.syuk.saenggang.commands.Command;
 import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.message.Message;
@@ -47,6 +48,7 @@ public class LearnCommand implements Command {
 
             DBManager.addKnowledge(new DBManager.SaenggangKnowledge(question, answer, authorName, authorId));
             message.reply("알겠습니다! `" + question + "`은 `" + answer + "`라고 배웠어요.");
+            MessageCreated.updateKnowledgeContents();
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }

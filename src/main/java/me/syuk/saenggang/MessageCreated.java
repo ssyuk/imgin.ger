@@ -23,6 +23,32 @@ import static me.syuk.saenggang.Main.properties;
 
 public class MessageCreated implements MessageCreateListener {
     public static Map<DBManager.Account, ReplyCallback> replyCallbackMap = new HashMap<>();
+    public static JsonArray knowledgeContents = new JsonArray();
+
+    public MessageCreated() {
+        updateKnowledgeContents();
+    }
+
+    public static void updateKnowledgeContents() {
+        knowledgeContents = new JsonArray();
+        DBManager.getKnowledgeList().forEach((question, saenggangKnowledges) -> {
+            for (DBManager.SaenggangKnowledge saenggangKnowledge : saenggangKnowledges) {
+                knowledgeContents.add(generateContent("user", question));
+                knowledgeContents.add(generateContent("model", saenggangKnowledge.answer()));
+            }
+        });
+    }
+
+    private static JsonObject generateContent(String role, String text) {
+        JsonObject content = new JsonObject();
+        content.addProperty("role", role);
+        JsonArray parts = new JsonArray();
+        JsonObject part = new JsonObject();
+        part.addProperty("text", text);
+        parts.add(part);
+        content.add("parts", parts);
+        return content;
+    }
 
     public static String fixAnswer(DBManager.SaenggangKnowledge selectedKnowledge, DBManager.Account account) {
         String answer = selectedKnowledge.answer();
@@ -92,19 +118,12 @@ public class MessageCreated implements MessageCreateListener {
             NonThrowingAutoCloseable typing = message.getChannel().typeContinuously();
 
             JsonObject object = new JsonObject();
-            JsonArray contents = new JsonArray();
-            JsonObject contentObject = new JsonObject();
-            JsonArray parts = new JsonArray();
-            JsonObject part = new JsonObject();
-            part.addProperty("text", content);
-            parts.add(part);
-            contentObject.add("parts", parts);
-            contents.add(contentObject);
-            object.add("contents", contents);
+            JsonArray contents = knowledgeContents.deepCopy();
+            contents.add(generateContent("user", content));
 
             HttpURLConnection con = null;
             try {
-                URL url = new URL("https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + properties.getProperty("GEMINI_API_KEY") + "&languageCode=ko");
+                URL url = new URL("https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + properties.getProperty("GEMINI_API_KEY"));
 
                 con = (HttpURLConnection) url.openConnection();
                 con.setRequestMethod("POST");

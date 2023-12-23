@@ -55,6 +55,7 @@ public class ForgetCommand implements Command {
             if (content.equals("전체") && message.getAuthor().isBotOwner()) {
                 for (DBManager.SaenggangKnowledge known : knowledge) DBManager.removeKnowledge(known);
                 msg.reply("알겠습니다! `" + question + "`을(를) 전부 잊었어요.");
+                MessageCreated.updateKnowledgeContents();
                 MessageCreated.replyCallbackMap.remove(account);
                 return true;
             }
@@ -69,6 +70,7 @@ public class ForgetCommand implements Command {
                 DBManager.SaenggangKnowledge known = knowledgeByUser.get(index);
                 DBManager.removeKnowledge(known);
                 msg.reply("알겠습니다! `" + known.question() + "`을(를) 잊었어요.");
+                MessageCreated.updateKnowledgeContents();
                 MessageCreated.replyCallbackMap.remove(account);
             } catch (NumberFormatException e) {
                 msg.reply("숫자만 입력해주세요!");
