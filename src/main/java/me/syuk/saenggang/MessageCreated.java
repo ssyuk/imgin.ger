@@ -6,6 +6,7 @@ import com.google.gson.JsonParser;
 import me.syuk.saenggang.commands.Command;
 import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.message.Message;
+import org.javacord.api.entity.message.MessageReference;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.listener.message.MessageCreateListener;
@@ -124,6 +125,23 @@ public class MessageCreated implements MessageCreateListener {
             JsonObject object = new JsonObject();
             JsonArray contents = knowledgeContents.deepCopy();
             contents.add(generateContent("user", content));
+
+            try {
+                Optional<MessageReference> oReferenced = message.getMessageReference();
+                if (oReferenced.isPresent()) {
+                    Message referenced = oReferenced.get().requestMessage().orElseThrow().get();
+                    if (referenced.getAuthor().isYourself()) {
+                        Optional<MessageReference> oReferencedReferenced = referenced.getMessageReference();
+                        if (oReferencedReferenced.isPresent()) {
+                            Message referencedReferenced = oReferencedReferenced.get().requestMessage().orElseThrow().get();
+                            contents.add(generateContent("user", referencedReferenced.getContent()));
+                            contents.add(generateContent("model", referenced.getContent()));
+                        }
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+
             object.add("contents", contents);
 
             HttpURLConnection con = null;
