@@ -11,7 +11,6 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.listener.message.MessageCreateListener;
 import org.javacord.api.util.NonThrowingAutoCloseable;
 
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -142,7 +141,7 @@ public class MessageCreated implements MessageCreateListener {
                 message.reply(fixAnswer(answer, account) + "\n" +
                         "`* AI가 생성한 메시지에요. 올바르지 않은 정보가 담겨있을 수 있어요.`\n" +
                         "`생강아 배워 [명령어] [메시지]`로 새로운 지식을 가르쳐주세요!");
-            } catch (IOException e) {
+            } catch (Exception e) {
                 message.reply("ㄴ네..? 뭐라구요?\n" +
                         "`생강아 배워 [명령어] [메시지]`로 알려주세요!");
                 throw new RuntimeException(e);
