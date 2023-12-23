@@ -19,6 +19,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static me.syuk.saenggang.Main.properties;
+
 public class MessageCreated implements MessageCreateListener {
     public static Map<DBManager.Account, ReplyCallback> replyCallbackMap = new HashMap<>();
 
@@ -102,7 +104,7 @@ public class MessageCreated implements MessageCreateListener {
 
             HttpURLConnection con = null;
             try {
-                URL url = new URL("https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=$API_KEY");
+                URL url = new URL("https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + properties.getProperty("GEMINI_API_KEY") + "&languageCode=ko");
 
                 con = (HttpURLConnection) url.openConnection();
                 con.setRequestMethod("POST");
