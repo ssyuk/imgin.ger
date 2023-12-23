@@ -60,6 +60,8 @@ public class AI {
         object.add("contents", contents);
 
         JsonArray safetySettings = new JsonArray();
+        safetySettings.add(newSafetySetting("HARM_CATEGORY_TOXICITY", "BLOCK_LOW_AND_ABOVE"));
+        safetySettings.add(newSafetySetting("HARM_CATEGORY_VIOLENCE", "BLOCK_LOW_AND_ABOVE"));
         safetySettings.add(newSafetySetting("HARM_CATEGORY_HARASSMENT", "BLOCK_LOW_AND_ABOVE"));
         safetySettings.add(newSafetySetting("HARM_CATEGORY_HATE_SPEECH", "BLOCK_LOW_AND_ABOVE"));
         safetySettings.add(newSafetySetting("HARM_CATEGORY_SEXUALLY_EXPLICIT", "BLOCK_LOW_AND_ABOVE"));
