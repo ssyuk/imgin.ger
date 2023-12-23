@@ -84,7 +84,7 @@ public class AI {
 
             JsonObject promptFeedback = response.getAsJsonObject("promptFeedback");
             if (promptFeedback.has("blockReason")) {
-                return "ablocked_" + promptFeedback.get("blockReason").getAsString();
+                return "blocked_" + promptFeedback.get("blockReason").getAsString();
             }
 
             List<String> answers = new ArrayList<>();
