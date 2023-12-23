@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Properties;
+import java.util.TimeZone;
 
 public class Main {
     public static DiscordApi api;
@@ -31,6 +32,8 @@ public class Main {
     public static void main(String[] args) throws IOException {
         properties = new Properties();
         properties.load(Files.newBufferedReader(Paths.get(".properties")));
+
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Seoul"));
 
         Command.commands.add(new AttendanceCommand());
         Command.commands.add(new CoinHistoryCommand());
