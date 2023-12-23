@@ -140,10 +140,10 @@ public class MessageCreated implements MessageCreateListener {
                 String answer = answers.get((int) (Math.random() * answers.size()));
                 message.reply(fixAnswer(answer, account) + "\n" +
                         "`* AI가 생성한 메시지에요. 올바르지 않은 정보가 담겨있을 수 있어요.`\n" +
-                        "`생강아 배워 [명령어] [메시지]`로 새로운 지식을 가르쳐주세요!");
+                        "`생강아 배워 \"[명령어]\" \"[메시지]\"`로 새로운 지식을 가르쳐주세요!");
             } catch (Exception e) {
                 message.reply("ㄴ네..? 뭐라구요?\n" +
-                        "`생강아 배워 [명령어] [메시지]`로 알려주세요!");
+                        "`생강아 배워 \"[명령어]\" \"[메시지]\"`로 알려주세요!");
                 throw new RuntimeException(e);
             } finally {
                 typing.close();
