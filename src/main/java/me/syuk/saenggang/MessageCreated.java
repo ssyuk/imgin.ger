@@ -50,8 +50,7 @@ public class MessageCreated implements MessageCreateListener {
         return content;
     }
 
-    public static String fixAnswer(DBManager.SaenggangKnowledge selectedKnowledge, DBManager.Account account) {
-        String answer = selectedKnowledge.answer();
+    public static String fixAnswer(String answer, DBManager.Account account) {
         answer = answer.replace("{user.name}", "<@" + account.userId() + ">");
         answer = answer.replace("{user.coin}", String.valueOf(account.coin()));
         answer = answer.replace("{user.displayCoin}", Utils.displayCoin(account.coin()));
@@ -120,6 +119,7 @@ public class MessageCreated implements MessageCreateListener {
             JsonObject object = new JsonObject();
             JsonArray contents = knowledgeContents.deepCopy();
             contents.add(generateContent("user", content));
+            object.add("contents", contents);
 
             HttpURLConnection con = null;
             try {
@@ -139,7 +139,7 @@ public class MessageCreated implements MessageCreateListener {
                     answers.add(text);
                 });
                 String answer = answers.get((int) (Math.random() * answers.size()));
-                message.reply(answer + "\n" +
+                message.reply(fixAnswer(answer, account) + "\n" +
                         "`* AI가 생성한 메시지에요. 올바르지 않은 정보가 담겨있을 수 있어요.`\n" +
                         "`생강아 배워 [명령어] [메시지]`로 새로운 지식을 가르쳐주세요!");
             } catch (IOException e) {
@@ -154,7 +154,7 @@ public class MessageCreated implements MessageCreateListener {
         }
 
         DBManager.SaenggangKnowledge selectedKnowledge = knowledge.get((int) (Math.random() * knowledge.size()));
-        String answer = fixAnswer(selectedKnowledge, account);
+        String answer = fixAnswer(selectedKnowledge.answer(), account);
         message.reply(answer + "\n" +
                 "`" + selectedKnowledge.authorName() + "님이 알려주셨어요.`");
     }
