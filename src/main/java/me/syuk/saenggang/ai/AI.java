@@ -82,7 +82,7 @@ public class AI {
 
             JsonObject promptFeedback = response.getAsJsonObject("promptFeedback");
             if (promptFeedback.has("blockReason")) {
-                return "죄송합니다. 질문이 차단되었습니다. (차단 사유: " + promptFeedback.get("blockReason").getAsString() + ")";
+                return "blocked_" + promptFeedback.get("blockReason").getAsString();
             }
 
             List<String> answers = new ArrayList<>();

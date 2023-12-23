@@ -125,6 +125,9 @@ public class MessageCreated implements MessageCreateListener {
                             "`생강아 배워 \"[명령어]\" \"[메시지]\"`로 알려주세요!");
                     return;
                 }
+                if (answer.startsWith("blocked_")) {
+                    message.reply("죄송합니다. 질문이 차단되었습니다. (차단 사유: " + answer.substring("blocked_".length()) + ")");
+                }
                 UUID aiReplyId = UUID.randomUUID();
                 new MessageBuilder().setContent(fixAnswer(answer, account) + "\n" +
                                 "`* AI가 생성한 메시지에요. 올바르지 않은 정보가 담겨있을 수 있어요.`\n" +
