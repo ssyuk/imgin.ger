@@ -44,12 +44,26 @@ public class AI {
         return content;
     }
 
+    private static JsonObject newSafetySetting(String category, String threshold) {
+        JsonObject safetySetting = new JsonObject();
+        safetySetting.addProperty("category", category);
+        safetySetting.addProperty("threshold", threshold);
+        return safetySetting;
+    }
+
     public static String generateResponse(String prompt, JsonArray moreContents) {
         JsonObject object = new JsonObject();
+
         JsonArray contents = knowledgeContents.deepCopy();
         contents.addAll(moreContents);
         contents.add(generateContent("user", prompt));
         object.add("contents", contents);
+
+        JsonArray safetySettings = new JsonArray();
+        safetySettings.add(newSafetySetting("HARM_CATEGORY_HARASSMENT", "BLOCK_LOW_AND_ABOVE"));
+        safetySettings.add(newSafetySetting("HARM_CATEGORY_HATE_SPEECH", "BLOCK_LOW_AND_ABOVE"));
+        safetySettings.add(newSafetySetting("HARM_CATEGORY_SEXUALLY_EXPLICIT", "BLOCK_LOW_AND_ABOVE"));
+        safetySettings.add(newSafetySetting("HARM_CATEGORY_DANGEROUS_CONTENT", "BLOCK_LOW_AND_ABOVE"));
 
         HttpURLConnection con = null;
         try {
@@ -63,12 +77,17 @@ public class AI {
 
             JsonObject response = JsonParser.parseReader(new InputStreamReader(con.getInputStream())).getAsJsonObject();
 
+            JsonObject promptFeedback = response.getAsJsonObject("promptFeedback");
+            if (promptFeedback.has("blockReason")) {
+                return "죄송합니다. 질문이 차단되었습니다. (차단 사유: " + promptFeedback.get("blockReason").getAsString() + ")";
+            }
+
             List<String> answers = new ArrayList<>();
             response.getAsJsonArray("candidates").forEach(candidate -> {
                 String text = candidate.getAsJsonObject().getAsJsonObject("content").getAsJsonArray("parts").get(0).getAsJsonObject().get("text").getAsString();
                 answers.add(text);
             });
-            return answers.get((int) (Math.random() * answers.size()));
+            return answers.get((int) (Math.random() * answers.size())) + " <- 검열된 후 메시지임";
         } catch (Exception e) {
             e.printStackTrace();
             return null;
