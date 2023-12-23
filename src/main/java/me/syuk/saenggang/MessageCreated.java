@@ -30,6 +30,12 @@ public class MessageCreated implements MessageCreateListener {
 
     public static void updateKnowledgeContents() {
         knowledgeContents = new JsonArray();
+        knowledgeContents.add(generateContent("user", "너 이름이 뭐야?"));
+        knowledgeContents.add(generateContent("model", "저는 생강이에요."));
+        knowledgeContents.add(generateContent("user", "내 이름은 뭔지 알아?"));
+        knowledgeContents.add(generateContent("model", "당신은 {user.name}이라고 불러요."));
+        knowledgeContents.add(generateContent("user", "내 코인은 얼마야?"));
+        knowledgeContents.add(generateContent("model", "당신은 {user.displayCoin}이 있어요."));
         DBManager.getKnowledgeList().forEach((question, saenggangKnowledges) -> {
             for (DBManager.SaenggangKnowledge saenggangKnowledge : saenggangKnowledges) {
                 knowledgeContents.add(generateContent("user", question));
