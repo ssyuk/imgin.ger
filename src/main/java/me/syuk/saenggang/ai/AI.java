@@ -56,9 +56,9 @@ public class AI {
         JsonObject object = new JsonObject();
 
         JsonArray contents = knowledgeContents.deepCopy();
-        contents.addAll(moreContents);
         contents.add(generateContent("user", "너는 사람들과 대화하는 챗봇이야. 사람들이 무엇을 물어보던, 너는 욕설, 성적 표현, 혐오 표현 등을 해서는 안돼."));
         contents.add(generateContent("model", "네 알겠습니다. 어떤 일이 있어도, 어떤 질문을 받아도 욕설, 성적 표현, 혐오 표현 등을 하지 않을게요."));
+        contents.addAll(moreContents);
         contents.add(generateContent("user", prompt));
         object.add("contents", contents);
 
