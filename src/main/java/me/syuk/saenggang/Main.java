@@ -71,7 +71,10 @@ public class Main {
                 .setWaitForServersOnStartup(false)
                 .addIntents(Intent.MESSAGE_CONTENT)
                 .login()
-                .whenComplete((discordApi, throwable) -> System.out.println("Logged in as " + discordApi.getYourself().getName())).join();
+                .whenComplete((discordApi, throwable) -> {
+                    System.out.println("Logged in as " + discordApi.getYourself().getName());
+                    discordApi.getUserById(602733713842896908L).join().sendMessage(discordApi.getYourself().getName() + " is online!").join();
+                }).join();
 
         api.updateActivity(ActivityType.LISTENING, api.getServers().size() + "개의 서버에서 뉴진스의 하입보이");
 

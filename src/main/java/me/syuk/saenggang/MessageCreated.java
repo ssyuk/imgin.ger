@@ -1,12 +1,20 @@
 package me.syuk.saenggang;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import me.syuk.saenggang.commands.Command;
 import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.listener.message.MessageCreateListener;
+import org.javacord.api.util.NonThrowingAutoCloseable;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -79,8 +87,48 @@ public class MessageCreated implements MessageCreateListener {
         List<DBManager.SaenggangKnowledge> knowledge = DBManager.getKnowledge(content);
 
         if (knowledge.isEmpty()) {
-            message.reply("ㄴ네..? 뭐라구요?\n" +
-                    "`생강아 배워 [명령어] [메시지]`로 알려주세요!");
+            NonThrowingAutoCloseable typing = message.getChannel().typeContinuously();
+
+            JsonObject object = new JsonObject();
+            JsonArray contents = new JsonArray();
+            JsonObject contentObject = new JsonObject();
+            JsonArray parts = new JsonArray();
+            JsonObject part = new JsonObject();
+            part.addProperty("text", content);
+            parts.add(part);
+            contentObject.add("parts", parts);
+            contents.add(contentObject);
+            object.add("contents", contents);
+
+            HttpURLConnection con = null;
+            try {
+                URL url = new URL("https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=$API_KEY");
+
+                con = (HttpURLConnection) url.openConnection();
+                con.setRequestMethod("POST");
+                con.setRequestProperty("Content-Type", "application/json");
+                con.setDoOutput(true);
+                con.getOutputStream().write(object.toString().getBytes());
+
+                JsonObject response = JsonParser.parseReader(new InputStreamReader(con.getInputStream())).getAsJsonObject();
+
+                List<String> answers = new ArrayList<>();
+                response.getAsJsonArray("candidates").forEach(candidate -> {
+                    String text = candidate.getAsJsonObject().getAsJsonObject("content").getAsJsonArray("parts").get(0).getAsJsonObject().get("text").getAsString();
+                    answers.add(text);
+                });
+                String answer = answers.get((int) (Math.random() * answers.size()));
+                message.reply(answer + "\n" +
+                        "`* AI가 생성한 메시지에요. 올바르지 않은 정보가 담겨있을 수 있어요.`\n" +
+                        "`생강아 배워 [명령어] [메시지]`로 새로운 지식을 가르쳐주세요!");
+            } catch (IOException e) {
+                message.reply("ㄴ네..? 뭐라구요?\n" +
+                        "`생강아 배워 [명령어] [메시지]`로 알려주세요!");
+                throw new RuntimeException(e);
+            } finally {
+                typing.close();
+                if (con != null) con.disconnect();
+            }
             return;
         }
 
