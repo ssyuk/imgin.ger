@@ -46,7 +46,7 @@ public class ForgetCommand implements Command {
         embed.addField("0번", "*취소*");
         for (int i = 0; i < knowledgeByUser.size(); i++) {
             DBManager.SaenggangKnowledge known = knowledgeByUser.get(i);
-            embed.addField(i + 1 + "번" + (known.authorId() != account.userId() ? "*" : ""), MessageCreated.fixAnswer(known, account));
+            embed.addField(i + 1 + "번" + (known.authorId() != account.userId() ? "*" : ""), MessageCreated.fixAnswer(known.answer(), account));
         }
         message.reply(embed);
 
