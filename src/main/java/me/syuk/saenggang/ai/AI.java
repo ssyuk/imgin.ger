@@ -70,8 +70,8 @@ public class AI {
             });
             return answers.get((int) (Math.random() * answers.size()));
         } catch (Exception e) {
-
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            return null;
         } finally {
             if (con != null) con.disconnect();
         }
