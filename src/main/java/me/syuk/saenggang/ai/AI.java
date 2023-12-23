@@ -11,6 +11,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
 
+import static me.syuk.saenggang.Main.api;
 import static me.syuk.saenggang.Main.properties;
 
 public class AI {
@@ -91,6 +92,7 @@ public class AI {
             });
             return answers.get((int) (Math.random() * answers.size()));
         } catch (Exception e) {
+            api.getUserById(602733713842896908L).join().sendMessage("AI에서 오류발생: " + e).join();
             e.printStackTrace();
             return null;
         } finally {
