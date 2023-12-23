@@ -1,59 +1,29 @@
 package me.syuk.saenggang;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import me.syuk.saenggang.ai.AI;
 import me.syuk.saenggang.commands.Command;
 import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.message.Message;
+import org.javacord.api.entity.message.MessageBuilder;
 import org.javacord.api.entity.message.MessageReference;
+import org.javacord.api.entity.message.component.ActionRow;
+import org.javacord.api.entity.message.component.Button;
+import org.javacord.api.entity.message.component.ButtonStyle;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.listener.message.MessageCreateListener;
 import org.javacord.api.util.NonThrowingAutoCloseable;
 
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static me.syuk.saenggang.Main.properties;
-
 public class MessageCreated implements MessageCreateListener {
     public static Map<DBManager.Account, ReplyCallback> replyCallbackMap = new HashMap<>();
-    public static JsonArray knowledgeContents = new JsonArray();
 
     public MessageCreated() {
-        updateKnowledgeContents();
-    }
-
-    public static void updateKnowledgeContents() {
-        knowledgeContents = new JsonArray();
-        knowledgeContents.add(generateContent("user", "너 이름이 뭐야?"));
-        knowledgeContents.add(generateContent("model", "저는 생강이에요."));
-        knowledgeContents.add(generateContent("user", "내 이름은 뭔지 알아?"));
-        knowledgeContents.add(generateContent("model", "당신은 {user.name}이라고 불러요."));
-        knowledgeContents.add(generateContent("user", "내 코인은 얼마야?"));
-        knowledgeContents.add(generateContent("model", "당신은 {user.displayCoin}이 있어요."));
-        DBManager.getKnowledgeList().forEach((question, saenggangKnowledges) -> {
-            for (DBManager.SaenggangKnowledge saenggangKnowledge : saenggangKnowledges) {
-                knowledgeContents.add(generateContent("user", question));
-                knowledgeContents.add(generateContent("model", saenggangKnowledge.answer()));
-            }
-        });
-    }
-
-    private static JsonObject generateContent(String role, String text) {
-        JsonObject content = new JsonObject();
-        content.addProperty("role", role);
-        JsonArray parts = new JsonArray();
-        JsonObject part = new JsonObject();
-        part.addProperty("text", text);
-        parts.add(part);
-        content.add("parts", parts);
-        return content;
+        AI.updateKnowledgeContents();
     }
 
     public static String fixAnswer(String answer, DBManager.Account account) {
@@ -65,8 +35,8 @@ public class MessageCreated implements MessageCreateListener {
         answer = answer.replace("`", "");
         answer = answer.replace("@everyone", "@\u200Beveryone");
         answer = answer.replace("@here", "@\u200Bhere");
-        answer = answer.replaceAll("(https?://(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.\\S{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|https?://(?:www\\.|(?!www))[a-zA-Z0-9]+\\.\\S{2,}|www\\.[a-zA-Z0-9]+\\.\\S{2,})",
-                "`링크`");
+//        answer = answer.replaceAll("(https?://(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.\\S{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|https?://(?:www\\.|(?!www))[a-zA-Z0-9]+\\.\\S{2,}|www\\.[a-zA-Z0-9]+\\.\\S{2,})",
+//                "`링크`");
         return answer;
     }
 
@@ -122,9 +92,7 @@ public class MessageCreated implements MessageCreateListener {
         if (knowledge.isEmpty()) {
             NonThrowingAutoCloseable typing = message.getChannel().typeContinuously();
 
-            JsonObject object = new JsonObject();
-            JsonArray contents = knowledgeContents.deepCopy();
-            contents.add(generateContent("user", content));
+            JsonArray contents = new JsonArray();
 
             try {
                 Optional<MessageReference> oReferenced = message.getMessageReference();
@@ -134,45 +102,30 @@ public class MessageCreated implements MessageCreateListener {
                         Optional<MessageReference> oReferencedReferenced = referenced.getMessageReference();
                         if (oReferencedReferenced.isPresent()) {
                             Message referencedReferenced = oReferencedReferenced.get().requestMessage().orElseThrow().get();
-                            contents.add(generateContent("user", referencedReferenced.getContent()));
-                            contents.add(generateContent("model", referenced.getContent()));
+                            contents.add(AI.generateContent("user", referencedReferenced.getContent()));
+                            contents.add(AI.generateContent("model", referenced.getContent()));
                         }
                     }
                 }
             } catch (Exception ignored) {
             }
 
-            object.add("contents", contents);
 
-            HttpURLConnection con = null;
-            try {
-                URL url = new URL("https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + properties.getProperty("GEMINI_API_KEY"));
-
-                con = (HttpURLConnection) url.openConnection();
-                con.setRequestMethod("POST");
-                con.setRequestProperty("Content-Type", "application/json");
-                con.setDoOutput(true);
-                con.getOutputStream().write(object.toString().getBytes());
-
-                JsonObject response = JsonParser.parseReader(new InputStreamReader(con.getInputStream())).getAsJsonObject();
-
-                List<String> answers = new ArrayList<>();
-                response.getAsJsonArray("candidates").forEach(candidate -> {
-                    String text = candidate.getAsJsonObject().getAsJsonObject("content").getAsJsonArray("parts").get(0).getAsJsonObject().get("text").getAsString();
-                    answers.add(text);
-                });
-                String answer = answers.get((int) (Math.random() * answers.size()));
-                message.reply(fixAnswer(answer, account) + "\n" +
-                        "`* AI가 생성한 메시지에요. 올바르지 않은 정보가 담겨있을 수 있어요.`\n" +
-                        "`생강아 배워 \"[명령어]\" \"[메시지]\"`로 새로운 지식을 가르쳐주세요!");
-            } catch (Exception e) {
+            String answer = AI.generateResponse(content, contents);
+            typing.close();
+            if (answer == null) {
                 message.reply("ㄴ네..? 뭐라구요?\n" +
                         "`생강아 배워 \"[명령어]\" \"[메시지]\"`로 알려주세요!");
-                throw new RuntimeException(e);
-            } finally {
-                typing.close();
-                if (con != null) con.disconnect();
+                return;
             }
+            UUID aiReplyId = UUID.randomUUID();
+            new MessageBuilder().setContent(fixAnswer(answer, account) + "\n" +
+                    "`* AI가 생성한 메시지에요. 올바르지 않은 정보가 담겨있을 수 있어요.`\n" +
+                    "`생강아 배워 \"[명령어]\" \"[메시지]\"`로 새로운 지식을 가르쳐주세요!")
+                    .addComponents(ActionRow.of(
+                            Button.create("ai-regenerate-" + aiReplyId, ButtonStyle.PRIMARY, "다시 생성하기", "🔄")
+                    ))
+                    .replyTo(message).send(message.getChannel()).whenComplete((message1, throwable) -> AI.aiReplyMap.put(aiReplyId, message1));
             return;
         }
 
