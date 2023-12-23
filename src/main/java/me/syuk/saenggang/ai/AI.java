@@ -87,7 +87,7 @@ public class AI {
                 String text = candidate.getAsJsonObject().getAsJsonObject("content").getAsJsonArray("parts").get(0).getAsJsonObject().get("text").getAsString();
                 answers.add(text);
             });
-            return answers.get((int) (Math.random() * answers.size())) + " <- 검열된 후 메시지임";
+            return answers.get((int) (Math.random() * answers.size()));
         } catch (Exception e) {
             e.printStackTrace();
             return null;
