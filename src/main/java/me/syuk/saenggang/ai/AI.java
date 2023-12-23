@@ -57,16 +57,17 @@ public class AI {
 
         JsonArray contents = knowledgeContents.deepCopy();
         contents.addAll(moreContents);
+        contents.add(generateContent("user", "너는 사람들과 대화하는 챗봇이야. 사람들이 무엇을 물어보던, 너는 욕설, 성적 표현, 혐오 표현 등을 해서는 안돼."));
+        contents.add(generateContent("model", "네 알겠습니다. 어떤 일이 있어도, 어떤 질문을 받아도 욕설, 성적 표현, 혐오 표현 등을 하지 않을게요."));
         contents.add(generateContent("user", prompt));
         object.add("contents", contents);
 
         JsonArray safetySettings = new JsonArray();
-        safetySettings.add(newSafetySetting("HARM_CATEGORY_TOXICITY", "BLOCK_LOW_AND_ABOVE"));
-        safetySettings.add(newSafetySetting("HARM_CATEGORY_VIOLENCE", "BLOCK_LOW_AND_ABOVE"));
-        safetySettings.add(newSafetySetting("HARM_CATEGORY_HARASSMENT", "BLOCK_LOW_AND_ABOVE"));
+        safetySettings.add(newSafetySetting("HARM_CATEGORY_SEXUALLY_EXPLICIT", "BLOCK_MEDIUM_AND_ABOVE"));
         safetySettings.add(newSafetySetting("HARM_CATEGORY_HATE_SPEECH", "BLOCK_LOW_AND_ABOVE"));
-        safetySettings.add(newSafetySetting("HARM_CATEGORY_SEXUALLY_EXPLICIT", "BLOCK_LOW_AND_ABOVE"));
-        safetySettings.add(newSafetySetting("HARM_CATEGORY_DANGEROUS_CONTENT", "BLOCK_LOW_AND_ABOVE"));
+        safetySettings.add(newSafetySetting("HARM_CATEGORY_HARASSMENT", "BLOCK_ONLY_HIGH"));
+        safetySettings.add(newSafetySetting("HARM_CATEGORY_DANGEROUS_CONTENT", "BLOCK_MEDIUM_AND_ABOVE"));
+        object.add("safetySettings", safetySettings);
 
         HttpURLConnection con = null;
         try {
@@ -79,10 +80,11 @@ public class AI {
             con.getOutputStream().write(object.toString().getBytes());
 
             JsonObject response = JsonParser.parseReader(new InputStreamReader(con.getInputStream())).getAsJsonObject();
+            System.out.println(response);
 
             JsonObject promptFeedback = response.getAsJsonObject("promptFeedback");
             if (promptFeedback.has("blockReason")) {
-                return "blocked_" + promptFeedback.get("blockReason").getAsString();
+                return "ablocked_" + promptFeedback.get("blockReason").getAsString();
             }
 
             List<String> answers = new ArrayList<>();
