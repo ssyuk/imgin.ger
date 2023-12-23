@@ -68,8 +68,13 @@ public class MessageCreated implements MessageCreateListener {
                 if (account.coin() == 0) account.giveCoin(message.getChannel(), 5, "첫 사용자 보상으로");
                 return;
             }
-            if (!content.startsWith("생강아 ")) return;
-            content = content.substring(4);
+
+
+            if (message.getReferencedMessage().isPresent()) {
+                if (!message.getReferencedMessage().get().getAuthor().isYourself()) return;
+            } else if (!content.startsWith("생강아 ")) return;
+
+            if (content.startsWith("생강아 ")) content = content.substring(4);
 
             List<String> args = new ArrayList<>();
             Pattern regex = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'");
