@@ -124,7 +124,7 @@ public class MessageCreated implements MessageCreateListener {
                     } catch (Exception ignored) {
                     }
 
-                    String answer = AI.generateResponse(content, contents);
+                    String answer = AI.generateResponse(account, content, contents);
                     typing.close();
                     if (answer == null) {
                         message.reply("ㄴ네..? 뭐라구요?\n" +

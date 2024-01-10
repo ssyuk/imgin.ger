@@ -41,7 +41,7 @@ public class ButtonClick implements ButtonClickListener {
                 }
 
                 String prompt = promptMessage.getContent().substring(4);
-                String answer = AI.generateResponse(prompt, new JsonArray());
+                String answer = AI.generateResponse(account, prompt, new JsonArray());
                 if (answer == null) {
                     message.edit("ㄴ네..? 뭐라구요?\n" +
                             "`생강아 배워 \"[명령어]\" \"[메시지]\"`로 알려주세요!");

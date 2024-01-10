@@ -1,7 +1,12 @@
 package me.syuk.saenggang;
 
+import me.syuk.saenggang.ai.AI;
+import me.syuk.saenggang.ai.functions.AttendanceFunction;
+import me.syuk.saenggang.ai.functions.ViewCoinFunction;
 import me.syuk.saenggang.commands.Command;
-import me.syuk.saenggang.commands.account.*;
+import me.syuk.saenggang.commands.account.CoinHistoryCommand;
+import me.syuk.saenggang.commands.account.RankingCommand;
+import me.syuk.saenggang.commands.account.SendCoinCommand;
 import me.syuk.saenggang.commands.cosmetic.BadgeDrawCommand;
 import me.syuk.saenggang.commands.cosmetic.BadgeListCommand;
 import me.syuk.saenggang.commands.cosmetic.BadgeSelectCommand;
@@ -35,11 +40,11 @@ public class Main {
 
         TimeZone.setDefault(TimeZone.getTimeZone("Asia/Seoul"));
 
-        Command.commands.add(new AttendanceCommand());
+        AI.aiFunctions.put("attendance", new AttendanceFunction());
         Command.commands.add(new CoinHistoryCommand());
         Command.commands.add(new RankingCommand());
         Command.commands.add(new SendCoinCommand());
-        Command.commands.add(new WalletCommand());
+        AI.aiFunctions.put("view_coin", new ViewCoinFunction());
 
         Command.commands.add(new BadgeDrawCommand());
         Command.commands.add(new BadgeListCommand());
