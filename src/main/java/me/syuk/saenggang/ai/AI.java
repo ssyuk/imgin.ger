@@ -70,8 +70,9 @@ public class AI {
         return safetySetting;
     }
 
-    public static String generateResponse(DBManager.Account account, String prompt, JsonArray moreContents) {
+    public static String generateResponse(DBManager.Account account, Message requestMessage, JsonArray moreContents) {
         JsonObject object = new JsonObject();
+        String prompt = null;
 
         JsonArray contents = new JsonArray();
         contents.add(generateContent("user", "너는 사람들과 대화하는 챗봇이야. 사람들이 무엇을 물어보던, 너는 욕설, 성적 표현, 혐오 표현, 정치적 표현 등을 하지 않아야해."));
@@ -80,9 +81,12 @@ public class AI {
         contents.add(generateContent("model", "그래 친근하게 말할겡~"));
         contents.add(generateContent("user", "그럼 이제 시작해볼까?"));
         contents.add(generateContent("model", "그래! 먼저 말걸어줘!"));
-        contents.addAll(knowledgeContents);
         contents.addAll(moreContents);
-        if (prompt != null) contents.add(generateContent("user", prompt));
+        if (requestMessage != null) {
+            prompt = requestMessage.getContent();
+            if (prompt.startsWith("생강아 ")) prompt = prompt.substring(4);
+            contents.add(generateContent("user", prompt));
+        }
         object.add("contents", contents);
 
         JsonArray tools = new JsonArray();
@@ -99,6 +103,8 @@ public class AI {
         safetySettings.add(newSafetySetting("HARM_CATEGORY_HARASSMENT", "BLOCK_ONLY_HIGH"));
         safetySettings.add(newSafetySetting("HARM_CATEGORY_DANGEROUS_CONTENT", "BLOCK_MEDIUM_AND_ABOVE"));
         object.add("safetySettings", safetySettings);
+
+        System.out.println(object);
 
         HttpURLConnection con = null;
         try {
@@ -125,7 +131,9 @@ public class AI {
             }
 
             List<String> answers = new ArrayList<>();
+            String finalPrompt = prompt;
             response.getAsJsonArray("candidates").forEach(candidate -> {
+                System.out.println(candidate.getAsJsonObject().getAsJsonObject("content"));
                 JsonObject part = candidate.getAsJsonObject().getAsJsonObject("content").getAsJsonArray("parts").get(0).getAsJsonObject();
                 if (part.keySet().contains("text")) {
                     answers.add(part.get("text").getAsString());
@@ -136,14 +144,17 @@ public class AI {
                     Map<String, String> args = new HashMap<>();
                     functionCall.getAsJsonObject("args").entrySet().forEach(entry -> args.put(entry.getKey(), entry.getValue().getAsString()));
 
-                    JsonObject functionResult = generateFunctionResult(functionName, aiFunctions.get(functionName).execute(account, args));
+                    AIFunction function = aiFunctions.get(functionName);
+                    JsonObject functionResult = generateFunctionResult(functionName, function.execute(account, args, requestMessage));
 
-                    JsonArray newMoreContents = new JsonArray();
-                    newMoreContents.addAll(moreContents);
-                    newMoreContents.add(generateContent("user", prompt));
-                    newMoreContents.add(response.getAsJsonArray("candidates").get(0).getAsJsonObject().getAsJsonObject("content"));
-                    newMoreContents.add(functionResult);
-                    answers.add(generateResponse(account, null, newMoreContents));
+                    if (function.isTalkingFunction()) {
+                        JsonArray newMoreContents = new JsonArray();
+                        newMoreContents.addAll(moreContents);
+                        newMoreContents.add(generateContent("user", finalPrompt));
+                        newMoreContents.add(response.getAsJsonArray("candidates").get(0).getAsJsonObject().getAsJsonObject("content"));
+                        newMoreContents.add(functionResult);
+                        answers.add(generateResponse(account, null, newMoreContents));
+                    }
                 }
             });
             if (answers.isEmpty()) return null;

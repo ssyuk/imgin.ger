@@ -1,27 +1,39 @@
-package me.syuk.saenggang.commands.account;
+package me.syuk.saenggang.ai.functions;
 
+import com.google.gson.JsonObject;
 import me.syuk.saenggang.Utils;
-import me.syuk.saenggang.commands.Command;
+import me.syuk.saenggang.ai.AIFunction;
 import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 
 import java.awt.*;
 import java.util.List;
+import java.util.Map;
 
-public class RankingCommand implements Command {
+public class RankingFunction implements AIFunction {
     @Override
     public String name() {
-        return "랭킹";
+        return "ranking";
     }
 
     @Override
-    public Theme theme() {
-        return Theme.ACCOUNT;
+    public String description() {
+        return "전체 사용자중, 1위부터 7위까지의 코인 랭킹을 보여줍니다.";
     }
 
     @Override
-    public void execute(DBManager.Account account, String[] args, Message message) {
+    public List<Parameter> parameters() {
+        return List.of();
+    }
+
+    @Override
+    public boolean isTalkingFunction() {
+        return false;
+    }
+
+    @Override
+    public JsonObject execute(DBManager.Account account, Map<String, String> args, Message requestMessage) {
         List<DBManager.CoinRank> ranking = DBManager.getCoinRanking();
 
         StringBuilder builder = new StringBuilder();
@@ -49,11 +61,13 @@ public class RankingCommand implements Command {
             builder.append("외 ").append(count).append("명");
         }
 
-        message.reply(new EmbedBuilder()
+        requestMessage.reply(new EmbedBuilder()
                 .setTitle("코인 랭킹 (전체서버)")
                 .setDescription(builder.toString())
                 .setColor(Color.green)
                 .setFooter("코인은 게임, 출석체크 등으로 획득할 수 있습니다.")
         );
+
+        return new JsonObject();
     }
 }

@@ -124,11 +124,9 @@ public class MessageCreated implements MessageCreateListener {
                     } catch (Exception ignored) {
                     }
 
-                    String answer = AI.generateResponse(account, content, contents);
+                    String answer = AI.generateResponse(account, message, contents);
                     typing.close();
                     if (answer == null) {
-                        message.reply("ㄴ네..? 뭐라구요?\n" +
-                                "`생강아 배워 \"[명령어]\" \"[메시지]\"`로 알려주세요!");
                         return;
                     }
                     if (answer.startsWith("blocked_")) {

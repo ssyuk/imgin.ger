@@ -3,6 +3,7 @@ package me.syuk.saenggang.ai.functions;
 import com.google.gson.JsonObject;
 import me.syuk.saenggang.ai.AIFunction;
 import me.syuk.saenggang.db.DBManager;
+import org.javacord.api.entity.message.Message;
 
 import java.util.List;
 import java.util.Map;
@@ -26,7 +27,12 @@ public class ViewCoinFunction implements AIFunction {
     }
 
     @Override
-    public JsonObject execute(DBManager.Account account, Map<String, String> args) {
+    public boolean isTalkingFunction() {
+        return true;
+    }
+
+    @Override
+    public JsonObject execute(DBManager.Account account, Map<String, String> args, Message requestMessage) {
         JsonObject content = new JsonObject();
 
         DBManager.Account target = account;

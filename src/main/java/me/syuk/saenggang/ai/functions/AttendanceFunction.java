@@ -3,8 +3,8 @@ package me.syuk.saenggang.ai.functions;
 import com.google.gson.JsonObject;
 import me.syuk.saenggang.ai.AIFunction;
 import me.syuk.saenggang.db.DBManager;
+import org.javacord.api.entity.message.Message;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -16,20 +16,25 @@ public class AttendanceFunction implements AIFunction {
 
     @Override
     public String description() {
-        return "You can earn coins by checking attendance once a day. The amount of coins you receive varies depending on the order.";
+        return "매일 한번씩 사용하는 명령어. 이 명령어를 사용하면, 전체중 사용한 순서에 따라 다른 코인을 받을 수 있음. 하루에 한번씩만 사용 가능함. ex) 출첵, 출석체크 등";
     }
 
     @Override
     public List<Parameter> parameters() {
-        return new ArrayList<>();
+        return List.of();
     }
 
     @Override
-    public JsonObject execute(DBManager.Account account, Map<String, String> args) {
+    public boolean isTalkingFunction() {
+        return true;
+    }
+
+    @Override
+    public JsonObject execute(DBManager.Account account, Map<String, String> args, Message requestMessage) {
         JsonObject content = new JsonObject();
 
         if (DBManager.isAttended(account)) {
-            content.addProperty("failed_reason", "이미 출석했어요!");
+            content.addProperty("error", "이미 출석했어요!");
             return content;
         }
 

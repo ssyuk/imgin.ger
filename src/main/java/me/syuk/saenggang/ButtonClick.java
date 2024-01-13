@@ -40,13 +40,7 @@ public class ButtonClick implements ButtonClickListener {
                     return;
                 }
 
-                String prompt = promptMessage.getContent().substring(4);
-                String answer = AI.generateResponse(account, prompt, new JsonArray());
-                if (answer == null) {
-                    message.edit("ㄴ네..? 뭐라구요?\n" +
-                            "`생강아 배워 \"[명령어]\" \"[메시지]\"`로 알려주세요!");
-                    return;
-                }
+                String answer = AI.generateResponse(account, promptMessage, new JsonArray());
                 message.edit(MessageCreated.fixAnswer(answer, account) + "\n" +
                         "`* AI가 생성한 메시지에요. 올바르지 않은 정보가 담겨있을 수 있어요.`\n" +
                         "`생강아 배워 \"[명령어]\" \"[메시지]\"`로 새로운 지식을 가르쳐주세요!");

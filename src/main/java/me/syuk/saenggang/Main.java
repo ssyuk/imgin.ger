@@ -2,10 +2,10 @@ package me.syuk.saenggang;
 
 import me.syuk.saenggang.ai.AI;
 import me.syuk.saenggang.ai.functions.AttendanceFunction;
+import me.syuk.saenggang.ai.functions.RankingFunction;
 import me.syuk.saenggang.ai.functions.ViewCoinFunction;
 import me.syuk.saenggang.commands.Command;
 import me.syuk.saenggang.commands.account.CoinHistoryCommand;
-import me.syuk.saenggang.commands.account.RankingCommand;
 import me.syuk.saenggang.commands.account.SendCoinCommand;
 import me.syuk.saenggang.commands.cosmetic.BadgeDrawCommand;
 import me.syuk.saenggang.commands.cosmetic.BadgeListCommand;
@@ -42,7 +42,7 @@ public class Main {
 
         AI.aiFunctions.put("attendance", new AttendanceFunction());
         Command.commands.add(new CoinHistoryCommand());
-        Command.commands.add(new RankingCommand());
+        AI.aiFunctions.put("ranking", new RankingFunction());
         Command.commands.add(new SendCoinCommand());
         AI.aiFunctions.put("view_coin", new ViewCoinFunction());
 

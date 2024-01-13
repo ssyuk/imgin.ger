@@ -3,6 +3,7 @@ package me.syuk.saenggang.ai;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import me.syuk.saenggang.db.DBManager;
+import org.javacord.api.entity.message.Message;
 
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,8 @@ public interface AIFunction {
     String description();
 
     List<Parameter> parameters();
+
+    boolean isTalkingFunction();
 
     default JsonObject toFunctionDeclaration() {
         JsonObject function = new JsonObject();
@@ -41,7 +44,7 @@ public interface AIFunction {
         return function;
     }
 
-    JsonObject execute(DBManager.Account account, Map<String, String> args);
+    JsonObject execute(DBManager.Account account, Map<String, String> args, Message requestMessage);
 
     record Parameter(String name, String type, String description, boolean required) {
     }
