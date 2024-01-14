@@ -189,7 +189,10 @@ public class AI {
                     functionCall.getAsJsonObject("args").entrySet().forEach(entry -> args.put(entry.getKey(), entry.getValue().getAsString()));
 
                     AIFunction function = aiFunctions.get(functionName);
-                    if (function == null) System.err.println("AI에 등록되지 않은 함수가 호출되었습니다: " + functionName);
+                    if (function == null) {
+                        System.err.println("AI에 등록되지 않은 함수가 호출되었습니다: " + functionName);
+                        return;
+                    }
                     JsonObject functionResult = generateFunctionResult(functionName, function.execute(account, args, requestMessage));
 
                     if (functionResult != null) {
