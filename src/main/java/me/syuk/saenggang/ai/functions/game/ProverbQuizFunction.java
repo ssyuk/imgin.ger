@@ -1,8 +1,9 @@
-package me.syuk.saenggang.commands.game;
+package me.syuk.saenggang.ai.functions.game;
 
+import com.google.gson.JsonObject;
 import me.syuk.saenggang.MessageCreated;
 import me.syuk.saenggang.Utils;
-import me.syuk.saenggang.commands.Command;
+import me.syuk.saenggang.ai.AIFunction;
 import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.channel.ServerThreadChannel;
 import org.javacord.api.entity.message.Message;
@@ -10,13 +11,14 @@ import org.javacord.api.entity.message.Message;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ProverbQuizCommand implements Command {
+public class ProverbQuizFunction implements AIFunction {
     public static final List<Proverb> PROVERB_LIST = Arrays.asList(
             new Proverb("가는 날이/'장날'이다", "뜻하지 않은 일이 우연하게도 잘 들어 맞았을 때 쓰는 말"),
             new Proverb("가는 말이 고와야/'오는 말'이 '곱'다", "내가 남에게 좋게 해야 남도 내게 잘 한다는 말"),
@@ -133,23 +135,29 @@ public class ProverbQuizCommand implements Command {
 
     @Override
     public String name() {
-        return "속담퀴즈";
+        return "proverb_quiz";
     }
 
     @Override
-    public Theme theme() {
-        return Theme.GAME;
+    public String description() {
+        return "일부분이 지워진 속담이 주어지면, 지워진 부분에 들어갈 말을 맞추는 게임. 속담퀴즈";
     }
 
     @Override
-    public void execute(DBManager.Account account, String[] args, Message message) {
-        ServerThreadChannel channel = Utils.createGameThread(message, "속담퀴즈");
+    public List<Parameter> parameters() {
+        return List.of();
+    }
+
+    @Override
+    public JsonObject execute(DBManager.Account account, Map<String, String> args, Message requestMessage) {
+        requestMessage.reply("네! 속담퀴즈를 시작할게요! 위 Thread로 들어와주세요!");
+        ServerThreadChannel channel = Utils.createGameThread(requestMessage, "속담퀴즈");
 
         channel.sendMessage("""
                 일부분이 지워진 속담이 주어집니다. 지워진 부분에 들어갈 말을 입력해주세요! (필수 단어만 포함되면 정답 인정됩니다.)
                 그만하고 싶으시면 `그만`이라고 말해주세요!
                 스킵하고 싶으시면 `스킵`이라고 말해주세요! (스킵하더라도 연속 정답이 초기화되지 않습니다.)
-                *3번 연속 정답을 맞추면 25코인을 드립니다!**
+                **3번 연속 정답을 맞추면 25코인을 드립니다!**
                 """);
         AtomicReference<Proverb> proverb = new AtomicReference<>(PROVERB_LIST.get((int) (Math.random() * PROVERB_LIST.size())));
         AtomicReference<String> prov = new AtomicReference<>(proverb.get().proverb().split("/")[0]);
@@ -203,6 +211,8 @@ public class ProverbQuizCommand implements Command {
                 return true;
             }).join();
         });
+
+        return null;
     }
 
     public record Proverb(String proverb, String description) {

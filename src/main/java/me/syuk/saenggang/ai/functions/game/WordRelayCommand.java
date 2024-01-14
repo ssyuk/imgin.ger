@@ -1,4 +1,4 @@
-package me.syuk.saenggang.commands.game;
+package me.syuk.saenggang.ai.functions.game;
 
 import app.myoun.headsound.HeadSound;
 import com.google.gson.JsonArray;
@@ -7,7 +7,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import me.syuk.saenggang.MessageCreated;
 import me.syuk.saenggang.Utils;
-import me.syuk.saenggang.commands.Command;
+import me.syuk.saenggang.ai.AIFunction;
 import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.channel.ServerThreadChannel;
 import org.javacord.api.entity.channel.TextChannel;
@@ -29,22 +29,28 @@ import java.util.concurrent.TimeUnit;
 
 import static me.syuk.saenggang.Main.properties;
 
-public class WordRelayCommand implements Command {
+public class WordRelayCommand implements AIFunction {
     @Override
     public String name() {
-        return "끝말잇기";
+        return "word_relay";
     }
 
     @Override
-    public Theme theme() {
-        return Theme.GAME;
+    public String description() {
+        return "제시된 단어의 끝 글자로 시작하는 단어를 입력하는 게임인 끝말잇기를 시작.";
     }
 
     @Override
-    public void execute(DBManager.Account account, String[] args, Message message) {
-        ServerThreadChannel channel = Utils.createGameThread(message, "끝말잇기");
+    public List<Parameter> parameters() {
+        return List.of();
+    }
 
-        WordRelayCommand.WordRelay.start(account);
+    @Override
+    public JsonObject execute(DBManager.Account account,Map<String, String> args, Message requestMessage) {
+        requestMessage.reply("네! 끝말잇기를 시작할게요! 위 Thread로 들어와주세요!");
+        ServerThreadChannel channel = Utils.createGameThread(requestMessage, "끝말잇기");
+
+        WordRelay.start(account);
         channel.sendMessage("""
                 끝말잇기는 제시된 단어의 끝 글자로 시작하는 단어를 입력하는 게임입니다.
                 예를 들어, `사과`라는 단어가 나왔다면 `과일`라는 단어를 입력할 수 있습니다.
@@ -130,6 +136,8 @@ public class WordRelayCommand implements Command {
             }
             return true;
         });
+
+        return null;
     }
 
     public static class WordRelay {

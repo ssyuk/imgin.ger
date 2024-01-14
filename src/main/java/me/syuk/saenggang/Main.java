@@ -5,16 +5,13 @@ import me.syuk.saenggang.ai.functions.account.AttendanceFunction;
 import me.syuk.saenggang.ai.functions.account.RankingFunction;
 import me.syuk.saenggang.ai.functions.account.ViewCoinFunction;
 import me.syuk.saenggang.ai.functions.game.ChosungQuizFunction;
+import me.syuk.saenggang.ai.functions.game.GamblingFunction;
 import me.syuk.saenggang.commands.Command;
 import me.syuk.saenggang.commands.account.CoinHistoryCommand;
 import me.syuk.saenggang.commands.account.SendCoinCommand;
 import me.syuk.saenggang.commands.cosmetic.BadgeDrawCommand;
 import me.syuk.saenggang.commands.cosmetic.BadgeListCommand;
 import me.syuk.saenggang.commands.cosmetic.BadgeSelectCommand;
-import me.syuk.saenggang.commands.game.GamblingCommand;
-import me.syuk.saenggang.commands.game.KpopQuizCommand;
-import me.syuk.saenggang.commands.game.ProverbQuizCommand;
-import me.syuk.saenggang.commands.game.WordRelayCommand;
 import me.syuk.saenggang.commands.music.*;
 import me.syuk.saenggang.commands.owner.GiveCoinCommand;
 import me.syuk.saenggang.commands.talking.ForgetCommand;
@@ -55,10 +52,7 @@ public class Main {
         Command.commands.add(new BadgeSelectCommand());
 
         AI.aiFunctions.put("chosung_quiz", new ChosungQuizFunction());
-        Command.commands.add(new GamblingCommand());
-        Command.commands.add(new KpopQuizCommand());
-        Command.commands.add(new ProverbQuizCommand());
-        Command.commands.add(new WordRelayCommand());
+        AI.aiFunctions.put("gambling", new GamblingFunction());
 
         Command.commands.add(new PlaylistCommand());
         Command.commands.add(new SingingCommand());

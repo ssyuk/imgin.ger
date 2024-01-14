@@ -1,8 +1,9 @@
-package me.syuk.saenggang.commands.game;
+package me.syuk.saenggang.ai.functions.game;
 
+import com.google.gson.JsonObject;
 import me.syuk.saenggang.ButtonClick;
 import me.syuk.saenggang.Utils;
-import me.syuk.saenggang.commands.Command;
+import me.syuk.saenggang.ai.AIFunction;
 import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.channel.ServerThreadChannel;
 import org.javacord.api.entity.message.Message;
@@ -15,12 +16,13 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class KpopQuizCommand implements Command {
+public class KpopQuizFunction implements AIFunction {
     public static QuizMusic[] MUSICS = new QuizMusic[]{
             // BTS MUSICS
             new QuizMusic("Dynamite", "BTS"),
@@ -143,17 +145,23 @@ public class KpopQuizCommand implements Command {
 
     @Override
     public String name() {
-        return "케이팝퀴즈";
+        return "kpop_quiz";
     }
 
     @Override
-    public Theme theme() {
-        return Theme.GAME;
+    public String description() {
+        return "케이팝 노래 제목을 보고, 보기에서 알맞는 아티스트명의 번호를 클릭해 주세요!";
     }
 
     @Override
-    public void execute(DBManager.Account account, String[] args, Message message) {
-        ServerThreadChannel channel = Utils.createGameThread(message, "케이팝퀴즈");
+    public List<Parameter> parameters() {
+        return List.of();
+    }
+
+    @Override
+    public JsonObject execute(DBManager.Account account, Map<String, String> args, Message requestMessage) {
+        requestMessage.reply("네! 케이팝퀴즈를 시작할게요! 위 Thread로 들어와주세요!");
+        ServerThreadChannel channel = Utils.createGameThread(requestMessage, "케이팝퀴즈");
 
         channel.sendMessage("다음 KPOP 노래 제목을 보고, 보기에서 알맞는 아티스트명의 번호를 클릭해 주세요!\n" +
                 "10번 연속 정답을 맞추면 25코인을 드립니다!");
@@ -195,6 +203,8 @@ public class KpopQuizCommand implements Command {
                     .send(channel).join());
             return true;
         }).join());
+
+        return null;
     }
 
     public record QuizMusic(String name, String artist) {

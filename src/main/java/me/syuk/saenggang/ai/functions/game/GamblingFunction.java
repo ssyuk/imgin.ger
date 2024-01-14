@@ -1,8 +1,9 @@
-package me.syuk.saenggang.commands.game;
+package me.syuk.saenggang.ai.functions.game;
 
+import com.google.gson.JsonObject;
 import me.syuk.saenggang.MessageCreated;
 import me.syuk.saenggang.Utils;
-import me.syuk.saenggang.commands.Command;
+import me.syuk.saenggang.ai.AIFunction;
 import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.message.Message;
 
@@ -10,48 +11,52 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
-public class GamblingCommand implements Command {
+public class GamblingFunction implements AIFunction {
     public static Map<DBManager.Account, LocalDateTime> lastMessageTime = new HashMap<>();
 
     @Override
     public String name() {
-        return "도박";
+        return "gambling";
     }
 
     @Override
-    public Theme theme() {
-        return Theme.GAME;
+    public String description() {
+        return "원하는 갯수의 코인을 걸고, 1~10사이의 숫자를 맞추면, 건 코인의 n배를 얻습니다! (한번에 최대 300코인까지 걸 수 있습니다.)";
     }
 
     @Override
-    public void execute(DBManager.Account account, String[] args, Message message) {
-        if (args.length != 2 || !args[1].matches("\\d+")) {
-            message.reply("도박 명령어는 `도박 [걸 코인]` 형식으로 사용해주세요!");
-            return;
-        }
+    public List<Parameter> parameters() {
+        return List.of(
+                new Parameter("coin", "integer", "걸 코인의 갯수", true)
+        );
+    }
+
+    @Override
+    public JsonObject execute(DBManager.Account account, Map<String, String> args, Message requestMessage) {
+        JsonObject response = new JsonObject();
 
         if (lastMessageTime.containsKey(account)) {
             LocalDateTime lastTime = lastMessageTime.get(account);
             long secondsBetween = ChronoUnit.SECONDS.between(lastTime, LocalDateTime.now());
-            if (secondsBetween < 1) return;
+            if (secondsBetween < 1) return null;
         }
         lastMessageTime.put(account, LocalDateTime.now());
 
-        int coins = Integer.parseInt(args[1]);
+        int coins = Integer.parseInt(args.get("coin"));
         if (coins > 300) {
-            message.reply("최대 " + Utils.displayCoin(300) + "까지 걸 수 있어요!");
-            return;
+            response.addProperty("error", "최대 300코인까지 걸 수 있어요!");
+            return response;
         }
         if (account.coin() < coins) {
-            message.reply("코인이 부족해요!");
-            return;
+            response.addProperty("error", "코인이 부족해요!");
+            return response;
         }
 
 
         List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
         Collections.shuffle(numbers);
 
-        message.reply("\uD83C\uDFB0 1~10 사이의 숫자를 입력해주세요!");
+        response.addProperty("status", "1~10 사이의 숫자를 입력해주세요!");
         MessageCreated.replyCallbackMap.put(account, replyMessage -> {
             String content = replyMessage.getContent();
             int number;
@@ -103,5 +108,6 @@ public class GamblingCommand implements Command {
             MessageCreated.replyCallbackMap.remove(account);
             return true;
         });
+        return response;
     }
 }
