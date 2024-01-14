@@ -4,15 +4,14 @@ import me.syuk.saenggang.ai.AI;
 import me.syuk.saenggang.ai.functions.account.AttendanceFunction;
 import me.syuk.saenggang.ai.functions.account.RankingFunction;
 import me.syuk.saenggang.ai.functions.account.ViewCoinFunction;
-import me.syuk.saenggang.ai.functions.game.ChosungQuizFunction;
-import me.syuk.saenggang.ai.functions.game.GamblingFunction;
+import me.syuk.saenggang.ai.functions.game.*;
+import me.syuk.saenggang.ai.functions.music.*;
 import me.syuk.saenggang.commands.Command;
 import me.syuk.saenggang.commands.account.CoinHistoryCommand;
 import me.syuk.saenggang.commands.account.SendCoinCommand;
 import me.syuk.saenggang.commands.cosmetic.BadgeDrawCommand;
 import me.syuk.saenggang.commands.cosmetic.BadgeListCommand;
 import me.syuk.saenggang.commands.cosmetic.BadgeSelectCommand;
-import me.syuk.saenggang.commands.music.*;
 import me.syuk.saenggang.commands.owner.GiveCoinCommand;
 import me.syuk.saenggang.commands.talking.ForgetCommand;
 import me.syuk.saenggang.commands.talking.KnowledgeCommand;
@@ -41,25 +40,28 @@ public class Main {
 
         TimeZone.setDefault(TimeZone.getTimeZone("Asia/Seoul"));
 
-        AI.aiFunctions.put("attendance", new AttendanceFunction());
+        AI.registerFunction(new AttendanceFunction());
         Command.commands.add(new CoinHistoryCommand());
-        AI.aiFunctions.put("ranking", new RankingFunction());
+        AI.registerFunction(new RankingFunction());
         Command.commands.add(new SendCoinCommand());
-        AI.aiFunctions.put("view_coin", new ViewCoinFunction());
+        AI.registerFunction(new ViewCoinFunction());
 
         Command.commands.add(new BadgeDrawCommand());
         Command.commands.add(new BadgeListCommand());
         Command.commands.add(new BadgeSelectCommand());
 
-        AI.aiFunctions.put("chosung_quiz", new ChosungQuizFunction());
-        AI.aiFunctions.put("gambling", new GamblingFunction());
+        AI.registerFunction(new ChosungQuizFunction());
+        AI.registerFunction(new GamblingFunction());
+        AI.registerFunction(new KpopQuizFunction());
+        AI.registerFunction(new ProverbQuizFunction());
+        AI.registerFunction(new WordRelayCommand());
 
-        Command.commands.add(new PlaylistCommand());
-        Command.commands.add(new SingingCommand());
-        Command.commands.add(new SkipCommand());
-        Command.commands.add(new SpeedCommand());
-        Command.commands.add(new StopSingingCommand());
-        Command.commands.add(new VolumeCommand());
+        AI.registerFunction(new PlaylistFunction());
+        AI.registerFunction(new SingingFunction());
+        AI.registerFunction(new SkipFunction());
+        AI.registerFunction(new SpeedFunction());
+        AI.registerFunction(new StopSingingFunction());
+        AI.registerFunction(new VolumeFunction());
 
         Command.commands.add(new GiveCoinCommand());
 

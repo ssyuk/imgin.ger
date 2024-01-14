@@ -18,24 +18,11 @@ import static me.syuk.saenggang.Main.api;
 import static me.syuk.saenggang.Main.properties;
 
 public class AI {
-    public static JsonArray knowledgeContents = new JsonArray();
     public static Map<UUID, Message> aiReplyMap = new HashMap<>();
     public static Map<String, AIFunction> aiFunctions = new HashMap<>();
 
-    public static void updateKnowledgeContents() {
-        knowledgeContents = new JsonArray();
-        knowledgeContents.add(generateContent("user", "너 이름이 뭐야?"));
-        knowledgeContents.add(generateContent("model", "저는 생강이에요."));
-        knowledgeContents.add(generateContent("user", "내 이름은 뭔지 알아?"));
-        knowledgeContents.add(generateContent("model", "당신은 {user.name}이라고 불러요."));
-        knowledgeContents.add(generateContent("user", "내 코인은 얼마야?"));
-        knowledgeContents.add(generateContent("model", "당신은 {user.displayCoin}이 있어요."));
-        DBManager.getKnowledgeList().forEach((question, saenggangKnowledges) -> {
-            for (DBManager.SaenggangKnowledge saenggangKnowledge : saenggangKnowledges) {
-                knowledgeContents.add(generateContent("user", question));
-                knowledgeContents.add(generateContent("model", saenggangKnowledge.answer()));
-            }
-        });
+    public static void registerFunction(AIFunction function) {
+        aiFunctions.put(function.name(), function);
     }
 
     public static JsonObject generateContent(String role, String text) {

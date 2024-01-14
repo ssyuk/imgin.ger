@@ -29,10 +29,6 @@ import static me.syuk.saenggang.Main.api;
 public class MessageCreated implements MessageCreateListener {
     public static Map<DBManager.Account, ReplyCallback> replyCallbackMap = new HashMap<>();
 
-    public MessageCreated() {
-        AI.updateKnowledgeContents();
-    }
-
     public static String fixAnswer(String answer, DBManager.Account account) {
         answer = answer.replace("{user.name}", "<@" + account.userId() + ">");
         answer = answer.replace("{user.coin}", String.valueOf(account.coin()));

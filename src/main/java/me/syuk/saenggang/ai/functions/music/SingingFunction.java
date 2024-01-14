@@ -1,5 +1,6 @@
-package me.syuk.saenggang.commands.music;
+package me.syuk.saenggang.ai.functions.music;
 
+import com.google.gson.JsonObject;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
@@ -9,8 +10,7 @@ import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import me.syuk.saenggang.MessageCreated;
-import me.syuk.saenggang.commands.Command;
+import me.syuk.saenggang.ai.AIFunction;
 import me.syuk.saenggang.db.DBManager;
 import me.syuk.saenggang.music.LavaplayerAudioSource;
 import org.javacord.api.audio.AudioConnection;
@@ -24,7 +24,7 @@ import java.util.*;
 
 import static me.syuk.saenggang.Main.api;
 
-public class SingingCommand implements Command {
+public class SingingFunction implements AIFunction {
     public static Map<Long, AudioPlayerManager> serverPlayerManagerMap = new HashMap<>();
     public static Map<Long, AudioPlayer> serverPlayerMap = new HashMap<>();
     public static Map<Long, AudioConnection> serverConnectionMap = new HashMap<>();
@@ -32,47 +32,44 @@ public class SingingCommand implements Command {
 
     @Override
     public String name() {
-        return "노래불러줘";
+        return "music_start_singing";
     }
 
     @Override
-    public Theme theme() {
-        return Theme.MUSIC;
+    public String description() {
+        return "생강이가 노래를 부릅니다. (혹은 노래를 재생합니다)";
     }
 
     @Override
-    public void execute(DBManager.Account account, String[] args, Message message) {
-        if (args.length >= 2) {
-            singing(args[1], message);
-        } else {
-            message.reply("어떤 노래를 불러드릴까요? (유튜브 링크를 입력해주세요.)");
-            MessageCreated.replyCallbackMap.put(account, message1 -> {
-                MessageCreated.replyCallbackMap.remove(account);
-                singing(message1.getContent(), message);
-                return true;
-            });
-        }
+    public List<Parameter> parameters() {
+        return List.of(
+                new Parameter("source", "string", "노래를 재생할 유튜브 링크입니다.", true)
+        );
     }
 
-    private void singing(String source, Message message) {
+    @Override
+    public JsonObject execute(DBManager.Account account, Map<String, String> args, Message message) {
+        JsonObject response = new JsonObject();
+
         TextChannel textChannel = message.getChannel();
         if (message.getServer().isEmpty()) {
-            message.reply("서버에서만 노래를 불러드릴 수 있어요.");
-            return;
+            response.addProperty("error", "서버에서만 노래기능 사용 가능");
+            return response;
         }
         Server server = message.getServer().get();
         User user = message.getUserAuthor().orElseThrow();
         Optional<ServerVoiceChannel> oChannel = server.getConnectedVoiceChannel(user);
         if (oChannel.isEmpty()) {
-            message.reply("먼저 음성 채널에 들어가주세요.");
-            return;
+            response.addProperty("error", "사용자가 음성채널에 접속해있지 않음");
+            return response;
         }
 
         serverPlaylistMap.putIfAbsent(server.getId(), new ArrayList<>());
         ServerVoiceChannel channel = oChannel.get();
         if (serverConnectionMap.containsKey(server.getId())) {
-            addToPlaylist(server.getId(), source, message);
-            return;
+            addToPlaylist(server.getId(), args.get("source"), message);
+            response.addProperty("status", "플레이리스트에 추가됨");
+            return response;
         }
 
         channel.connect().thenAccept(audioConnection -> {
@@ -107,11 +104,13 @@ public class SingingCommand implements Command {
             serverPlayerManagerMap.put(server.getId(), playerManager);
             serverPlayerMap.put(server.getId(), player);
 
-            addToPlaylist(server.getId(), source, message);
+            addToPlaylist(server.getId(), args.get("source"), message);
         }).exceptionally(e -> {
             e.printStackTrace();
             return null;
         });
+
+        return null;
     }
 
     private void addToPlaylist(long serverId, String source, Message message) {
