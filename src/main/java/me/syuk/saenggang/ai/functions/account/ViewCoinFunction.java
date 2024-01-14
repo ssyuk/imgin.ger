@@ -1,4 +1,4 @@
-package me.syuk.saenggang.ai.functions;
+package me.syuk.saenggang.ai.functions.account;
 
 import com.google.gson.JsonObject;
 import me.syuk.saenggang.ai.AIFunction;
@@ -24,11 +24,6 @@ public class ViewCoinFunction implements AIFunction {
         return List.of(
                 new Parameter("user", "string", "ID of the user to be confirmed (id is given in <@ID> format, or if it means ‘me’, it is unified as ‘me’.)", false)
         );
-    }
-
-    @Override
-    public boolean isTalkingFunction() {
-        return true;
     }
 
     @Override

@@ -1,8 +1,9 @@
-package me.syuk.saenggang.commands.game;
+package me.syuk.saenggang.ai.functions.game;
 
+import com.google.gson.JsonObject;
 import me.syuk.saenggang.MessageCreated;
 import me.syuk.saenggang.Utils;
-import me.syuk.saenggang.commands.Command;
+import me.syuk.saenggang.ai.AIFunction;
 import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.channel.ServerThreadChannel;
 import org.javacord.api.entity.message.Message;
@@ -15,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class ChosungQuizCommand implements Command {
+public class ChosungQuizFunction implements AIFunction {
     public static String[] ANIMAL = new String[]{ // 30
             "강아지", "고양이", "원숭이", "코끼리", "사자", "호랑이", "코알라", "판다", "기린", "캥거루",
             "앵무새", "카멜레온", "다람쥐", "하마", "펭귄", "돌고래", "햄스터", "침팬지", "물범",
@@ -61,17 +62,23 @@ public class ChosungQuizCommand implements Command {
 
     @Override
     public String name() {
-        return "초성퀴즈";
+        return "chosung_quiz";
     }
 
     @Override
-    public Theme theme() {
-        return Theme.GAME;
+    public String description() {
+        return "사용자와 함께 게임을 즐길 수 있는 명령어.";
     }
 
     @Override
-    public void execute(DBManager.Account account, String[] args, Message message) {
-        ServerThreadChannel channel = Utils.createGameThread(message, "초성퀴즈");
+    public List<Parameter> parameters() {
+        return List.of();
+    }
+
+    @Override
+    public JsonObject execute(DBManager.Account account, Map<String, String> args, Message requestMessage) {
+        requestMessage.reply("네! 초성퀴즈를 시작할게요! 위 Thread로 들어와주세요!");
+        ServerThreadChannel channel = Utils.createGameThread(requestMessage, "초성퀴즈");
 
         channel.sendMessage("""
                 다음 초성을 보고, 힌트를 참고하여 알맞은 **단어**를 입력해주세요!
@@ -117,6 +124,8 @@ public class ChosungQuizCommand implements Command {
                 return true;
             }).join();
         });
+
+        return null;
     }
 
     String getInitialSound(String text) {

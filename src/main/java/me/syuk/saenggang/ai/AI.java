@@ -36,17 +36,34 @@ public class AI {
     }
 
     public static JsonObject generateContent(String role, String text) {
+        return generateContent(role, text, null);
+    }
+
+    public static JsonObject generateContent(String role, String text, String image) {
         JsonObject content = new JsonObject();
         content.addProperty("role", role);
         JsonArray parts = new JsonArray();
+
         JsonObject part = new JsonObject();
         part.addProperty("text", text);
         parts.add(part);
+
+        if (image != null) {
+            JsonObject imagePart = new JsonObject();
+            JsonObject inlineData = new JsonObject();
+            inlineData.addProperty("mime_type", "image/jpeg");
+            inlineData.addProperty("data", image);
+            imagePart.add("inline_data", inlineData);
+            parts.add(imagePart);
+        }
+
         content.add("parts", parts);
         return content;
     }
 
     public static JsonObject generateFunctionResult(String functionName, JsonObject responseContent) {
+        if (responseContent == null) return null;
+
         JsonObject content = new JsonObject();
         content.addProperty("role", "function");
         JsonArray parts = new JsonArray();
@@ -85,7 +102,32 @@ public class AI {
         if (requestMessage != null) {
             prompt = requestMessage.getContent();
             if (prompt.startsWith("생강아 ")) prompt = prompt.substring(4);
-            contents.add(generateContent("user", prompt));
+
+            String imageData = null;
+            if (!requestMessage.getAttachments().isEmpty()) {
+                if (requestMessage.getAttachments().size() <= 1) {
+                    String imageUrl = requestMessage.getAttachments().get(0).getUrl().toString();
+                    try {
+                        HttpURLConnection con = (HttpURLConnection) new URL(imageUrl).openConnection();
+                        con.setRequestMethod("GET");
+                        con.setDoOutput(true);
+                        con.getOutputStream().write(object.toString().getBytes());
+
+                        if (con.getResponseCode() != 200) {
+                            System.out.println(object);
+                            System.out.println(con.getResponseCode());
+                            JsonObject response = JsonParser.parseReader(new InputStreamReader(con.getErrorStream())).getAsJsonObject();
+                            System.out.println(response);
+                            return null;
+                        }
+                        imageData = Base64.getEncoder().encodeToString(con.getInputStream().readAllBytes());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else requestMessage.reply("이미지는 한장만 보내주세요.");
+
+            }
+            contents.add(generateContent("user", prompt, imageData));
         }
         object.add("contents", contents);
 
@@ -103,8 +145,6 @@ public class AI {
         safetySettings.add(newSafetySetting("HARM_CATEGORY_HARASSMENT", "BLOCK_ONLY_HIGH"));
         safetySettings.add(newSafetySetting("HARM_CATEGORY_DANGEROUS_CONTENT", "BLOCK_MEDIUM_AND_ABOVE"));
         object.add("safetySettings", safetySettings);
-
-        System.out.println(object);
 
         HttpURLConnection con = null;
         try {
@@ -133,21 +173,22 @@ public class AI {
             List<String> answers = new ArrayList<>();
             String finalPrompt = prompt;
             response.getAsJsonArray("candidates").forEach(candidate -> {
-                System.out.println(candidate.getAsJsonObject().getAsJsonObject("content"));
+                if (candidate.getAsJsonObject().getAsJsonObject("content").getAsJsonArray("parts") == null)
+                    System.err.println(response);
                 JsonObject part = candidate.getAsJsonObject().getAsJsonObject("content").getAsJsonArray("parts").get(0).getAsJsonObject();
                 if (part.keySet().contains("text")) {
                     answers.add(part.get("text").getAsString());
                 } else if (part.keySet().contains("functionCall")) {
                     JsonObject functionCall = part.getAsJsonObject("functionCall");
                     String functionName = functionCall.get("name").getAsString();
-                    System.out.println(functionName);
                     Map<String, String> args = new HashMap<>();
                     functionCall.getAsJsonObject("args").entrySet().forEach(entry -> args.put(entry.getKey(), entry.getValue().getAsString()));
 
                     AIFunction function = aiFunctions.get(functionName);
+                    if (function == null) System.err.println("AI에 등록되지 않은 함수가 호출되었습니다: " + functionName);
                     JsonObject functionResult = generateFunctionResult(functionName, function.execute(account, args, requestMessage));
 
-                    if (function.isTalkingFunction()) {
+                    if (functionResult != null) {
                         JsonArray newMoreContents = new JsonArray();
                         newMoreContents.addAll(moreContents);
                         newMoreContents.add(generateContent("user", finalPrompt));

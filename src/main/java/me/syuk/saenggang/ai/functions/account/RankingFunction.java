@@ -1,4 +1,4 @@
-package me.syuk.saenggang.ai.functions;
+package me.syuk.saenggang.ai.functions.account;
 
 import com.google.gson.JsonObject;
 import me.syuk.saenggang.Utils;
@@ -25,11 +25,6 @@ public class RankingFunction implements AIFunction {
     @Override
     public List<Parameter> parameters() {
         return List.of();
-    }
-
-    @Override
-    public boolean isTalkingFunction() {
-        return false;
     }
 
     @Override
@@ -68,6 +63,6 @@ public class RankingFunction implements AIFunction {
                 .setFooter("코인은 게임, 출석체크 등으로 획득할 수 있습니다.")
         );
 
-        return new JsonObject();
+        return null;
     }
 }

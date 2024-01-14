@@ -15,8 +15,6 @@ public interface AIFunction {
 
     List<Parameter> parameters();
 
-    boolean isTalkingFunction();
-
     default JsonObject toFunctionDeclaration() {
         JsonObject function = new JsonObject();
         function.addProperty("name", name());

@@ -1,4 +1,4 @@
-package me.syuk.saenggang.ai.functions;
+package me.syuk.saenggang.ai.functions.account;
 
 import com.google.gson.JsonObject;
 import me.syuk.saenggang.ai.AIFunction;
@@ -22,11 +22,6 @@ public class AttendanceFunction implements AIFunction {
     @Override
     public List<Parameter> parameters() {
         return List.of();
-    }
-
-    @Override
-    public boolean isTalkingFunction() {
-        return true;
     }
 
     @Override
