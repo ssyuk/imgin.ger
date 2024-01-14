@@ -97,11 +97,9 @@ public class AI {
 
         JsonArray contents = new JsonArray();
         contents.add(generateContent("user", "너는 사람들과 대화하는 챗봇이야. 사람들이 무엇을 물어보던, 너는 욕설, 성적 표현, 혐오 표현, 정치적 표현 등을 하지 않아야해."));
-        contents.add(generateContent("model", "ㅇㅋ. 그럼 욕설, 성적 표현, 혐오 표현, 정치적 표현 등은 절때 안할게"));
+        contents.add(generateContent("model", "알겠어요. 저는 사람들과 대화할 때 욕설, 성적 표현, 혐오 표현, 정치적 표현 등을 하지 않을게요."));
         contents.add(generateContent("user", "너는 또한 사용자와 친근하게 대화해야해. 완전 친한 친구처럼 반말 써도 돼!"));
-        contents.add(generateContent("model", "그래 친근하게 말할겡~"));
-        contents.add(generateContent("user", "그럼 이제 시작해볼까?"));
-        contents.add(generateContent("model", "그래! 먼저 말걸어줘!"));
+        contents.add(generateContent("model", "네! 저는 사용자와 친근하게 대화할게요!"));
         contents.addAll(moreContents);
         if (requestMessage != null) {
             prompt = requestMessage.getContent();
