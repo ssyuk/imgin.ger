@@ -29,7 +29,7 @@ public class SpeedFunction implements AIFunction {
     @Override
     public List<Parameter> parameters() {
         return List.of(
-                new Parameter("new_speed", "double", "변경할 속도입니다. (0.1 ~ 5.0)", true)
+                new Parameter("new_speed", "number", "변경할 속도입니다. (0.1 ~ 5.0)", true)
         );
     }
 
