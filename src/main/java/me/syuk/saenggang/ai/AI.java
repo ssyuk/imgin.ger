@@ -177,7 +177,7 @@ public class AI {
             List<String> answers = new ArrayList<>();
             String finalPrompt = prompt;
             response.getAsJsonArray("candidates").forEach(candidate -> {
-                if (candidate.getAsJsonObject().getAsJsonObject("content").getAsJsonArray("parts") == null)
+                if (candidate.getAsJsonObject().getAsJsonObject("content") == null)
                     System.err.println(response);
                 JsonObject part = candidate.getAsJsonObject().getAsJsonObject("content").getAsJsonArray("parts").get(0).getAsJsonObject();
                 if (part.keySet().contains("text")) {
