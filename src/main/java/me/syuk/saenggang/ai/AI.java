@@ -176,7 +176,7 @@ public class AI {
             String finalPrompt = prompt;
             response.getAsJsonArray("candidates").forEach(candidate -> {
                 if (candidate.getAsJsonObject().get("finishReason").getAsString().equals("SAFETY")) {
-                    answers.add("blocked_죄송합니다. AI가 안전하지 않은 메시지를 생성했습니다. 다시 시도해주세요.");
+                    answers.add("blocked_AI가 안전하지 않은 메시지를 생성했습니다. 다시 시도해주세요.");
                     return;
                 }
                 JsonObject part = candidate.getAsJsonObject().getAsJsonObject("content").getAsJsonArray("parts").get(0).getAsJsonObject();
