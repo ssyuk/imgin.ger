@@ -70,7 +70,7 @@ public class SpeedFunction implements AIFunction {
         }
     }
 
-    private void changeSpeed( Server server, AudioPlayer player, double speed) {
+    private void changeSpeed(Server server, AudioPlayer player, double speed) {
         player.setFilterFactory((track, format, output) -> {
             TimescalePcmAudioFilter audioFilter = new TimescalePcmAudioFilter(output, format.channelCount, format.sampleRate);
             audioFilter.setSpeed(speed);
