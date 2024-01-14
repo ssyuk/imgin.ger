@@ -6,6 +6,9 @@ import com.google.gson.JsonParser;
 import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.message.Message;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -90,6 +93,7 @@ public class AI {
     public static String generateResponse(DBManager.Account account, Message requestMessage, JsonArray moreContents) {
         JsonObject object = new JsonObject();
         String prompt = null;
+        boolean hasImage = false;
 
         JsonArray contents = new JsonArray();
         contents.add(generateContent("user", "너는 사람들과 대화하는 챗봇이야. 사람들이 무엇을 물어보던, 너는 욕설, 성적 표현, 혐오 표현, 정치적 표현 등을 하지 않아야해."));
@@ -106,38 +110,37 @@ public class AI {
             String imageData = null;
             if (!requestMessage.getAttachments().isEmpty()) {
                 if (requestMessage.getAttachments().size() <= 1) {
-                    String imageUrl = requestMessage.getAttachments().get(0).getUrl().toString();
-                    try {
-                        HttpURLConnection con = (HttpURLConnection) new URL(imageUrl).openConnection();
-                        con.setRequestMethod("GET");
-                        con.setDoOutput(true);
-                        con.getOutputStream().write(object.toString().getBytes());
-
-                        if (con.getResponseCode() != 200) {
-                            System.out.println(object);
-                            System.out.println(con.getResponseCode());
-                            JsonObject response = JsonParser.parseReader(new InputStreamReader(con.getErrorStream())).getAsJsonObject();
-                            System.out.println(response);
-                            return null;
+                    try (InputStream inputStream = requestMessage.getAttachments().get(0).getUrl().openStream()) {
+                        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                        byte[] buffer = new byte[1024];
+                        int bytesRead;
+                        while ((bytesRead = inputStream.read(buffer, 0, buffer.length)) != -1) {
+                            byteArrayOutputStream.write(buffer, 0, bytesRead);
                         }
-                        imageData = Base64.getEncoder().encodeToString(con.getInputStream().readAllBytes());
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                        imageData = Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
                     }
                 } else requestMessage.reply("이미지는 한장만 보내주세요.");
 
             }
+
+            hasImage = imageData != null;
+            if (hasImage) contents = new JsonArray();
+
             contents.add(generateContent("user", prompt, imageData));
         }
         object.add("contents", contents);
 
-        JsonArray tools = new JsonArray();
-        JsonObject tool = new JsonObject();
-        JsonArray functionDeclarations = new JsonArray();
-        aiFunctions.values().forEach(aiFunction -> functionDeclarations.add(aiFunction.toFunctionDeclaration()));
-        tool.add("functionDeclarations", functionDeclarations);
-        tools.add(tool);
-        object.add("tools", tools);
+        if (!hasImage) {
+            JsonArray tools = new JsonArray();
+            JsonObject tool = new JsonObject();
+            JsonArray functionDeclarations = new JsonArray();
+            aiFunctions.values().forEach(aiFunction -> functionDeclarations.add(aiFunction.toFunctionDeclaration()));
+            tool.add("functionDeclarations", functionDeclarations);
+            tools.add(tool);
+            object.add("tools", tools);
+        }
 
         JsonArray safetySettings = new JsonArray();
         safetySettings.add(newSafetySetting("HARM_CATEGORY_SEXUALLY_EXPLICIT", "BLOCK_MEDIUM_AND_ABOVE"));
@@ -148,7 +151,8 @@ public class AI {
 
         HttpURLConnection con = null;
         try {
-            URL url = new URL("https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + properties.getProperty("GEMINI_API_KEY"));
+            String model = hasImage ? "gemini-pro-vision" : "gemini-pro";
+            URL url = new URL("https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + properties.getProperty("GEMINI_API_KEY"));
 
             con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("POST");
