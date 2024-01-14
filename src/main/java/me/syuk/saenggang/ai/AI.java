@@ -177,8 +177,10 @@ public class AI {
             List<String> answers = new ArrayList<>();
             String finalPrompt = prompt;
             response.getAsJsonArray("candidates").forEach(candidate -> {
-                if (candidate.getAsJsonObject().getAsJsonObject("content") == null)
-                    api.getUserById(602733713842896908L).join().sendMessage("NULL!!!!: " + response).join();
+                if (candidate.getAsJsonObject().get("finishReason").getAsString().equals("SAFETY")) {
+                    answers.add("blocked_죄송합니다. AI가 안전하지 않은 메시지를 생성했습니다. 다시 시도해주세요.");
+                    return;
+                }
                 JsonObject part = candidate.getAsJsonObject().getAsJsonObject("content").getAsJsonArray("parts").get(0).getAsJsonObject();
                 if (part.keySet().contains("text")) {
                     answers.add(part.get("text").getAsString());
