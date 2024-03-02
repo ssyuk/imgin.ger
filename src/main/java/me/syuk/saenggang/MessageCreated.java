@@ -101,7 +101,7 @@ public class MessageCreated implements MessageCreateListener {
                         int timeTaken = object.get("timeTaken").getAsInt();
 
                         MessageBuilder messageBuilder = new MessageBuilder();
-                        messageBuilder.setContent(response + "```응답 ID: " + responseId + " / 걸린 시간: " + timeTaken / 1000.0 + "초```");
+                        messageBuilder.setContent(response + "\n```응답 ID: " + responseId + " / 걸린 시간: " + timeTaken / 1000.0 + "초```");
                         for (JsonElement embedElement : embeds) {
                             JsonObject embed = embedElement.getAsJsonObject();
                             messageBuilder.addEmbed(new EmbedBuilder()
