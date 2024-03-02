@@ -38,7 +38,7 @@ public class BadgeDrawCommand implements Command {
         ButtonClick.buttonCallbackMap.put(account, interaction -> {
             InteractionImmediateResponseBuilder response = interaction.createImmediateResponder();
             if (interaction.getCustomId().equals("badgeDraw")) {
-                if (!interaction.getUser().getIdAsString().equals(account.userId())) {
+                if (interaction.getUser().getId() != account.userId()) {
                     response.setContent("본인만 응답할 수 있습니다.").respond();
                     return;
                 }
@@ -57,7 +57,7 @@ public class BadgeDrawCommand implements Command {
                 }
                 response.respond();
             } else if (interaction.getCustomId().equals("badgeDrawCancel")) {
-                if (!interaction.getUser().getIdAsString().equals(account.userId())) {
+                if (interaction.getUser().getId() != account.userId()) {
                     response.setContent("본인만 응답할 수 있습니다.").respond();
                     return;
                 }

@@ -1,6 +1,9 @@
 package me.syuk.saenggang;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import me.syuk.saenggang.ai.AI;
 import me.syuk.saenggang.commands.Command;
 import me.syuk.saenggang.db.DBManager;
@@ -10,12 +13,19 @@ import org.javacord.api.entity.message.MessageReference;
 import org.javacord.api.entity.message.component.ActionRow;
 import org.javacord.api.entity.message.component.Button;
 import org.javacord.api.entity.message.component.ButtonStyle;
+import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.listener.message.MessageCreateListener;
 import org.javacord.api.util.NonThrowingAutoCloseable;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -69,6 +79,42 @@ public class MessageCreated implements MessageCreateListener {
                             "`생강아 배워 [명령어] [메시지]`로 저에게 말을 가르칠 수 있어요!"
                             + (account.coin() == 0 ? "\n앞으로 저와 재미있게 놀아봐요!" : ""));
                     if (account.coin() == 0) account.giveCoin(message.getChannel(), 5, "첫 사용자 보상으로");
+                    return;
+                }
+
+                if (content.startsWith("!search")) {
+                    String query = content.substring(8);
+                    message.reply("[Buddy] 잠시만 기다려주세요. Buddy에서 검색하는 중입니다.");
+                    try {
+                        URL url = new URI("https://oci.syuk.me/generateResponse").toURL();
+                        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                        connection.setRequestMethod("POST");
+                        connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+                        connection.setDoOutput(true);
+                        connection.getOutputStream().write(("{\"query\":\"" + query + "\"}").getBytes(StandardCharsets.UTF_8));
+                        connection.setConnectTimeout(60000);
+
+                        JsonObject object = JsonParser.parseReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8)).getAsJsonObject();
+                        String response = object.get("response").getAsString();
+                        JsonArray embeds = object.getAsJsonArray("embeds");
+                        String responseId = object.get("responseId").getAsString();
+                        int timeTaken = object.get("timeTaken").getAsInt();
+
+                        MessageBuilder messageBuilder = new MessageBuilder();
+                        messageBuilder.setContent(response + "```응답 ID: " + responseId + " / 걸린 시간: " + timeTaken / 1000.0 + "초```");
+                        for (JsonElement embedElement : embeds) {
+                            JsonObject embed = embedElement.getAsJsonObject();
+                            messageBuilder.addEmbed(new EmbedBuilder()
+                                    .setTitle(embed.get("title").getAsString())
+                                    .setUrl(embed.get("url").getAsString())
+                                    .setImage(embed.get("image").getAsString())
+                            );
+                        }
+                        messageBuilder.replyTo(event.getMessage()).send(event.getChannel()).join();
+                    } catch (URISyntaxException | IOException e) {
+                        message.reply("오류가 발생했어요.");
+                        throw new RuntimeException(e);
+                    }
                     return;
                 }
 
