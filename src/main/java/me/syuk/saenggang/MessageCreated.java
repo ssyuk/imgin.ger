@@ -91,7 +91,9 @@ public class MessageCreated implements MessageCreateListener {
                         connection.setRequestMethod("POST");
                         connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
                         connection.setDoOutput(true);
-                        connection.getOutputStream().write(("{\"query\":\"" + query + "\"}").getBytes(StandardCharsets.UTF_8));
+                        JsonObject body = new JsonObject();
+                        body.addProperty("query", query);
+                        connection.getOutputStream().write(body.toString().getBytes(StandardCharsets.UTF_8));
                         connection.setConnectTimeout(60000);
 
                         JsonObject object = JsonParser.parseReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8)).getAsJsonObject();
