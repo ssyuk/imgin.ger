@@ -73,34 +73,40 @@ public class GamblingFunction implements AIFunction {
 
             int index = numbers.indexOf(number);
             StringBuilder reply = new StringBuilder();
+            # 0.6 1 
+            # 0.75 2
+            # 1.0 2
+            # 1.45 2
+            # 1.75 1
+            # 1.85 1
+            # 2.0 1
             switch (index) {
                 case 0 -> {
-                    reply.append(":cloud_lightning: ").append(Utils.displayCoin((int) (coins * .6))).append("을 잃었어요ㅠ (0.4배)");
-                    DBManager.giveCoin(account, (int) -(coins * .6));
+                    reply.append(":cloud_lightning: ").append(Utils.displayCoin((int) (coins * .4))).append("을 잃었어요ㅠ (0.6배)");
+                    DBManager.giveCoin(account, (int) -(coins * .4));
                 }
                 case 1,2  -> {
-                    reply.append(":broken_heart: ").append(Utils.displayCoin((int) (coins * .5))).append("을 잃었어요ㅠ (0.5배)");
-                    DBManager.giveCoin(account, (int) -(coins * .5));
+                    reply.append(":broken_heart: ").append(Utils.displayCoin((int) (coins * .25))).append("을 잃었어요ㅠ (0.75배)");
+                    DBManager.giveCoin(account, (int) -(coins * .25));
                 }
                 case 3,4 -> {
-                    reply.append(":cry: ").append(Utils.displayCoin((int) (coins * .3))).append("을 잃었어요ㅠ (0.7배)");
-                    DBManager.giveCoin(account, (int) -(coins * .3));
+                    reply.append(":face_holding_back_tears: 원금 그대로에요!");
                 }
                 case 5,6 -> {
-                    reply.append(":v: 축하해요! ").append(Utils.displayCoin((int) (coins * .2))).append("을 얻었어요! (1.2배)");
-                    DBManager.giveCoin(account, (int) (coins * .2));
+                    reply.append(":v: 축하해요! ").append(Utils.displayCoin((int) (coins * .45))).append("을 얻었어요! (1.45배)");
+                    DBManager.giveCoin(account, (int) (coins * .45));
                 }
                 case 7 -> {
-                    reply.append(":laughing: 축하해요! ").append(Utils.displayCoin((int) (coins * .5))).append("을 얻었어요! (1.5배)");
-                    DBManager.giveCoin(account, (int) (coins * .5));
+                    reply.append(":laughing: 축하해요! ").append(Utils.displayCoin((int) (coins * .75))).append("을 얻었어요! (1.75배)");
+                    DBManager.giveCoin(account, (int) (coins * .75));
                 }
                 case 8 -> {
-                    reply.append(":tada: 축하해요! ").append(Utils.displayCoin((int) (coins * .6))).append("을 얻었어요! (1.6배)");
-                    DBManager.giveCoin(account, (int) (coins * .6));
+                    reply.append(":tada: 축하해요! ").append(Utils.displayCoin((int) (coins * .85))).append("을 얻었어요! (1.85배)");
+                    DBManager.giveCoin(account, (int) (coins * .85));
                 }
                 case 9 -> {
-                    reply.append(":sparkles: 축하해요! ").append(Utils.displayCoin((int) (coins * .7))).append("을 얻었어요! (1.7배)");
-                    DBManager.giveCoin(account, (int) (coins * .7));
+                    reply.append(":sparkles: 축하해요! ").append(Utils.displayCoin((int) (coins))).append("을 얻었어요! (2.0배)");
+                    DBManager.giveCoin(account, (int) (coins));
                 }
             }
             reply.append("\n").append("현재 코인: ").append(Utils.displayCoin(account.coin()));
