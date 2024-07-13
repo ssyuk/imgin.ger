@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 import static me.syuk.saenggang.Main.properties;
 
-public class WordRelayCommand implements AIFunction {
+public class WordRelayFunction implements AIFunction {
     @Override
     public String name() {
         return "word_relay";

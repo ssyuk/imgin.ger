@@ -56,7 +56,7 @@ public class Main {
         AI.registerFunction(new GamblingFunction());
         AI.registerFunction(new KpopQuizFunction());
         AI.registerFunction(new ProverbQuizFunction());
-        AI.registerFunction(new WordRelayCommand());
+        AI.registerFunction(new WordRelayFunction());
 
         AI.registerFunction(new PlaylistFunction());
         AI.registerFunction(new SingingFunction());

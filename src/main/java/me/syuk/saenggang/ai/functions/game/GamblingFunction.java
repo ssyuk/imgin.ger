@@ -21,7 +21,7 @@ public class GamblingFunction implements AIFunction {
 
     @Override
     public String description() {
-        return "원하는 갯수의 코인을 걸고, 1~10사이의 숫자를 맞추면, 건 코인의 n배를 얻습니다! (한번에 최대 300코인까지 걸 수 있습니다.)";
+        return "원하는 갯수의 코인을 걸고, 1~10사이의 숫자를 맞추면, 건 코인의 n배를 얻습니다!";
     }
 
     @Override
@@ -43,10 +43,10 @@ public class GamblingFunction implements AIFunction {
         lastMessageTime.put(account, LocalDateTime.now());
 
         int coins = Integer.parseInt(args.get("coin"));
-        if (coins > 300) {
-            response.addProperty("error", "최대 300코인까지 걸 수 있어요!");
-            return response;
-        }
+//        if (coins > 300) {
+//            response.addProperty("error", "최대 300코인까지 걸 수 있어요!");
+//            return response;
+//        }
         if (account.coin() < coins) {
             response.addProperty("error", "코인이 부족해요!");
             return response;
