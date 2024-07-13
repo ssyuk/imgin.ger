@@ -67,7 +67,7 @@ public class ChosungQuizFunction implements AIFunction {
 
     @Override
     public String description() {
-        return "사용자와 함께 게임을 즐길 수 있는 명령어.";
+        return "사용자와 함께 초성게임을 즐길 수 있는 명령어.";
     }
 
     @Override

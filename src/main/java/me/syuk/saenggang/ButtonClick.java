@@ -2,6 +2,8 @@ package me.syuk.saenggang;
 
 import com.google.gson.JsonArray;
 import me.syuk.saenggang.ai.AI;
+import me.syuk.saenggang.ai.AIFunction;
+import me.syuk.saenggang.ai.AIResponse;
 import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageFlag;
@@ -40,10 +42,19 @@ public class ButtonClick implements ButtonClickListener {
                     return;
                 }
 
-                String answer = AI.generateResponse(account, promptMessage, new JsonArray());
-                message.edit(MessageCreated.fixAnswer(answer, account) + "\n" +
-                        "`* AI가 생성한 메시지에요. 올바르지 않은 정보가 담겨있을 수 있어요.`\n" +
-                        "`생강아 배워 \"[명령어]\" \"[메시지]\"`로 새로운 지식을 가르쳐주세요!");
+                AIResponse response = AI.generateResponse(account, promptMessage, new JsonArray());
+                if (response == null) {
+                    interaction.createImmediateResponder().setContent("생성에 실패했어요!").setFlags(MessageFlag.EPHEMERAL).respond();
+                    return;
+                }
+                String tailMessage = "`* AI가 생성한 메시지에요. 올바르지 않은 정보가 담겨있을 수 있어요.`\n" +
+                                     "`생강아 배워 \"[명령어]\" \"[메시지]\"`로 새로운 지식을 가르쳐주세요!";
+
+                if (!response.usedFunctions().isEmpty()) {
+                    tailMessage = "`* 사용된 기능: " + String.join(", ", response.usedFunctions().stream().map(AIFunction::name).toList()) + "`\n" + tailMessage;
+                }
+                message.edit(MessageCreated.fixAnswer(response.content(), account) + "\n" +
+                             tailMessage);
                 interaction.createImmediateResponder().respond();
             }
         }

@@ -5,6 +5,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import me.syuk.saenggang.ai.AI;
+import me.syuk.saenggang.ai.AIFunction;
+import me.syuk.saenggang.ai.AIResponse;
 import me.syuk.saenggang.commands.Command;
 import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.message.Message;
@@ -168,17 +170,22 @@ public class MessageCreated implements MessageCreateListener {
                     } catch (Exception ignored) {
                     }
 
-                    String answer = AI.generateResponse(account, message, contents);
+                    AIResponse response = AI.generateResponse(account, message, contents);
+                    if (response == null) return;
+
+                    String answer = response.content();
                     typing.close();
-                    if (answer == null) {
-                        return;
-                    }
                     if (answer.startsWith("blocked_")) {
                         message.reply("죄송합니다. 질문이 차단되었습니다. (차단 사유: " + answer.substring("blocked_".length()) + ")");
                         return;
                     }
                     String tailMessage = "`* AI가 생성한 메시지에요. 올바르지 않은 정보가 담겨있을 수 있어요.`\n" +
                             "`생강아 배워 \"[명령어]\" \"[메시지]\"`로 새로운 지식을 가르쳐주세요!";
+
+                    if (!response.usedFunctions().isEmpty()) {
+                        tailMessage = "`* 사용된 기능: " + String.join(", ", response.usedFunctions().stream().map(AIFunction::name).toList()) + "`\n" + tailMessage;
+                    }
+
                     answer = fixAnswer(answer, account);
                     UUID aiReplyId = UUID.randomUUID();
                     MessageBuilder builder = new MessageBuilder();

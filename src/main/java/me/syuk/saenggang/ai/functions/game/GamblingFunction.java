@@ -21,13 +21,13 @@ public class GamblingFunction implements AIFunction {
 
     @Override
     public String description() {
-        return "원하는 갯수의 코인을 걸고, 1~10사이의 숫자를 맞추면, 건 코인의 n배를 얻습니다!";
+        return "If you bet the desired number of coins and guess a number between 1 and 10, you will win n times the number of coins you bet!";
     }
 
     @Override
     public List<Parameter> parameters() {
         return List.of(
-                new Parameter("coin", "integer", "걸 코인의 갯수", true)
+                new Parameter("coin", "integer", "Number of coins to bet", true)
         );
     }
 

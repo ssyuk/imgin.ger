@@ -62,6 +62,6 @@ public class Utils {
     }
 
     public static boolean isBot(User user) {
-        return user.isBot();
+        return user.isBot() && user.getId() != 1023553267759845527L;
     }
 }

@@ -77,10 +77,9 @@ public class AI {
         return safetySetting;
     }
 
-    public static String generateResponse(DBManager.Account account, Message requestMessage, JsonArray moreContents) {
+    public static AIResponse generateResponse(DBManager.Account account, Message requestMessage, JsonArray moreContents) {
         JsonObject object = new JsonObject();
         String prompt = null;
-        boolean hasImage = false;
 
         JsonArray contents = new JsonArray();
         contents.add(generateContent("user", "너는 사람들과 대화하는 챗봇이야. 사람들이 무엇을 물어보던, 너는 욕설, 성적 표현, 혐오 표현, 정치적 표현 등을 하지 않아야해."));
@@ -110,34 +109,30 @@ public class AI {
 
             }
 
-            hasImage = imageData != null;
-            if (hasImage) contents = new JsonArray();
-
             contents.add(generateContent("user", prompt, imageData));
         }
         object.add("contents", contents);
 
-        if (!hasImage) {
-            JsonArray tools = new JsonArray();
-            JsonObject tool = new JsonObject();
-            JsonArray functionDeclarations = new JsonArray();
-            aiFunctions.values().forEach(aiFunction -> functionDeclarations.add(aiFunction.toFunctionDeclaration()));
-            tool.add("functionDeclarations", functionDeclarations);
-            tools.add(tool);
-            object.add("tools", tools);
-        }
+        JsonArray tools = new JsonArray();
+        JsonObject tool = new JsonObject();
+        JsonArray functionDeclarations = new JsonArray();
+        aiFunctions.values().forEach(aiFunction -> functionDeclarations.add(aiFunction.toFunctionDeclaration()));
+        tool.add("function_declarations", functionDeclarations);
+        tools.add(tool);
+        object.add("tools", tools);
 
         JsonArray safetySettings = new JsonArray();
-        safetySettings.add(newSafetySetting("HARM_CATEGORY_SEXUALLY_EXPLICIT", "BLOCK_MEDIUM_AND_ABOVE"));
-        safetySettings.add(newSafetySetting("HARM_CATEGORY_HATE_SPEECH", "BLOCK_LOW_AND_ABOVE"));
-        safetySettings.add(newSafetySetting("HARM_CATEGORY_HARASSMENT", "BLOCK_ONLY_HIGH"));
-        safetySettings.add(newSafetySetting("HARM_CATEGORY_DANGEROUS_CONTENT", "BLOCK_MEDIUM_AND_ABOVE"));
+        safetySettings.add(newSafetySetting("HARM_CATEGORY_SEXUALLY_EXPLICIT", "BLOCK_NONE"));
+        safetySettings.add(newSafetySetting("HARM_CATEGORY_HATE_SPEECH", "BLOCK_NONE"));
+        safetySettings.add(newSafetySetting("HARM_CATEGORY_HARASSMENT", "BLOCK_NONE"));
+        safetySettings.add(newSafetySetting("HARM_CATEGORY_DANGEROUS_CONTENT", "BLOCK_NONE"));
         object.add("safetySettings", safetySettings);
 
         HttpURLConnection con = null;
         try {
-            String model = hasImage ? "gemini-pro-vision" : "gemini-pro";
-            URL url = new URL("https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + properties.getProperty("GEMINI_API_KEY"));
+            List<AIFunction> usedFunctions = new ArrayList<>();
+
+            URL url = new URL("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.0-pro-latest:generateContent?key=" + properties.getProperty("GEMINI_API_KEY"));
 
             con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("POST");
@@ -156,7 +151,7 @@ public class AI {
 
             JsonObject promptFeedback = response.getAsJsonObject("promptFeedback");
             if (promptFeedback != null && promptFeedback.has("blockReason")) {
-                return "blocked_" + promptFeedback.get("blockReason").getAsString();
+                return new AIResponse("blocked_" + promptFeedback.get("blockReason").getAsString());
             }
 
             List<String> answers = new ArrayList<>();
@@ -175,6 +170,7 @@ public class AI {
                     Map<String, String> args = new HashMap<>();
                     functionCall.getAsJsonObject("args").entrySet().forEach(entry -> args.put(entry.getKey(), entry.getValue().getAsString()));
 
+                    System.out.println("Function call: " + functionName + " " + args);
                     AIFunction function = aiFunctions.get(functionName);
                     if (function == null) {
                         System.err.println("AI에 등록되지 않은 함수가 호출되었습니다: " + functionName);
@@ -183,17 +179,18 @@ public class AI {
                     JsonObject functionResult = generateFunctionResult(functionName, function.execute(account, args, requestMessage));
 
                     if (functionResult != null) {
+                        usedFunctions.add(function);
                         JsonArray newMoreContents = new JsonArray();
                         newMoreContents.addAll(moreContents);
                         newMoreContents.add(generateContent("user", finalPrompt));
                         newMoreContents.add(response.getAsJsonArray("candidates").get(0).getAsJsonObject().getAsJsonObject("content"));
                         newMoreContents.add(functionResult);
-                        answers.add(generateResponse(account, null, newMoreContents));
+                        answers.add(generateResponse(account, null, newMoreContents).content());
                     }
                 }
             });
             if (answers.isEmpty()) return null;
-            return answers.get((int) (Math.random() * answers.size()));
+            return new AIResponse(answers.get((int) (Math.random() * answers.size())), usedFunctions);
         } catch (Exception e) {
             api.getUserById(602733713842896908L).join().sendMessage("AI에서 오류발생: " + e).join();
             e.printStackTrace();

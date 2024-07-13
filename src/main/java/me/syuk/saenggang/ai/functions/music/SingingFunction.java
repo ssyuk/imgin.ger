@@ -6,10 +6,10 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.event.TrackEndEvent;
-import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import dev.lavalink.youtube.YoutubeAudioSourceManager;
 import me.syuk.saenggang.ai.AIFunction;
 import me.syuk.saenggang.db.DBManager;
 import me.syuk.saenggang.music.LavaplayerAudioSource;
@@ -69,7 +69,7 @@ public class SingingFunction implements AIFunction {
         if (serverConnectionMap.containsKey(server.getId())) {
             addToPlaylist(server.getId(), args.get("source"), message);
             response.addProperty("status", "플레이리스트에 추가됨");
-            return response;
+            return null;
         }
 
         channel.connect().thenAccept(audioConnection -> {
@@ -143,12 +143,13 @@ public class SingingFunction implements AIFunction {
 
             @Override
             public void noMatches() {
-                message.reply("노래를 찾을 수 없어요. (올바른 유튜브 링크를 입력해주세요.)");
+                message.reply("노래를 찾을 수 없어요. (올바른 유튜브 링크를 입력해주세요. / 입력된 링크: " + source + ")");
             }
 
             @Override
             public void loadFailed(FriendlyException throwable) {
-                message.reply("노래를 불러오는데 실패했어요. (올바른 유튜브 링크를 입력해주세요.)");
+                throwable.printStackTrace();
+                message.reply("노래를 불러오는데 실패했어요. (올바른 유튜브 링크를 입력해주세요. / 입력된 링크: " + source + ")");
             }
         });
     }
