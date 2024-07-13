@@ -33,7 +33,12 @@ public class ViewCoinFunction implements AIFunction {
         DBManager.Account target = account;
         if (args.containsKey("user") && !args.get("user").equals("me")) {
             try {
-                target = new DBManager.Account(Long.parseLong(args.get("user")));
+                String user = args.get("user");
+                if (user.startsWith("<@") && user.endsWith(">")) {
+                    user = user.substring(2, user.length() - 1);
+                    if (user.startsWith("!")) user = user.substring(1);
+                }
+                target = new DBManager.Account(Long.parseLong(user));
             } catch (NumberFormatException e) {
                 content.addProperty("failed_reason", "사용자를 태그(@)해주세요!");
                 return content;
