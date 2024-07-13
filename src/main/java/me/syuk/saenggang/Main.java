@@ -23,8 +23,6 @@ import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.activity.ActivityType;
 import org.javacord.api.entity.intent.Intent;
-import org.javacord.api.interaction.SlashCommandInteraction;
-import org.javacord.api.interaction.callback.InteractionOriginalResponseUpdater;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -94,12 +92,12 @@ public class Main {
         api.addListener(new ButtonClick());
         api.addListener(new SelectMenuChoose());
 
-        api.addInteractionCreateListener(interactionCreateEvent -> {
-            SlashCommandInteraction interaction = interactionCreateEvent.getInteraction().asSlashCommandInteraction().orElseThrow();
-            String query = interaction.getArgumentByName("query").orElseThrow().getStringValue().orElseThrow();
-            InteractionOriginalResponseUpdater updater = interaction.createImmediateResponder().setContent("잠시만 기다려주세요.").respond().join();
-
-
-        });
+//        api.addInteractionCreateListener(interactionCreateEvent -> {
+//            SlashCommandInteraction interaction = interactionCreateEvent.getInteraction().asSlashCommandInteraction().orElseThrow();
+//            String query = interaction.getArgumentByName("query").orElseThrow().getStringValue().orElseThrow();
+//            InteractionOriginalResponseUpdater updater = interaction.createImmediateResponder().setContent("잠시만 기다려주세요.").respond().join();
+//
+//
+//        });
     }
 }

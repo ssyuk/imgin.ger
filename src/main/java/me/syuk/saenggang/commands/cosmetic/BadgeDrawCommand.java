@@ -7,6 +7,7 @@ import me.syuk.saenggang.commands.Command;
 import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageBuilder;
+import org.javacord.api.entity.message.MessageFlag;
 import org.javacord.api.entity.message.component.ActionRow;
 import org.javacord.api.entity.message.component.Button;
 import org.javacord.api.interaction.callback.InteractionImmediateResponseBuilder;
@@ -49,7 +50,7 @@ public class BadgeDrawCommand implements Command {
                 }
 
                 Badge badge = Badge.getRandomBadge();
-//                account.giveCoin(message.getChannel(), -100, "뱃지뽑기에");
+                account.giveCoin(message.getChannel(), -100, "뱃지뽑기에");
                 response.append("뽑은 뱃지: " + badge.getEmoji() + " (" + badge.getGrade() + ")");
                 if (!DBManager.addBadge(account, badge.getId())) {
                     response.append("\n이미 가지고 계신 뱃지라서 " + Utils.displayCoin(50) + "을 돌려드렸어요!");
@@ -58,7 +59,7 @@ public class BadgeDrawCommand implements Command {
                 response.respond();
             } else if (interaction.getCustomId().equals("badgeDrawCancel")) {
                 if (interaction.getUser().getId() != account.userId()) {
-                    response.setContent("본인만 응답할 수 있습니다.").respond();
+                    response.setContent("본인만 응답할 수 있습니다.").setFlags(MessageFlag.EPHEMERAL).respond();
                     return;
                 }
 

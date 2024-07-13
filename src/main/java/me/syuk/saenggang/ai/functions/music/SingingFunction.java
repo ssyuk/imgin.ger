@@ -43,7 +43,7 @@ public class SingingFunction implements AIFunction {
     @Override
     public List<Parameter> parameters() {
         return List.of(
-                new Parameter("source", "string", "노래를 재생할 유튜브 링크입니다.", true)
+                new Parameter("source", "string", "재생할 노래입니다. (제목 or 유튜브 링크)", true)
         );
     }
 
@@ -66,8 +66,9 @@ public class SingingFunction implements AIFunction {
 
         serverPlaylistMap.putIfAbsent(server.getId(), new ArrayList<>());
         ServerVoiceChannel channel = oChannel.get();
+        String source = args.get("source").startsWith("http") ? args.get("source") : "ytsearch:" + args.get("source");
         if (serverConnectionMap.containsKey(server.getId())) {
-            addToPlaylist(server.getId(), args.get("source"), message);
+            addToPlaylist(server.getId(), source, message);
             response.addProperty("status", "플레이리스트에 추가됨");
             return null;
         }
@@ -76,7 +77,7 @@ public class SingingFunction implements AIFunction {
             serverConnectionMap.put(server.getId(), audioConnection);
 
             AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
-            playerManager.registerSourceManager(new YoutubeAudioSourceManager());
+            playerManager.registerSourceManager(new YoutubeAudioSourceManager(true));
             playerManager.getConfiguration().setFilterHotSwapEnabled(true);
 
             AudioPlayer player = playerManager.createPlayer();
@@ -104,7 +105,7 @@ public class SingingFunction implements AIFunction {
             serverPlayerManagerMap.put(server.getId(), playerManager);
             serverPlayerMap.put(server.getId(), player);
 
-            addToPlaylist(server.getId(), args.get("source"), message);
+            addToPlaylist(server.getId(), source, message);
         }).exceptionally(e -> {
             e.printStackTrace();
             return null;

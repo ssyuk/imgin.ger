@@ -6,6 +6,7 @@ import me.syuk.saenggang.commands.Command;
 import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageBuilder;
+import org.javacord.api.entity.message.MessageFlag;
 import org.javacord.api.entity.message.component.ActionRow;
 import org.javacord.api.entity.message.component.SelectMenu;
 import org.javacord.api.entity.message.component.SelectMenuOption;
@@ -48,9 +49,9 @@ public class BadgeSelectCommand implements Command {
 
         SelectMenuChoose.selectMenuCallbackMap.put(account, interaction -> {
             if (interaction.getCustomId().equals("badgeSelector")) {
-                if (!interaction.getUser().getIdAsString().equals(account.userId())) {
+                if (interaction.getUser().getId() != account.userId()) {
                     interaction.createImmediateResponder()
-                            .setContent("본인만 응답할 수 있습니다.")
+                            .setContent("본인만 응답할 수 있습니다.").setFlags(MessageFlag.EPHEMERAL)
                             .respond();
                     return;
                 }
@@ -58,6 +59,7 @@ public class BadgeSelectCommand implements Command {
                 DBManager.selectBadge(account, badgeId);
                 interaction.createImmediateResponder()
                         .setContent(Badge.getBadgeById(badgeId) + " 뱃지를 착용했습니다.")
+                        .setFlags(MessageFlag.EPHEMERAL)
                         .respond();
             }
         });
