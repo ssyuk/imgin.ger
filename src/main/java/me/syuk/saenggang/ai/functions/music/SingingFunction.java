@@ -10,6 +10,7 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
+import me.syuk.saenggang.ButtonClick;
 import me.syuk.saenggang.ai.AIFunction;
 import me.syuk.saenggang.db.DBManager;
 import me.syuk.saenggang.music.LavaplayerAudioSource;
@@ -17,10 +18,16 @@ import org.javacord.api.audio.AudioConnection;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.Message;
+import org.javacord.api.entity.message.MessageBuilder;
+import org.javacord.api.entity.message.component.ActionRow;
+import org.javacord.api.entity.message.component.Button;
+import org.javacord.api.entity.message.component.LowLevelComponent;
+import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 import static me.syuk.saenggang.Main.api;
 
@@ -68,7 +75,7 @@ public class SingingFunction implements AIFunction {
         ServerVoiceChannel channel = oChannel.get();
         String source = args.get("source").startsWith("http") ? args.get("source") : "ytsearch:" + args.get("source");
         if (serverConnectionMap.containsKey(server.getId())) {
-            addToPlaylist(server.getId(), source, message);
+            addToPlaylist(account, server.getId(), source, message);
             response.addProperty("status", "플레이리스트에 추가됨");
             return null;
         }
@@ -105,7 +112,7 @@ public class SingingFunction implements AIFunction {
             serverPlayerManagerMap.put(server.getId(), playerManager);
             serverPlayerMap.put(server.getId(), player);
 
-            addToPlaylist(server.getId(), source, message);
+            addToPlaylist(account, server.getId(), source, message);
         }).exceptionally(e -> {
             e.printStackTrace();
             return null;
@@ -114,7 +121,7 @@ public class SingingFunction implements AIFunction {
         return null;
     }
 
-    private void addToPlaylist(long serverId, String source, Message message) {
+    private void addToPlaylist(DBManager.Account requester, long serverId, String source, Message message) {
         serverPlayerManagerMap.get(serverId).loadItem(source, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack track) {
@@ -131,15 +138,56 @@ public class SingingFunction implements AIFunction {
             }
 
             @Override
-            public void playlistLoaded(AudioPlaylist playlist) {
-                StringBuilder builder = new StringBuilder();
-                for (AudioTrack track : playlist.getTracks()) {
-                    List<AudioTrack> audioTracks = serverPlaylistMap.get(serverId);
-                    audioTracks.add(track);
-                    serverPlaylistMap.put(serverId, audioTracks);
-                    builder.append("`").append(track.getInfo().title).append("`, ");
+            public void playlistLoaded(AudioPlaylist audioPlaylist) {
+                MessageBuilder builder = new MessageBuilder();
+
+                EmbedBuilder embed = new EmbedBuilder();
+                embed.setTitle("어떤 곡을 재생할까요?");
+
+                List<LowLevelComponent> components = new ArrayList<>();
+                components.add(Button.primary("all", "모두 재생"));
+
+                List<AudioTrack> tracks = audioPlaylist.getTracks().subList(0, 4);
+                for (int i = 0; i < tracks.size(); i++) {
+                    embed.addField("**" + (i + 1) + "**. " + tracks.get(i).getInfo().title, "");
+                    components.add(Button.secondary(String.valueOf(i), (i + 1) + "번"));
                 }
-                message.reply(builder.substring(0, builder.length() - 2) + "을(를) 플레이리스트에 추가했어요!");
+                builder.addEmbed(embed);
+                builder.addComponents(ActionRow.of(components));
+
+                System.out.println(tracks);
+                Message requestMessage = builder.send(message.getChannel()).join();
+
+                ButtonClick.buttonCallbackMap.put(requester, interaction -> CompletableFuture.supplyAsync(() -> {
+                    String btnId = interaction.getCustomId();
+                    List<AudioTrack> playlist = serverPlaylistMap.get(serverId);
+                    StringBuilder addedSong = new StringBuilder();
+                    if (btnId.equals("all")) {
+                        playlist.addAll(tracks);
+                        for (AudioTrack track : tracks) {
+                            addedSong.append(track.getInfo().title).append(", ");
+                        }
+                    } else {
+                        int index = Integer.parseInt(btnId);
+                        playlist.add(tracks.get(index));
+                        addedSong = new StringBuilder(tracks.get(index).getInfo().title + ", ");
+                    }
+                    serverPlaylistMap.put(serverId, playlist);
+                    requestMessage.delete().join();
+
+                    if (serverPlayerMap.get(serverId).getPlayingTrack() == null) {
+                        AudioTrack nextSong = playlist.get(0);
+                        playlist.remove(0);
+                        serverPlaylistMap.put(serverId, playlist);
+                        message.getChannel().sendMessage("`" + nextSong.getInfo().title + "`을(를) 불러드릴게요!");
+                        interaction.createImmediateResponder().respond();
+                        serverPlayerMap.get(serverId).playTrack(nextSong);
+                    } else {
+                        interaction.createImmediateResponder().setContent("`" + addedSong.substring(0, addedSong.length() - 2) + "`을(를) 플레이리스트에 추가했어요!").respond();
+                    }
+                    ButtonClick.buttonCallbackMap.remove(requester);
+                    return true;
+                }).join());
             }
 
             @Override

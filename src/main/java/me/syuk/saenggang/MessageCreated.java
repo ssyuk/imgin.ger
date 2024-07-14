@@ -171,10 +171,10 @@ public class MessageCreated implements MessageCreateListener {
                     }
 
                     AIResponse response = AI.generateResponse(account, message, contents);
+                    typing.close();
                     if (response == null) return;
 
                     String answer = response.content();
-                    typing.close();
                     if (answer.startsWith("blocked_")) {
                         message.reply("죄송합니다. 질문이 차단되었습니다. (차단 사유: " + answer.substring("blocked_".length()) + ")");
                         return;

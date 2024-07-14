@@ -21,7 +21,7 @@ public class GamblingFunction implements AIFunction {
 
     @Override
     public String description() {
-        return "If you bet the desired number of coins and guess a number between 1 and 10, you will win n times the number of coins you bet!";
+        return "If you bet the desired number of coins and guess a number between 0 and 9, you will win n times the number of coins you bet!";
     }
 
     @Override
@@ -33,8 +33,6 @@ public class GamblingFunction implements AIFunction {
 
     @Override
     public JsonObject execute(DBManager.Account account, Map<String, String> args, Message requestMessage) {
-        JsonObject response = new JsonObject();
-
         if (lastMessageTime.containsKey(account)) {
             LocalDateTime lastTime = lastMessageTime.get(account);
             long secondsBetween = ChronoUnit.SECONDS.between(lastTime, LocalDateTime.now());
@@ -43,20 +41,20 @@ public class GamblingFunction implements AIFunction {
         lastMessageTime.put(account, LocalDateTime.now());
 
         int coins = Integer.parseInt(args.get("coin"));
-//        if (coins > 300) {
-//            response.addProperty("error", "최대 300코인까지 걸 수 있어요!");
-//            return response;
-//        }
+        if (coins > 300) {
+            requestMessage.reply("300코인 이상은 걸 수 없어요!");
+            return null;
+        }
         if (account.coin() < coins) {
-            response.addProperty("error", "코인이 부족해요!");
-            return response;
+            requestMessage.reply("코인이 부족해요! (현재 코인: " + Utils.displayCoin(account.coin()) + ")");
+            return null;
         }
 
 
-        List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+        List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 0);
         Collections.shuffle(numbers);
 
-        response.addProperty("status", "1~10 사이의 숫자를 입력해주세요!");
+        requestMessage.reply("0~9 사이의 숫자를 입력해주세요!");
         MessageCreated.replyCallbackMap.put(account, replyMessage -> {
             String content = replyMessage.getContent();
             int number;
@@ -108,6 +106,6 @@ public class GamblingFunction implements AIFunction {
             MessageCreated.replyCallbackMap.remove(account);
             return true;
         });
-        return response;
+        return null;
     }
 }
