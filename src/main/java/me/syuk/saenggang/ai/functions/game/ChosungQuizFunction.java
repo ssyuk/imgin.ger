@@ -67,7 +67,7 @@ public class ChosungQuizFunction implements AIFunction {
 
     @Override
     public String description() {
-        return "사용자와 함께 초성게임을 즐길 수 있는 명령어.";
+        return "You can take a consonant quiz.";
     }
 
     @Override
@@ -77,7 +77,6 @@ public class ChosungQuizFunction implements AIFunction {
 
     @Override
     public JsonObject execute(DBManager.Account account, Map<String, String> args, Message requestMessage) {
-        requestMessage.reply("네! 초성퀴즈를 시작할게요! 위 Thread로 들어와주세요!");
         ServerThreadChannel channel = Utils.createGameThread(requestMessage, "초성퀴즈");
 
         channel.sendMessage("""
@@ -125,7 +124,9 @@ public class ChosungQuizFunction implements AIFunction {
             }).join();
         });
 
-        return null;
+        JsonObject response = new JsonObject();
+        response.addProperty("content", "위에 있는 Thread에서 게임을 시작함.");
+        return response;
     }
 
     String getInitialSound(String text) {

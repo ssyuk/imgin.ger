@@ -37,7 +37,7 @@ public class WordRelayFunction implements AIFunction {
 
     @Override
     public String description() {
-        return "제시된 단어의 끝 글자로 시작하는 단어를 입력하는 게임인 끝말잇기를 시작.";
+        return "Start word relay(끝말잇기) game";
     }
 
     @Override
@@ -47,7 +47,6 @@ public class WordRelayFunction implements AIFunction {
 
     @Override
     public JsonObject execute(DBManager.Account account,Map<String, String> args, Message requestMessage) {
-        requestMessage.reply("네! 끝말잇기를 시작할게요! 위 Thread로 들어와주세요!");
         ServerThreadChannel channel = Utils.createGameThread(requestMessage, "끝말잇기");
 
         WordRelay.start(account);
@@ -137,7 +136,9 @@ public class WordRelayFunction implements AIFunction {
             return true;
         });
 
-        return null;
+        JsonObject response = new JsonObject();
+        response.addProperty("content", "위에 있는 Thread에서 게임을 시작함.");
+        return response;
     }
 
     public static class WordRelay {

@@ -5,6 +5,7 @@ import me.syuk.saenggang.ai.functions.account.AttendanceFunction;
 import me.syuk.saenggang.ai.functions.account.RankingFunction;
 import me.syuk.saenggang.ai.functions.account.ViewCoinFunction;
 import me.syuk.saenggang.ai.functions.game.*;
+import me.syuk.saenggang.ai.functions.manage.TimeoutFunction;
 import me.syuk.saenggang.ai.functions.music.*;
 import me.syuk.saenggang.commands.Command;
 import me.syuk.saenggang.commands.account.CoinHistoryCommand;
@@ -62,6 +63,7 @@ public class Main {
         AI.registerFunction(new SpeedFunction());
         AI.registerFunction(new StopSingingFunction());
         AI.registerFunction(new VolumeFunction());
+        AI.registerFunction(new TimeoutFunction());
 
         Command.commands.add(new GiveCoinCommand());
 

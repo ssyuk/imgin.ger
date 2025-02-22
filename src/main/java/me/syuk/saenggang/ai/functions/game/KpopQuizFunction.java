@@ -160,7 +160,6 @@ public class KpopQuizFunction implements AIFunction {
 
     @Override
     public JsonObject execute(DBManager.Account account, Map<String, String> args, Message requestMessage) {
-        requestMessage.reply("네! 케이팝퀴즈를 시작할게요! 위 Thread로 들어와주세요!");
         ServerThreadChannel channel = Utils.createGameThread(requestMessage, "케이팝퀴즈");
 
         channel.sendMessage("다음 KPOP 노래 제목을 보고, 보기에서 알맞는 아티스트명의 번호를 클릭해 주세요!\n" +
@@ -204,7 +203,9 @@ public class KpopQuizFunction implements AIFunction {
             return true;
         }).join());
 
-        return null;
+        JsonObject response = new JsonObject();
+        response.addProperty("content", "위에 있는 Thread에서 게임을 시작함.");
+        return response;
     }
 
     public record QuizMusic(String name, String artist) {

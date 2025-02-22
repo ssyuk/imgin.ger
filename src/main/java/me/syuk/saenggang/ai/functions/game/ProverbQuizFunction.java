@@ -140,7 +140,7 @@ public class ProverbQuizFunction implements AIFunction {
 
     @Override
     public String description() {
-        return "일부분이 지워진 속담이 주어지면, 지워진 부분에 들어갈 말을 맞추는 게임. 속담퀴즈";
+        return "Start proverb quiz(속담퀴즈) game";
     }
 
     @Override
@@ -150,7 +150,6 @@ public class ProverbQuizFunction implements AIFunction {
 
     @Override
     public JsonObject execute(DBManager.Account account, Map<String, String> args, Message requestMessage) {
-        requestMessage.reply("네! 속담퀴즈를 시작할게요! 위 Thread로 들어와주세요!");
         ServerThreadChannel channel = Utils.createGameThread(requestMessage, "속담퀴즈");
 
         channel.sendMessage("""
@@ -212,7 +211,9 @@ public class ProverbQuizFunction implements AIFunction {
             }).join();
         });
 
-        return null;
+        JsonObject response = new JsonObject();
+        response.addProperty("content", "위에 있는 Thread에서 게임을 시작함.");
+        return response;
     }
 
     public record Proverb(String proverb, String description) {

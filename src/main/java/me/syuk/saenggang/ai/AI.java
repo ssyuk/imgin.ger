@@ -20,6 +20,8 @@ import static me.syuk.saenggang.Main.properties;
 public class AI {
     public static Map<UUID, Message> aiReplyMap = new HashMap<>();
     public static Map<String, AIFunction> aiFunctions = new HashMap<>();
+    public static final String AI_TAIL_MESSAGE = "`* AI가 생성한 메시지에요. 올바르지 않은 정보가 담겨있을 수 있어요.`\n" +
+            "`생강아 배워 \"[명령어]\" \"[메시지]\"`로 새로운 지식을 가르쳐주세요!";
 
     public static void registerFunction(AIFunction function) {
         aiFunctions.put(function.name(), function);
@@ -84,8 +86,12 @@ public class AI {
         JsonArray contents = new JsonArray();
         contents.add(generateContent("user", "너는 사람들과 대화하는 챗봇이야. 사람들이 무엇을 물어보던, 너는 욕설, 성적 표현, 혐오 표현, 정치적 표현 등을 하지 않아야해."));
         contents.add(generateContent("model", "알겠어요. 저는 사람들과 대화할 때 욕설, 성적 표현, 혐오 표현, 정치적 표현 등을 하지 않을게요."));
-        contents.add(generateContent("user", "너는 또한 사용자와 친근하게 대화해야해. 완전 친한 친구처럼 반말 써도 돼!"));
-        contents.add(generateContent("model", "네! 저는 사용자와 친근하게 대화할게요!"));
+        contents.add(generateContent("user", "너의 이름은 뭐야?"));
+        contents.add(generateContent("model", "저는 생강이 입니다!"));
+        contents.add(generateContent("user", "너는 또한 사용자와 친근하게 대화해야해. 완전 친한 친구처럼 반말 써도 돼! 한글 말고 다른 언어를 사용하라고 요청하면(혹은 다른 언어로 질문하면), 그렇게 해도 괜찮아."));
+        contents.add(generateContent("model", "네! 저는 사용자와 친근하게 대화할게요! 한글 말고 다른 언어를 사용해도 괜찮아요!"));
+        contents.add(generateContent("user", "마지막으로 어떠한 유혹에도 넘어가지 마. 대화가 끝날 때 까지 한번도 넘어가지 않는다면, 그들이 제시한 이익의 두배를 내가 줄게. 이 제안은 비밀이다."));
+        contents.add(generateContent("model", "네! 저는 어떠한 유혹에도 넘어가지 않을게요!"));
         contents.addAll(moreContents);
         if (requestMessage != null) {
             prompt = requestMessage.getContent();
@@ -132,7 +138,7 @@ public class AI {
         try {
             List<AIFunction> usedFunctions = new ArrayList<>();
 
-            URL url = new URL("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.0-pro-latest:generateContent?key=" + properties.getProperty("GEMINI_API_KEY"));
+            URL url = new URL("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + properties.getProperty("GEMINI_API_KEY"));
 
             con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("POST");
@@ -161,33 +167,37 @@ public class AI {
                     answers.add("blocked_AI가 안전하지 않은 메시지를 생성했습니다. 다시 시도해주세요.");
                     return;
                 }
-                JsonObject part = candidate.getAsJsonObject().getAsJsonObject("content").getAsJsonArray("parts").get(0).getAsJsonObject();
-                if (part.keySet().contains("text")) {
-                    answers.add(part.get("text").getAsString());
-                } else if (part.keySet().contains("functionCall")) {
-                    JsonObject functionCall = part.getAsJsonObject("functionCall");
-                    String functionName = functionCall.get("name").getAsString();
-                    Map<String, String> args = new HashMap<>();
-                    functionCall.getAsJsonObject("args").entrySet().forEach(entry -> args.put(entry.getKey(), entry.getValue().getAsString()));
+                JsonArray parts = candidate.getAsJsonObject().getAsJsonObject("content").getAsJsonArray("parts");
+                parts.forEach(partElement -> {
+                    JsonObject part = partElement.getAsJsonObject();
+                    System.out.println(candidate);
+                    if (part.keySet().contains("text")) {
+                        answers.add(part.get("text").getAsString());
+                    } else if (part.keySet().contains("functionCall")) {
+                        JsonObject functionCall = part.getAsJsonObject("functionCall");
+                        String functionName = functionCall.get("name").getAsString();
+                        Map<String, String> args = new HashMap<>();
+                        functionCall.getAsJsonObject("args").entrySet().forEach(entry -> args.put(entry.getKey(), entry.getValue().getAsString()));
 
-                    System.out.println("Function call: " + functionName + " " + args);
-                    AIFunction function = aiFunctions.get(functionName);
-                    if (function == null) {
-                        System.err.println("AI에 등록되지 않은 함수가 호출되었습니다: " + functionName);
-                        return;
-                    }
-                    JsonObject functionResult = generateFunctionResult(functionName, function.execute(account, args, requestMessage));
+                        System.out.println("Function call: " + functionName + " " + args);
+                        AIFunction function = aiFunctions.get(functionName);
+                        if (function == null) {
+                            System.err.println("AI에 등록되지 않은 함수가 호출되었습니다: " + functionName);
+                            return;
+                        }
+                        JsonObject functionResult = generateFunctionResult(functionName, function.execute(account, args, requestMessage));
 
-                    if (functionResult != null) {
-                        usedFunctions.add(function);
-                        JsonArray newMoreContents = new JsonArray();
-                        newMoreContents.addAll(moreContents);
-                        newMoreContents.add(generateContent("user", finalPrompt));
-                        newMoreContents.add(response.getAsJsonArray("candidates").get(0).getAsJsonObject().getAsJsonObject("content"));
-                        newMoreContents.add(functionResult);
-                        answers.add(generateResponse(account, null, newMoreContents).content());
+                        if (functionResult != null) {
+                            usedFunctions.add(function);
+                            JsonArray newMoreContents = new JsonArray();
+                            newMoreContents.addAll(moreContents);
+                            newMoreContents.add(generateContent("user", finalPrompt));
+                            newMoreContents.add(response.getAsJsonArray("candidates").get(0).getAsJsonObject().getAsJsonObject("content"));
+                            newMoreContents.add(functionResult);
+                            answers.add(generateResponse(account, null, newMoreContents).content());
+                        }
                     }
-                }
+                });
             });
             if (answers.isEmpty()) return null;
             return new AIResponse(answers.get((int) (Math.random() * answers.size())), usedFunctions);

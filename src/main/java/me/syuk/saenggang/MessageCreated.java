@@ -37,6 +37,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static me.syuk.saenggang.Main.api;
+import static me.syuk.saenggang.ai.AI.AI_TAIL_MESSAGE;
 
 public class MessageCreated implements MessageCreateListener {
     public static Map<DBManager.Account, ReplyCallback> replyCallbackMap = new HashMap<>();
@@ -127,6 +128,11 @@ public class MessageCreated implements MessageCreateListener {
                     if (!message.getReferencedMessage().get().getAuthor().isYourself()) return;
                 } else if (!content.startsWith("생강아 ")) return;
 
+                if (user.getId() == 461495816142716928L) {
+                    message.reply("...");
+                    return;
+                }
+
                 if (content.startsWith("생강아 ")) content = content.substring(4);
 
                 List<String> args = new ArrayList<>();
@@ -149,7 +155,7 @@ public class MessageCreated implements MessageCreateListener {
 
                 List<DBManager.SaenggangKnowledge> knowledge = DBManager.getKnowledge(content);
 
-                if (knowledge.isEmpty()) {
+                if (knowledge.isEmpty() || user.getId() == 461495816142716928L) {
                     NonThrowingAutoCloseable typing = message.getChannel().typeContinuously();
 
                     JsonArray contents = new JsonArray();
@@ -163,7 +169,7 @@ public class MessageCreated implements MessageCreateListener {
                                 if (oReferencedReferenced.isPresent()) {
                                     Message referencedReferenced = oReferencedReferenced.get().requestMessage().orElseThrow().get();
                                     contents.add(AI.generateContent("user", referencedReferenced.getContent()));
-                                    contents.add(AI.generateContent("model", referenced.getContent()));
+                                    contents.add(AI.generateContent("model", referenced.getContent().replace(AI_TAIL_MESSAGE, "")));
                                 }
                             }
                         }
@@ -179,8 +185,7 @@ public class MessageCreated implements MessageCreateListener {
                         message.reply("죄송합니다. 질문이 차단되었습니다. (차단 사유: " + answer.substring("blocked_".length()) + ")");
                         return;
                     }
-                    String tailMessage = "`* AI가 생성한 메시지에요. 올바르지 않은 정보가 담겨있을 수 있어요.`\n" +
-                            "`생강아 배워 \"[명령어]\" \"[메시지]\"`로 새로운 지식을 가르쳐주세요!";
+                    String tailMessage = AI_TAIL_MESSAGE;
 
                     if (!response.usedFunctions().isEmpty()) {
                         tailMessage = "`* 사용된 기능: " + String.join(", ", response.usedFunctions().stream().map(AIFunction::name).toList()) + "`\n" + tailMessage;

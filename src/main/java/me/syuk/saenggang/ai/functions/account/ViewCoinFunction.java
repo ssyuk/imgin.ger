@@ -22,7 +22,7 @@ public class ViewCoinFunction implements AIFunction {
     @Override
     public List<Parameter> parameters() {
         return List.of(
-                new Parameter("user", "string", "ID of the user to be confirmed (id is given in <@ID> format, or if it means ‘me’, it is unified as ‘me’.)", false)
+                new Parameter("user", "string", "ID of the user to be confirmed (The id is provided in the format <@ID>. If you can't find it in the message, leave it blank. The system will automatically mark this message as the user who entered it.)", false)
         );
     }
 

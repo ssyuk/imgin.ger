@@ -1,5 +1,7 @@
 package me.syuk.saenggang.commands.utils;
 
+import me.syuk.saenggang.ai.AI;
+import me.syuk.saenggang.ai.AIFunction;
 import me.syuk.saenggang.commands.Command;
 import me.syuk.saenggang.db.DBManager;
 import org.javacord.api.entity.message.Message;
@@ -34,6 +36,12 @@ public class HelpCommand implements Command {
             commandMap.put(command.theme(), list);
         }
         commandMap.forEach((theme, strings) -> builder.addInlineField(theme.name(), String.join(", ", strings)));
+
+        List<String> aiFunctions = new ArrayList<>();
+        for (AIFunction function : AI.aiFunctions.values()) {
+            aiFunctions.add("`" + function.name() + "`");
+        }
+        builder.addInlineField("자연어 명령어", String.join(", ", aiFunctions));
         message.reply(builder);
     }
 }
